@@ -1,0 +1,5 @@
+.DS_Store
+releases/
+.claude/settings.local.json
+*.png
+!docs/**/*.png
