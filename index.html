@@ -1791,7 +1791,7 @@ $('#setSave').onclick=async()=>{const c={apiKey:$('#setKey').value.trim(),model:
   // 팀 동기화 연결 정보도 함께 저장(입력돼 있고 바뀐 경우)
   const cu=$('#cloudUrl').value.trim().replace(/\/$/,''),ck=$('#cloudKey').value.trim();const old=Cloud.cfg();let cloudMsg='';
   if(cu&&ck&&(cu!==old.url||ck!==old.anonKey)){Cloud.saveCfg({url:cu,anonKey:ck});Cloud.unsubscribe();Cloud.client=null;Cloud.user=null;await Cloud.init(cloudHooks());cloudMsg=' · 동기화 연결 저장됨 — 로그인하세요';}
-  $('#setModal').hidden=true;render();toast((c.apiKey?'API 설정을 저장했어요':'API 키가 비어 있어요')+cloudMsg);};
+  $('#setModal').hidden=true;render();toast(cloudMsg?'동기화 연결을 저장했어요 — 이메일로 로그인하세요'+(c.apiKey?' · API 설정도 저장':''):(c.apiKey?'API 설정을 저장했어요':'저장했어요 (OpenAI 키는 비어 있음 · 프롬프트 복사 방식으로 사용)'));};
 function refreshApiBtn(){const ok=!!apiCfg().apiKey;$('#apiBtn').classList.toggle('ok',ok);$('#apiBtn').textContent=ok?'API 설정 ✓':'API 설정';}
 /* ── 팀 동기화 UI ── */
 function cloudUI(status,msg){const st=$('#cloudStat');st.textContent=msg||status;st.className='cstat '+status;const b=$('#cloudBtn');b.className='resetall cloud-'+status;b.textContent={idle:'☁ 동기화됨',sync:'☁ 동기화 중',err:'☁ 오류',out:'☁ 로그인',off:'☁ 동기화'}[status]||'☁ 동기화';b.title=msg||'';
