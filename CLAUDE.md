@@ -17,7 +17,7 @@
 - **디자인 기준은 blurblur 캡처와의 시각적 일치**: 모노톤, 검은 선택 상태, 4px 라운드, 넓은 단일 컬럼, Pretendard. 새 화면도 같은 룩으로.
 - **js 파일을 고치면 `index.html`의 `<script src="js/*.js?v=NNN">` 버전 3개를 함께 올린다**(브라우저 캐시). 안 올리면 구버전이 로드된다.
 - `js/prompt.js`를 고치면 `node tools/export-gpt-skill.js`로 스킬 문서를 재생성해 함께 커밋한다. 문서를 손으로 고치지 않는다.
-- 상태는 localStorage(`aimodel.create.v1`)에 저장된다. `S`에 새 필드를 추가하면 `PERSIST` 목록과 `restore()`의 기본값·busy 초기화도 함께 손본다.
+- 상태는 IndexedDB(`aimodel.store`, 키 `aimodel.create.v1`, 폴백 localStorage)에 저장된다. `persist()`/`restore()`(async)만 통해 읽고 쓴다. `S`에 새 필드를 추가하면 `PERSIST` 목록과 `restore()`의 기본값·busy 초기화도 함께 손본다.
 - 내부용이므로 비용·잔액·약관·본인 확인·IP 안내·Pricing UI를 다시 넣지 않는다.
 
 ## 프롬프트 규칙(사용자 검증 완료 — 임의로 바꾸지 말 것)

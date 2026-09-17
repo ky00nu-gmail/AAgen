@@ -68,6 +68,10 @@ python3 -m http.server 8765
 - `INSTRUCTIONS.md`(커스텀 GPT 지침, 짧음) + 지식 파일 `A-face-3stage`(3단계 비교·단일 단계·얼굴 옵션 사전·신장 문구) / `B-random-model` / `C-look`(ChatGPT 3단계·API 개별·의상 지정·룩 옵션·포즈 사전) / `D-background`(단일·자유 탐색·장면/조명/심도/카메라 사전) / `E-composite`(합성·출력 비율 사전) / `F-fixed-paragraphs`(POSE_LOCK·FACE_DETAIL·FACE_FIX·LOOK). `AI_model.md`는 전부 합친 판
 - 코드(`js/prompt.js`)를 바꾸면 반드시 재생성. 문서를 손으로 고치지 않는다
 
+### 저장소 (2026-09-17)
+- 상태·이미지는 **IndexedDB**(`aimodel.store` / 키 `aimodel.create.v1`)에 저장한다. localStorage는 약 5MB 한도라 이미지 몇 장이면 저장이 실패해 새로고침 시 초기화되던 문제를 해결. 옛 localStorage 데이터는 첫 실행 시 자동 이전되고, IndexedDB 저장이 되면 localStorage 사본은 지운다. IndexedDB를 쓸 수 없는 브라우저(사생활 보호 모드 등)에서는 localStorage 축소 저장으로 폴백하며 안내 토스트를 띄운다.
+- 저장은 브라우저·주소(origin)별이다. `localhost:8765`, GitHub Pages, 다른 PC의 데이터는 서로 보이지 않는다. 옮기려면 다운로드 → 업로드.
+
 ## 알려진 사항
 
 - "GPT로 바로 생성"은 일반 Chrome에서 확인 필요. Claude 데스크톱 내장 미리보기에서는 api.openai.com POST가 차단됨

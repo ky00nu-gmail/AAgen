@@ -1233,11 +1233,22 @@ $('#quick').addEventListener('drop',e=>quickFile(e.dataTransfer.files[0]));
 const LS_KEY='aimodel.create.v1';
 const PERSIST=['mode','face','faceOrig','prev','consent','strength','type','gender','eth','country','age','body','height','hairStyle','hairColor','eye','skin','makeup','tattoo','direction','cands','balance','animal','anime','bgs','bgOpt','sc'];
 let saveWarned=false;
+/* IndexedDB 저장소: localStorage(약 5MB)는 이미지 몇 장이면 넘쳐 저장이 실패하고 새로고침 시 초기화된다.
+   IndexedDB는 수백 MB까지 허용되므로 전체 상태를 여기에 저장하고, localStorage는 예전 데이터 이전용·최후 폴백으로만 쓴다. */
+const IDB={db:null,
+  open(){return new Promise((res,rej)=>{if(this.db)return res(this.db);if(!window.indexedDB)return rej(new Error('no indexedDB'));const r=indexedDB.open('aimodel.store',1);r.onupgradeneeded=()=>{r.result.createObjectStore('kv');};r.onsuccess=()=>{this.db=r.result;res(this.db);};r.onerror=()=>rej(r.error);r.onblocked=()=>rej(new Error('blocked'));});},
+  async get(k){const db=await this.open();return new Promise((res,rej)=>{const q=db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});},
+  async set(k,v){const db=await this.open();return new Promise((res,rej)=>{const tx=db.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error||new Error('abort'));});},
+  async del(k){const db=await this.open();return new Promise((res,rej)=>{const tx=db.transaction('kv','readwrite');tx.objectStore('kv').delete(k);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);});}};
+let storeMode='idb';
 let persistTimer=null;
 function snapshot(){const o={};PERSIST.forEach(k=>o[k]=S[k]);o.cands=(S.cands||[]).filter(c=>!c.busy).map(c=>Object.assign({},c,{busy:null,busyPanel:null}));o.bgs=(S.bgs||[]).filter(b=>!b.busy);return o;}
 function shrinkDataUrl(src,max,q){return new Promise(res=>{if(!src||!src.startsWith('data:'))return res(src);const im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height));if(k>=1&&src.length<400000)return res(src);const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);const g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',q));};im.onerror=()=>res(src);im.src=src;});}
 function persist(){clearTimeout(persistTimer);persistTimer=setTimeout(async()=>{
   const o=snapshot();
+  // 1순위: IndexedDB (용량 제한 사실상 없음). 성공하면 localStorage의 옛 사본은 지운다(오래된 데이터로 복원되는 것 방지)
+  try{await IDB.set(LS_KEY,o);storeMode='idb';try{localStorage.removeItem(LS_KEY);}catch(e){}return;}catch(e){storeMode='ls';}
+  // 2순위: localStorage 원본 그대로
   try{localStorage.setItem(LS_KEY,JSON.stringify(o));return;}catch(e){}
   // 용량 초과: 이미지를 축소한 사본으로 재시도 (표시용으로 충분한 크기)
   try{o.face=await shrinkDataUrl(o.face,1200,.85);o.faceOrig=null;o.prev=await Promise.all((o.prev||[]).slice(0,3).map(x=>shrinkDataUrl(x,600,.8)));
@@ -1245,7 +1256,9 @@ function persist(){clearTimeout(persistTimer);persistTimer=setTimeout(async()=>{
     localStorage.setItem(LS_KEY,JSON.stringify(o));if(!saveWarned){saveWarned=true;toast('저장 공간을 아끼기 위해 새로고침 후에는 이미지가 축소된 사본으로 복원돼요');}}
   catch(e){if(!saveWarned){saveWarned=true;toast('저장 공간이 가득 차 새로고침 시 일부 후보 이미지가 사라질 수 있어요. 오래된 후보를 삭제하세요');}}
 },150);}
-function restore(){try{const o=JSON.parse(localStorage.getItem(LS_KEY)||'null');if(!o)return;PERSIST.forEach(k=>{if(o[k]!==undefined)S[k]=o[k];});(S.bgs||[]).forEach(b=>b.busy=null);if(!S.bgOpt)S.bgOpt={scene:null,color:null,light:null,aspect:'2:3 세로',direction:'',refs:[]};if(!S.sc)S.sc={modelId:null,lookId:null,bgId:null,sceneText:null,direction:''};(S.cands||[]).forEach(c=>{c.busy=null;c.busyPanel=null;(c.scenes||[]).forEach(x=>x.busy=null);(c.looks||[]).forEach(l=>l.busy=null);if(c.lookWork){c.lookWork.busy=null;c.lookWork.busyPanel=null;}});}catch(e){}}
+async function restore(){let o=null;try{o=await IDB.get(LS_KEY);}catch(e){storeMode='ls';}
+  if(!o){try{o=JSON.parse(localStorage.getItem(LS_KEY)||'null');}catch(e){}}
+  try{if(!o)return;PERSIST.forEach(k=>{if(o[k]!==undefined)S[k]=o[k];});(S.bgs||[]).forEach(b=>b.busy=null);if(!S.bgOpt)S.bgOpt={scene:null,color:null,light:null,aspect:'2:3 세로',direction:'',refs:[]};if(!S.sc)S.sc={modelId:null,lookId:null,bgId:null,sceneText:null,direction:''};(S.cands||[]).forEach(c=>{c.busy=null;c.busyPanel=null;(c.scenes||[]).forEach(x=>x.busy=null);(c.looks||[]).forEach(l=>l.busy=null);if(c.lookWork){c.lookWork.busy=null;c.lookWork.busyPanel=null;}});}catch(e){}}
 /* ── 업스케일 파이프라인 ─────────────────────────────────
    패널 선택 → cropPanel → upscaleImage → 후보/데뷔 등록.
    provider:'local' = 브라우저 내 2배 확대(고품질 리샘플) + 언샤프 마스크. 엔진 연동 시 provider를 'api'로 바꾸고
@@ -1347,7 +1360,7 @@ async function applyAdjust(){const c=ADJ.c;if(!c||ADJ.busy)return;ADJ.busy=true;
     render();toast(changed?'얼굴 조정을 적용했어요':'조정을 초기화했어요');$('#adj').hidden=true;if(LB.id){renderLightbox();$('#lb').hidden=false;}}
   catch(e){toast('조정 적용에 실패했어요');console.error(e);}
   finally{work.remove();ADJ.busy=false;ok.disabled=false;ok.textContent='적용';}}
-$('#resetAll').onclick=()=>{if(!confirm('사진, 선택 옵션, 후보와 데뷔 모델을 모두 지우고 처음 상태로 돌릴까요?'))return;try{localStorage.removeItem(LS_KEY);}catch(e){}location.reload();};
+$('#resetAll').onclick=async()=>{if(!confirm('사진, 선택 옵션, 후보와 데뷔 모델을 모두 지우고 처음 상태로 돌릴까요?'))return;try{localStorage.removeItem(LS_KEY);}catch(e){}try{await IDB.del(LS_KEY);}catch(e){}location.reload();};
 /* ── 스타일링 페이지 ────────────────────────────────── */
 const ST_COLORS=[['블랙','#151515'],['화이트','#f7f7f7'],['오프화이트','#efece4'],['그레이','#9a9a9a'],['차콜','#3a3a3a'],['네이비','#1f2a44'],['베이지','#d9c6a5'],['카멜','#b8875a'],['브라운','#6b4a32'],['올리브','#6b7a45'],['카키','#8a8460'],['레드','#b8302e'],['버건디','#6e1f2e'],['블루','#3a63b8'],['스카이블루','#8ec5f2'],['그린','#3f7a4f'],['핑크','#e8a2b8'],['라벤더','#b9a6d6'],['옐로','#e6c64a'],['크림','#f3ead6'],['데님블루','#4a6a94']];
 const LP=PromptEngine.LOOK_PANELS;   // [id, 한글, 라벨, 설명]
@@ -1781,7 +1794,7 @@ function candUpload(c){candTarget=c;$('#candFile').click();}
 $('#candFile').onchange=e=>{const f=e.target.files[0];if(f&&candTarget)setCandImg(candTarget,f);else if(candTarget&&candTarget.uploaded&&!candTarget.img)S.cands=S.cands.filter(x=>x!==candTarget);e.target.value='';candTarget=null;};
 function setCandImg(c,f){if(!f.type.startsWith('image/'))return toast('이미지 파일만 올릴 수 있어요');const r=new FileReader();r.onload=()=>{c.img=r.result;if(c.compare){c.panel=null;c.debutedPanels={};c.panelName='';}S.sel=c.id;render();toast(c.compare?'비교 이미지를 올렸어요. 패널을 골라 데뷔하세요':'후보 이미지를 올렸어요');};r.readAsDataURL(f);}
 function debut(c){if(!(c.name||'').trim())return toast('모델 이름을 입력하세요');c.debuted=true;c.at=Date.now();S.sel=null;render();toast(`${c.name} 데뷔 완료`);}
-restore();render();renderView();
+render();renderView();restore().then(()=>{render();renderView();if(storeMode==='ls')toast('이 브라우저는 대용량 저장(IndexedDB)을 쓸 수 없어 이미지가 많으면 저장이 실패할 수 있어요');});
 </script>
 </body>
 </html>
