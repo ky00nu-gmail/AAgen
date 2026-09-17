@@ -1,6 +1,6 @@
 # AI 모델 만들기 — ver3 (2026-09-17)
 
-blurblur `/make/model/create` 화면 구조를 그대로 옮긴 내부용 정적 웹앱. 내 얼굴 사진으로 브랜드 모델 후보를 만들고, 3단계(그대로·약하게·글로우) 비교 이미지에서 하나를 골라 데뷔한다.
+blurblur `/make/model/create` 화면 구조를 그대로 옮긴 내부용 정적 웹앱. (원본 화면 캡처 PDF는 저장소에 포함하지 않음) 내 얼굴 사진으로 브랜드 모델 후보를 만들고, 3단계(그대로·약하게·글로우) 비교 이미지에서 하나를 골라 데뷔한다.
 
 ## 실행
 
@@ -20,7 +20,6 @@ python3 -m http.server 8765
 | `js/engine.js` | OpenAI Images API 어댑터(edits / generations). 키는 localStorage |
 | `tools/sample-prompts.js` | 검증용 프롬프트 매트릭스 생성 → `docs/prompt-samples.md` |
 | `tools/export-gpt-skill.js` | **GPT 스킬 문서 생성** → `docs/gpt-skill/` (INSTRUCTIONS.md 지침 + A~F 흐름별 지식 파일 + AI_model.md 통합). 프롬프트가 결정적이므로 코드에서 자동 추출 |
-| `docs/Create AI Model — blurblur.pdf` | 원본 화면 캡처 |
 | `releases/ver1`, `releases/ver2`, `releases/ver3` | 버전 스냅샷 |
 
 ## ver1 기능
