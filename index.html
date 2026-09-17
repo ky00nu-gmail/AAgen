@@ -380,6 +380,7 @@ footer .links span.dim{color:#aaa}
 .set .cbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .set .cbtns button{border:1px solid var(--line2);border-radius:4px;padding:8px 12px;font-size:13px;font-weight:600;background:#fff}
 .set .cbtns button:hover{border-color:#000}
+.set .cbtns button.primary{background:#000;color:#fff;border-color:#000}
 .set .card{max-height:92vh;overflow:auto}
 .hdr nav .resetall.cloud-idle{color:#1b7f3b}.hdr nav .resetall.cloud-err{color:var(--red)}.hdr nav .resetall.cloud-sync{color:#2a6fd6}
 .set .note{font-size:12.5px;color:var(--muted);margin:10px 0 0;line-height:1.5}
@@ -849,7 +850,7 @@ footer .links span.dim{color:#aaa}
       <p class="sub">Supabase 프로젝트에 모델·룩·배경 컷·배경을 저장해 팀원과 같은 목록을 봐요. 얼굴 사진과 작업 중인 비교 카드는 이 브라우저에만 남아요.</p>
       <div class="row2"><div><label>Project URL</label><input id="cloudUrl" placeholder="https://xxxx.supabase.co" autocomplete="off"></div><div><label>anon public key</label><input type="password" id="cloudKey" placeholder="eyJ..." autocomplete="off"></div></div>
       <div class="row2"><div><label>이메일</label><input id="cloudEmail" type="email" placeholder="name@estsoft.com" autocomplete="username"></div><div><label>비밀번호</label><input id="cloudPw" type="password" autocomplete="current-password"></div></div>
-      <div class="cbtns"><button id="cloudSaveCfg">연결 저장</button><button id="cloudLogin">로그인</button><button id="cloudSignup">가입</button><button id="cloudLogout" hidden>로그아웃</button><button id="cloudSync" hidden>지금 동기화</button><button id="cloudPushAll" hidden title="이 브라우저의 모델·룩·배경을 전부 팀 저장소로 올려요">이 브라우저 데이터 전부 올리기</button></div>
+      <div class="cbtns"><button id="cloudSaveCfg" class="primary">1. 연결 저장</button><button id="cloudSignup">2. 가입</button><button id="cloudLogin">3. 로그인</button><button id="cloudLogout" hidden>로그아웃</button><button id="cloudSync" hidden>지금 동기화</button><button id="cloudPushAll" hidden title="이 브라우저의 모델·룩·배경을 전부 팀 저장소로 올려요">이 브라우저 데이터 전부 올리기</button></div>
       <p class="note">허용된 이메일(allowed_emails 테이블)만 읽고 쓸 수 있어요. 처음 한 번 <code>supabase/schema.sql</code>을 프로젝트 SQL Editor에서 실행하세요. 가입 후 확인 메일이 오면 링크를 눌러야 로그인돼요(Auth 설정에서 Confirm email을 끄면 바로 로그인).</p>
     </div>
     <div class="foot"><button id="setCancel">취소</button><button class="ok" id="setSave">저장</button></div>
@@ -1786,7 +1787,11 @@ function apiCfg(){try{return Object.assign({apiKey:'',model:'gpt-image-1',qualit
 function openSettings(){{const cc=Cloud.cfg();$('#cloudUrl').value=cc.url;$('#cloudKey').value=cc.anonKey;cloudUI(Cloud.status,Cloud.msg);}const c=apiCfg();$('#setKey').value=c.apiKey;$('#setModel').value=c.model;$('#setQuality').value=c.quality;$('#setFid').value=c.fid;$('#setSize').value=c.size;$('#setFaceFix').checked=c.faceFix!==false;$('#setModal').hidden=false;$('#setKey').focus();}
 $('#apiBtn').onclick=openSettings;$('#setCancel').onclick=()=>{$('#setModal').hidden=true;};
 $('#setModal').addEventListener('click',e=>{if(e.target===e.currentTarget)$('#setModal').hidden=true;});
-$('#setSave').onclick=()=>{const c={apiKey:$('#setKey').value.trim(),model:$('#setModel').value.trim()||'gpt-image-1',quality:$('#setQuality').value,fid:$('#setFid').value,size:$('#setSize').value,faceFix:$('#setFaceFix').checked};try{localStorage.setItem(API_KEY,JSON.stringify(c));}catch(e){}$('#setModal').hidden=true;render();toast(c.apiKey?'API 설정을 저장했어요':'API 키가 비어 있어요');};
+$('#setSave').onclick=async()=>{const c={apiKey:$('#setKey').value.trim(),model:$('#setModel').value.trim()||'gpt-image-1',quality:$('#setQuality').value,fid:$('#setFid').value,size:$('#setSize').value,faceFix:$('#setFaceFix').checked};try{localStorage.setItem(API_KEY,JSON.stringify(c));}catch(e){}
+  // 팀 동기화 연결 정보도 함께 저장(입력돼 있고 바뀐 경우)
+  const cu=$('#cloudUrl').value.trim().replace(/\/$/,''),ck=$('#cloudKey').value.trim();const old=Cloud.cfg();let cloudMsg='';
+  if(cu&&ck&&(cu!==old.url||ck!==old.anonKey)){Cloud.saveCfg({url:cu,anonKey:ck});Cloud.unsubscribe();Cloud.client=null;Cloud.user=null;await Cloud.init(cloudHooks());cloudMsg=' · 동기화 연결 저장됨 — 로그인하세요';}
+  $('#setModal').hidden=true;render();toast((c.apiKey?'API 설정을 저장했어요':'API 키가 비어 있어요')+cloudMsg);};
 function refreshApiBtn(){const ok=!!apiCfg().apiKey;$('#apiBtn').classList.toggle('ok',ok);$('#apiBtn').textContent=ok?'API 설정 ✓':'API 설정';}
 /* ── 팀 동기화 UI ── */
 function cloudUI(status,msg){const st=$('#cloudStat');st.textContent=msg||status;st.className='cstat '+status;const b=$('#cloudBtn');b.className='resetall cloud-'+status;b.textContent={idle:'☁ 동기화됨',sync:'☁ 동기화 중',err:'☁ 오류',out:'☁ 로그인',off:'☁ 동기화'}[status]||'☁ 동기화';b.title=msg||'';
