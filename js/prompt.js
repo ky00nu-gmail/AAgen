@@ -65,6 +65,7 @@ const S_=x=>x?x.trim().replace(/[.。]?$/,'. '):'';
 const join=a=>a.filter(Boolean).join(', ');
 const aOrAn=w=>(/^[aeiou]/i.test(w)?'an ':'a ')+w;
 const cap=x=>x?x.charAt(0).toUpperCase()+x.slice(1):x;
+const heightPhrase=h=>{h=parseInt(h,10);if(!h)return '';const band=h<=158?'petite':h<=166?'average-height':h<=176?'tall':'very tall';return `about ${h} cm tall (${band}), with realistic leg-to-torso proportions for that height`;};
 const hairEn=style=>style?(EN.hair[style]!==undefined?EN.hair[style]:EN.hairM[style]):undefined;
 const hairPhrase=(style,color)=>{const st=hairEn(style);if(st)return color?st.replace(/^(an? )?(.*)$/,(m,a,rest)=>(a||'')+EN.hairc[color]+' '+rest):st;return color?EN.hairc[color]+' hair':'';};
 /* 디렉션은 자세·배경 고정 규칙 안에서만 반영 */
@@ -81,7 +82,7 @@ function humanPrompt(f){
   if(f.makeup&&f.makeup!=='없음')styling.push(EN.makeup[f.makeup]);
   if(f.tattoo&&f.tattoo!=='없음')styling.push(EN.tattoo[f.tattoo]);
   const refine=[];
-  if(f.skin)refine.push(EN.skin[f.skin]); if(f.eye)refine.push(EN.eye[f.eye]); if(f.body)refine.push(EN.body[f.body]);
+  if(f.skin)refine.push(EN.skin[f.skin]); if(f.eye)refine.push(EN.eye[f.eye]); if(f.body)refine.push(EN.body[f.body]); if(f.height)refine.push(heightPhrase(f.height));
 
   if(f.selfie){
     const R=STRENGTH_EN[st];
@@ -161,7 +162,87 @@ function comparePrompt(f){
   return [head,p1,p2,p3,tail].join('\n\n');
 }
 
-const PromptEngine={EN,LOOK,POSE_LOCK,STRENGTH_EN,humanPrompt,animalPrompt,animePrompt,comparePrompt};
+/* ── 스타일링(옷·악세서리) ───────────────────────────────
+   f: { framing:'half'|'full', preset, top, topColor, bottom, bottomColor, outer, shoes, acc:[...], direction, gender }
+   데뷔 이미지를 입력으로 하는 편집 지시문. 얼굴·헤어·정면 자세·라이트그레이 배경 고정, 의상·악세서리만 변경. */
+const STYLE_EN={
+  preset:{'캐주얼':'relaxed everyday casual styling','미니멀':'clean minimal styling in neutral tones','스트리트':'urban streetwear styling','오피스':'polished smart office styling','스포티':'athleisure sportswear styling','클래식':'timeless classic tailored styling','럭셔리':'understated luxury brand styling with premium fabrics','하이패션':'bold high-fashion editorial styling','로맨틱':'soft romantic feminine styling','빈티지':'vintage-inspired styling'},
+  top:{'티셔츠':'a plain crew-neck t-shirt','오버핏 티셔츠':'an oversized boxy t-shirt','셔츠':'a crisp button-up shirt','오버핏 셔츠':'an oversized relaxed shirt','블라우스':'a soft blouse','니트':'a fine-knit sweater','후디':'a hoodie','크롭탑':'a fitted crop top','캐미솔':'a camisole top','터틀넥':'a slim turtleneck','폴로':'a polo shirt','탱크탑':'a ribbed tank top','스웻셔츠':'a sweatshirt','베스트':'a knit vest over a shirt','원피스':'a simple dress'},
+  bottom:{'데님':'straight-leg jeans','와이드 데님':'wide-leg jeans','슬랙스':'tailored slacks','와이드 팬츠':'wide-leg trousers','카고':'cargo pants','조거':'jogger pants','쇼츠':'shorts','미니스커트':'a mini skirt','미디스커트':'a midi skirt','롱스커트':'a long skirt','레깅스':'leggings','치노':'chino pants'},
+  outer:{'없음':'','블레이저':'a tailored blazer','가죽 재킷':'a leather jacket','트렌치코트':'a trench coat','데님 재킷':'a denim jacket','울 코트':'a long wool coat','카디건':'a cardigan','바람막이':'a light windbreaker','패딩':'a puffer jacket','봄버':'a bomber jacket','베스트':'a padded vest'},
+  shoes:{'스니커즈':'clean white sneakers','로퍼':'leather loafers','첼시 부츠':'chelsea boots','앵클 부츠':'ankle boots','힐':'pointed heels','샌들':'strappy sandals','더비':'derby shoes','슬리퍼':'slide sandals','러닝화':'running shoes'},
+  acc:{'실버 목걸이':'a slim silver chain necklace','골드 목걸이':'a delicate gold necklace','펄 목걸이':'a pearl necklace','작은 후프 이어링':'small hoop earrings','드롭 이어링':'drop earrings','안경':'thin metal-frame glasses','선글라스':'sunglasses','볼캡':'a baseball cap','비니':'a beanie','버킷햇':'a bucket hat','시계':'a minimal wristwatch','링':'a couple of thin rings','스카프':'a silk scarf','헤드폰':'over-ear headphones around the neck','토트백':'a leather tote bag','크로스백':'a small crossbody bag','벨트':'a slim leather belt','초커':'a black choker'},
+  color:{'블랙':'black','화이트':'white','오프화이트':'off-white','그레이':'gray','차콜':'charcoal','네이비':'navy','베이지':'beige','카멜':'camel','브라운':'brown','올리브':'olive','카키':'khaki','레드':'red','버건디':'burgundy','블루':'blue','스카이블루':'sky blue','그린':'green','핑크':'pink','라벤더':'lavender','옐로':'yellow','크림':'cream','데님블루':'denim blue'},
+};
+const LOOK_PANELS=[['bust','상체','BUST','a square 1:1 head-and-shoulders headshot in beauty-lookbook style: a comfortable margin of empty backdrop above the head (about one tenth of the frame height), the bottom edge at the upper chest just below the shoulders, the face taking up roughly 40–45% of the frame height with the eyes a little above the center — the face, hair, neckline and collar of the top and any earrings or necklace clearly visible'],['knee','니샷','KNEE','a square 1:1 three-quarter lookbook crop from just above the top of the head down to the mid-thigh, just above the knees, the top, outer layer and the upper part of the bottoms all visible'],['full','풀샷','FULL','a full-body shot from the top of the head to the shoes with a little floor visible below the feet, the whole outfit including shoes visible']];
+const FACE_DETAIL='Render the face with the same clarity and cleanliness as the input photo, finished like a retouched beauty campaign: smooth, even, luminous skin with soft dewy highlights, clean well-defined eyes with a catchlight, neat brows and lashes, glossy lips, smooth flowing hair — a clean high-fidelity image with smooth tonal gradients and no added noise, speckles, blotches or artificial texture.';
+/* 얼굴 보정 패스: 상반신 결과의 얼굴 부분만 잘라 다시 편집 */
+const FACE_FIX='Image 1 is a close crop of a person\'s face from a lookbook photo. Re-render this exact crop as a clean, high-fidelity beauty-campaign close-up of the SAME person: identical identity, facial features, expression, gaze, head angle, hair, makeup, earrings and clothing edges, identical framing and background. Change nothing about who they are or how they are posed — only restore clarity: smooth, even, luminous skin with soft dewy highlights, clean well-defined eyes with a catchlight, neat brows and lashes, glossy lips, smooth hair strands, smooth tonal gradients, no noise, speckles, blotches or artificial texture. Photorealistic, square 1:1.';
+const IDENTITY_BASE='Keep the model\'s identity 100% identical to Image 1: the exact same face, facial features, skin tone, hair style and hair color, and apparent age. ';
+/* 룩 포즈: body는 니샷·풀샷, head는 세 컷 공통(상체는 head만) */
+const HEAD_FRONT='face toward the camera, head upright, eyes into the lens, camera at eye level';
+const POSE_DEFAULT={body:'unspecified pose — a natural, relaxed standing pose of the stylist\'s choice',head:HEAD_FRONT};
+/* 사용자 확정 포즈 목록(2026-09-13): 표시 이름 → 프롬프트용 영어. head가 없으면 정면 시선 */
+const POSE_EN={
+  '정면으로 자연스럽게 서기':{body:'standing naturally, facing forward'},
+  '편하게 서기':{body:'relaxed standing pose'},
+  '손을 앞에 모으고 서기':{body:'standing with hands lightly clasped in front'},
+  '팔을 자연스럽게 내리고 서기':{body:'standing with arms relaxed at the sides'},
+  '한 손을 허리에 두고 서기':{body:'standing with one hand on the hip'},
+  '한 손을 스테이션에 올리기':{body:'standing with one hand lightly resting on the station'},
+  '정면을 보며 대화하기':{body:'facing forward and speaking naturally',head:'face toward the camera as if speaking to the viewer, eyes into the lens'},
+  '손짓하며 설명하기':{body:'speaking with a natural one-hand gesture'},
+  '두 손을 펼쳐 설명하기':{body:'explaining with both hands slightly open'},
+  '가볍게 인사하기':{body:'giving a small friendly wave'},
+  '고개를 살짝 끄덕이기':{body:'slightly nodding while engaging with the viewer',head:'head in a slight nod, eyes toward the viewer'},
+  '몸을 살짝 틀어 서기':{body:'standing at a slight three-quarter angle',head:'face turned toward the camera, eyes into the lens'},
+  '걷다가 멈춰 바라보기':{body:'pausing mid-step and looking forward'}
+};
+const POSES=Object.keys(POSE_EN);
+function poseText(f,frame){const p=POSE_EN[f&&f.pose]||POSE_DEFAULT;const head=p.head||HEAD_FRONT;return frame==='bust'?`Pose: ${p.body}, framed head-and-shoulders; ${head}.`:`Pose: ${p.body}; ${head}.`;}
+const identity=(f,frame)=>IDENTITY_BASE+poseText(f,frame)+' Change ONLY the clothing and accessories.';
+const IDENTITY=identity(null,'knee');
+function outfitText(f){
+  const g=EN.gender[f.gender]||['person','they','their'];
+  if(f.mode==='garment'&&f.refs&&f.refs.length){const n=f.refs.length,base=f.refBase||2;const dir=(f.direction||'').trim();
+    return `Images ${base} to ${base+n-1} are reference photos of garments and accessories (some may show the front and back of the same item). Every item shown in them MUST be worn by the model, reproduced exactly — the same color, fabric, pattern, print, cut, length, fit and details (buttons, seams, logos, hardware); use a front view for the visible front and a back view for construction and length. Do not substitute similar items or invent replacements for referenced pieces. For parts of the outfit NOT shown in the references: ${dir?`follow this direction — "${dir}"`:'a stylist\'s free choice'} — and where neither applies, choose simple, clean, neutral pieces that complement the referenced items. Fabrics and fit rendered realistically with natural folds and drape, worn naturally on ${g[2]} body.`;}
+  const col=k=>STYLE_EN.color[k]||'';
+  const topRaw=STYLE_EN.top[f.top];const top=topRaw?(col(f.topColor)?aOrAn(col(f.topColor)+' '+topRaw.replace(/^an? /,'')):topRaw):'';
+  const botRaw=STYLE_EN.bottom[f.bottom];const bottom=botRaw?(col(f.bottomColor)?col(f.bottomColor)+' '+botRaw.replace(/^an? /,''):botRaw):'';
+  const outer=STYLE_EN.outer[f.outer]||'';const shoes=STYLE_EN.shoes[f.shoes]||'';
+  const accs=(f.acc||[]).map(a=>STYLE_EN.acc[a]).filter(Boolean);const preset=STYLE_EN.preset[f.preset]||'';
+  const outfit=[top||'a simple, well-fitted top',outer?`layered with ${outer}`:'',bottom||'well-fitted bottoms',shoes||'clean minimal shoes'].filter(Boolean).join(', ');
+  return `Outfit: ${preset?preset+' — ':''}${cap(g[1])} wears ${outfit}. ${accs.length?`Accessories: ${accs.join(', ')}.`:'No added accessories.'} Fabrics and fit rendered realistically with natural folds and drape; garments and accessories clearly visible and brand-catalog clean.`;
+}
+const LOOK_SKIN='luminous, even, dewy skin with a soft radiant glow on the cheekbones and nose bridge, blemishes and dullness cleared, finished clean like a retouched beauty campaign';
+const SCENE=()=>`Background: ${LOOK.backdrop}. Lighting: ${LOOK.keyLight}. Skin: ${LOOK_SKIN}. Color: ${LOOK.grade}.`;
+/* 상체 · 니샷 · 풀샷을 각각 별도 이미지로 — 얼굴 픽셀을 확보해 디테일을 살린다 */
+function lookPrompts(f){
+  const dirLine=(f.mode==='garment')?'':directionLine(f.direction,'mood, styling details and props only — it must not change the face, hair, pose or the light-gray backdrop');
+  const hp=f.height?` Body proportions of a person ${heightPhrase(f.height)} — keep the head-to-body ratio realistic and do not exaggerate leg length.`:'';
+  const one=(desc,fmt,refBust,extra,frame)=>{
+    const head=refBust?`Image 1 is the model. Image 2 is a lookbook photo of the same model in the target outfit. Edit into ${desc}, the model centered. Wear EXACTLY the same outfit and accessories as in Image 2 — identical garments, colors, fit and styling; only the framing changes. `:`Image 1 is the model. Edit Image 1 into ${desc}, the model centered. `;
+    return [S_(head+identity(f,frame)+(extra||'')), S_(outfitText(Object.assign({},f,{refBase:refBust?3:2}))), S_(SCENE()+' '+FACE_DETAIL), S_(dirLine)+`Photorealistic, premium brand lookbook quality. ${fmt}`].map(x=>x.trim()).filter(Boolean).join('\n\n');};
+  const P=LOOK_PANELS;
+  const bust=one(P[0][3],'Square 1:1 format, 1024×1024.',false,'','bust');
+  const knee=one(P[1][3],'Square 1:1 format, 1024×1024.',!!f.bustRef,hp,'knee');
+  const full=one(P[2][3]+', the full figure filling the frame from top to bottom without cropping the head or feet','Tall portrait format, 1024×1536.',!!f.bustRef,hp,'full');
+  // ChatGPT용: 한 메시지에 3장을 요구하면 이미지 도구가 1회만 돌아 같은 크롭의 변주만 나온다.
+  // 그래서 3개의 연속 메시지로 만든다. 각 메시지는 첫 문장에서 "이미지 1장, 이 캔버스 비율"을 못 박고, 2·3단계는 직전 결과의 의상을 그대로 입힌다.
+  const shared=S_(SCENE()+' '+FACE_DETAIL)+' '+S_(dirLine)+'Photorealistic, premium brand lookbook quality.';
+  // 포즈는 세 장에서 동일해야 함 — shared 뒤에 명시
+
+  const step1=[S_('Generate exactly ONE image, SQUARE format 1:1 (1024×1024). Image 1 is the model. Edit Image 1 into '+P[0][3]+'. The bottom edge of the frame cuts at the upper chest just below the shoulders: no arms below the shoulder, no waist or hands visible, the face large and detailed in frame. '+identity(f,'bust')),
+    S_(outfitText(Object.assign({},f,{refBase:2}))), shared].map(x=>x.trim()).filter(Boolean).join('\n\n');
+  const step2=[S_('Now generate exactly ONE new image, SQUARE format 1:1 (1024×1024), with a DIFFERENT, wider crop — this must NOT be a variation of the previous image. Same model as Image 1, wearing EXACTLY the outfit and accessories from the image you just generated (identical garments, colors, fit and styling). Framing: '+P[1][3]+'. The bottom edge of the frame cuts at the mid-thigh, just above the knees: the thighs visible, no knees, shins or feet. The figure is noticeably smaller than before, with clear empty space above the head. '+identity(f,'knee')+hp), shared].map(x=>x.trim()).filter(Boolean).join('\n\n');
+  const step3=[S_('Now generate exactly ONE new image in TALL PORTRAIT format 2:3 (1024×1536, vertical) — this must NOT be a variation of the previous images. Same model as Image 1, wearing EXACTLY the outfit and accessories from the images you just generated. Framing: '+P[2][3]+': head to toe in frame, shoes and the floor visible, a little space above the head and below the feet, nothing cropped. The figure is small in the tall frame. '+identity(f,'full')+hp), shared].map(x=>x.trim()).filter(Boolean).join('\n\n');
+  const chatSteps=[step1,step2,step3];
+  const combined=chatSteps.map((t,i)=>`━━━━━━ ${i+1}단계 · ChatGPT에 ${i===0?'모델 이미지(와 의상 참조)를 첨부해':'이어서'} 보내기 ━━━━━━\n\n${t}`).join('\n\n\n');
+  return {bust,knee,full,combined,chatSteps};
+}
+/* 구버전 호환: 단일 시트 프롬프트는 상반신 프롬프트를 돌려준다 */
+function stylePrompt(f){return lookPrompts(f).bust;}
+const PromptEngine={STYLE_EN,LOOK_PANELS,POSES,POSE_EN,poseText,FACE_DETAIL,FACE_FIX,heightPhrase,stylePrompt,lookPrompts,EN,LOOK,POSE_LOCK,STRENGTH_EN,humanPrompt,animalPrompt,animePrompt,comparePrompt};
 root.PromptEngine=PromptEngine;
 if(typeof module!=='undefined'&&module.exports)module.exports=PromptEngine;
 })(typeof window!=='undefined'?window:globalThis);

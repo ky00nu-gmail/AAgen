@@ -23,8 +23,10 @@ async function call(path,body,o){
 async function edit(o){
   if(!o.apiKey)throw new Error('API 키가 없어요. 헤더의 "API 설정"에서 입력하세요');
   o.onStatus&&o.onStatus('입력 이미지 준비 중…');
-  const png=await toPng(o.imageDataUrl);
-  const fd=new FormData();fd.append('model',o.model||'gpt-image-1');fd.append('image',png,'face.png');fd.append('prompt',o.prompt);
+  const fd=new FormData();fd.append('model',o.model||'gpt-image-1');
+  const list=[o.imageDataUrl].concat(o.extraImages||[]).filter(Boolean);
+  for(let i=0;i<list.length;i++){const png=await toPng(list[i]);fd.append(list.length>1?'image[]':'image',png,i===0?'model.png':`garment${i}.png`);}
+  fd.append('prompt',o.prompt);
   fd.append('size',o.size||'1536x1024');if(o.quality)fd.append('quality',o.quality);if(o.inputFidelity)fd.append('input_fidelity',o.inputFidelity);fd.append('n','1');
   o.onStatus&&o.onStatus('GPT Image 생성 중… (30~90초)');
   return call('/images/edits',fd,o);

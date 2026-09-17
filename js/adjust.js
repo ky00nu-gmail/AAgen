@@ -122,5 +122,9 @@ async function apply(img,params,maxSide,features){
   out=skinSmooth(out,p.skin);out=skinDetail(out,p.detail);out=tone(out,p.bright,p.warm);
   return out;
 }
-root.FaceAdjust={DEFAULTS,SHAPE_KEYS,detect,apply,baseCanvas,clone,scaleFeatures,warp,controlsFor,skinSmooth,skinDetail,tone};
+/* 얼굴 박스(픽셀): 랜드마크 기반, 실패 시 근사 */
+async function faceBox(img){const F=await detect(img);const w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;
+  if(F.source==='landmarks'){const cx=(F.cheekL.x+F.cheekR.x)/2,cy=(F.eyeL.y+F.chin.y)/2;const size=Math.max(F.faceW,F.chin.y-Math.min(F.eyeL.y,F.eyeR.y)+F.faceW*.35);return {cx,cy,size,source:'landmarks'};}
+  return {cx:F.cx,cy:F.eyeL.y+F.faceW*.25,size:F.faceW*1.1,source:F.source};}
+root.FaceAdjust={DEFAULTS,SHAPE_KEYS,detect,faceBox,apply,baseCanvas,clone,scaleFeatures,warp,controlsFor,skinSmooth,skinDetail,tone};
 })(typeof window!=='undefined'?window:globalThis);
