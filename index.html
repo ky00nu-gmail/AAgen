@@ -1,0 +1,1135 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 모델 만들기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{ --ink:#111; --ink2:#333; --muted:#888; --muted2:#aaa; --line:#e3e3e3; --line2:#d6d6d6; --bg:#fff; --bg2:#f7f7f7; --red:#e5322d; --green-bg:#f0fbf3; --green-line:#c9ecd3; --green:#2f8a4c; }
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Segoe UI",sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;font-size:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer}
+[hidden]{display:none!important}
+
+/* 헤더 */
+.hdr{border-bottom:1px solid var(--line);}
+.hdr .in{max-width:1400px;margin:0 auto;padding:22px 32px;display:flex;align-items:center;justify-content:space-between}
+.wordmark{font-family:"Times New Roman",Georgia,serif;font-size:30px;letter-spacing:-.02em;font-weight:500;color:var(--ink)}
+.hdr nav{display:flex;gap:26px;font-size:14px;color:var(--ink2)}
+.hdr nav a{color:inherit;text-decoration:none}
+.hdr nav a.on{font-weight:700}
+.hdr nav .nbadge{display:inline-block;min-width:18px;padding:0 6px;border-radius:99px;background:#000;color:#fff;font-size:11px;line-height:18px;text-align:center;margin-left:4px;vertical-align:1px}
+.hdr nav .resetall{margin-left:14px;font-size:13px;color:var(--muted);text-decoration:underline}
+.hdr nav .resetall:hover{color:var(--red)}
+.dz .rm{color:var(--red)}
+.prev .th{position:relative}
+.prev .th .x{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:11px;display:grid;place-items:center;opacity:0;transition:.12s}
+.prev .th:hover .x{opacity:1}
+
+/* 본문 */
+main{max-width:1400px;margin:0 auto;padding:28px 32px 200px}
+h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:10px 0 26px}
+.seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line2);border-radius:4px;overflow:hidden}
+.seg button{padding:18px;font-size:16px;color:var(--ink2);display:flex;align-items:center;justify-content:center;gap:8px}
+.seg button.on{background:#000;color:#fff;font-weight:600}
+.seg svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.6}
+.lead{color:var(--ink2);margin:22px 0 40px;font-size:15.5px}
+
+.label{font-size:17px;font-weight:700;margin:0 0 12px;display:flex;align-items:baseline;gap:8px}
+.label .req{font-size:12px;color:var(--red);font-weight:600}
+.label .sub{font-size:14px;font-weight:400;color:var(--muted)}
+.label .dash{font-weight:400;color:var(--ink2)}
+.section{margin:0 0 34px}
+hr.sep{border:0;border-top:1px solid var(--line);margin:40px 0 44px}
+
+/* 드롭존 */
+.dz{border:2px dashed var(--line2);border-radius:4px;min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:var(--muted2);font-size:15px;cursor:pointer;background:#fff}
+.dz:hover,.dz.over{border-color:#999;background:#fafafa}
+.dz svg{width:44px;height:44px;stroke:#bcbcbc;fill:none;stroke-width:1.4}
+.dz img{max-height:260px;border-radius:4px}
+.box{border:1px solid var(--line);border-radius:4px;padding:22px 24px;margin-top:20px}
+.box.gray{background:var(--bg2);border-color:var(--bg2)}
+.box.gray b.t{display:flex;align-items:center;gap:10px;font-size:15px;margin-bottom:10px}
+.box.gray b.t::before{content:"";width:7px;height:7px;border-radius:50%;background:#000}
+.box.gray p{margin:0;color:var(--ink2);font-size:15px}
+.prev .h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.prev .h b{font-size:15px}
+.prev .h span{font-size:12.5px;color:var(--muted)}
+.prev .thumbs{display:flex;gap:10px}
+.prev .th{width:104px;height:104px;border-radius:4px;background:#e9e9e9;overflow:hidden;cursor:pointer;border:2px solid transparent;display:grid;place-items:center;color:#bbb}
+.prev .th.on{border-color:#000}
+.prev .th img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* 옵션 버튼 그리드 */
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.opts.two{grid-template-columns:repeat(2,1fr)}
+.opt{border:1px solid var(--line2);border-radius:4px;padding:20px 12px;text-align:center;font-size:16px;color:var(--ink);background:#fff;line-height:1.25;transition:background .1s,color .1s}
+.opt small{display:block;font-size:13px;color:var(--muted);margin-top:4px}
+.opt:hover{border-color:#999}
+.opt.on{background:#000;color:#fff;border-color:#000;font-weight:600}
+.opt.on small{color:#bbb}
+.opt:disabled{color:#c4c4c4;cursor:not-allowed}
+.opt:disabled:hover{border-color:var(--line2)}
+.desc{margin:16px 0 0 20px;font-size:15.5px;color:var(--ink2)}
+.desc b{color:var(--ink)}
+
+/* 칩 */
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{border:1px solid var(--line2);border-radius:4px;padding:12px 20px;font-size:15px;display:inline-flex;align-items:center;gap:8px;background:#fff}
+.chip:hover{border-color:#999}
+.chip.on{background:#000;color:#fff;border-color:#000;font-weight:600}
+.chip .flag{font-size:16px}
+
+/* 외형 디테일 */
+.details{border:1px solid var(--line2);border-radius:4px;margin-top:40px}
+.details .head{display:flex;align-items:center;gap:14px;padding:22px 28px;cursor:pointer;user-select:none}
+.details .head b{font-size:18px}
+.details .head .sub{font-size:14px;color:var(--muted);flex:1}
+.details .head .shuffle{display:inline-flex;align-items:center;gap:6px;font-size:15px;color:var(--ink2);padding:6px 8px}
+.details .head .caret{width:18px;height:18px;stroke:#333;fill:none;stroke-width:1.8;transition:transform .15s}
+.details.closed .caret{transform:rotate(180deg)}
+.details .body{border-top:1px solid var(--line);padding:8px 28px 28px}
+.details.closed .body{display:none}
+.row{margin-top:26px}
+.row .t{font-size:16.5px;color:var(--ink2);margin:0 0 10px}
+.row .t .ic{margin-right:6px}
+.txts{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+.txt{padding:8px 14px;border-radius:4px;font-size:15px;color:var(--ink2)}
+.txt:hover{background:var(--bg2)}
+.txt.on{background:#000;color:#fff}
+.txt.dim{color:var(--muted2)}
+.txt.dashed{border:1px dashed #bbb;padding:7px 14px;font-weight:600;color:var(--ink);border-radius:20px}
+.hairrow{display:flex;gap:16px;align-items:flex-start}
+.hairrow .t{flex:0 0 auto;font-weight:600;color:var(--ink);margin:8px 0 0}
+.radios{display:flex;flex-wrap:wrap;gap:4px 8px}
+.radio{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:4px;font-size:15px;color:var(--ink2)}
+.radio:hover{background:var(--bg2)}
+.radio i{width:14px;height:14px;border-radius:50%;border:1px solid #cfcfcf;background:var(--c,#fff);display:inline-block;position:relative}
+.radio.on{background:#000;color:#fff}
+.radio.on i{box-shadow:0 0 0 2px #000,0 0 0 3.5px #fff}
+.swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.sw{text-align:left;padding:0}
+.sw i{display:block;height:64px;border-radius:4px;background:var(--c);border:2px solid transparent}
+.sw span{display:block;margin-top:10px;font-size:15px;color:var(--ink2)}
+.sw.on i{border-color:#000;box-shadow:inset 0 0 0 2px #fff}
+.sw.on span{color:#000;font-weight:600}
+
+/* 디렉션 */
+.dir{border-top:1px solid var(--line);margin-top:34px;padding-top:26px}
+.dir textarea{width:100%;min-height:140px;border:1px solid var(--line2);border-radius:4px;padding:18px 20px;font:inherit;font-size:16px;resize:vertical;color:var(--ink);display:block}
+.dir textarea:focus{outline:none;border-color:#000}
+.dir textarea::placeholder{color:#8a8a8a}
+.tipsbtn{margin-top:18px;border:1.5px solid #333;border-radius:24px;padding:8px 22px;font-size:15.5px;color:var(--muted);background:#fff}
+.tips{border:1px solid var(--line);border-radius:4px;margin-top:12px;padding:16px 20px}
+.tips ol{margin:0;padding:0;list-style:none;display:grid;gap:12px}
+.tips li{display:flex;gap:16px;font-size:15.5px;color:var(--ink2)}
+.tips li i{font-style:normal;color:#aaa;flex:0 0 14px;text-align:center}
+
+/* 후보 */
+.quick{border:1.5px dashed var(--line2);border-radius:4px;padding:18px 22px;margin:0 0 26px;display:flex;align-items:center;gap:18px;background:#fff;cursor:pointer}
+.quick:hover,.quick.over{border-color:#999;background:#fafafa}
+.quick svg{width:34px;height:34px;stroke:#999;fill:none;stroke-width:1.5;flex:0 0 34px}
+.quick .t{flex:1}
+.quick .t b{display:block;font-size:15.5px;margin-bottom:2px}
+.quick .t span{font-size:13.5px;color:var(--muted)}
+.quick button{background:#000;color:#fff;border-radius:4px;padding:10px 18px;font-size:14px;font-weight:600;white-space:nowrap}
+.cands h2{font-size:26px;font-weight:800;letter-spacing:-.02em;margin:0 0 6px}
+.cands .sub{color:var(--ink2);font-size:16px;margin:0 0 26px}
+.candgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:22px}
+.listhd{display:flex;align-items:baseline;gap:12px;margin:34px 0 14px;padding-top:26px;border-top:1px solid var(--line)}
+.listhd.flat{margin-top:4px;padding-top:0;border-top:0}
+.listhd b{font-size:17px}
+.listhd span{font-size:13.5px;color:var(--muted)}
+#cmpSlot .cand.wide{width:100%}
+.cand .badge{position:absolute;top:10px;left:10px;background:#000;color:#fff;font-size:12px;font-weight:600;padding:4px 9px;border-radius:4px;z-index:2}
+.cand .bar2{margin-top:10px;background:var(--bg2);border-radius:4px;padding:11px 10px;text-align:center;font-size:14.5px;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px}
+.cand .bar2:hover{background:#efefef}
+.cand .bar2.done{background:#fdf6e3;color:#5a4a1a;cursor:default}
+.cand .bar2.done:hover{background:#fdf6e3}
+.cand .bar2 .del{font-size:12px;color:#a09070;text-decoration:underline;margin-left:4px}
+.cand .bar2 .del:hover{color:var(--red)}
+.cand .bar2 input{flex:1;min-width:0;border:1px solid var(--line2);border-radius:4px;padding:7px 9px;font:inherit;font-size:13.5px}
+.cand .bar2 .go{background:#000;color:#fff;border-radius:4px;padding:8px 12px;font-size:13.5px;font-weight:600;white-space:nowrap}
+.cand{width:380px;max-width:100%}
+#candGrid .cand{width:auto}
+.cand .img{aspect-ratio:3/4;background:#ececec;border-radius:2px;position:relative;overflow:hidden;cursor:pointer;border:2px solid transparent}
+.cand.on .img{border-color:#000}
+.cand .img .ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#b5b5b5;font-size:14px}
+.cand .img img{width:100%;height:100%;object-fit:cover;display:block}
+.cand .img.over{border-color:#000;background:#e4e4e4}
+.cand .img .up{position:absolute;left:0;right:0;bottom:0;padding:12px;display:flex;justify-content:center;gap:8px;background:linear-gradient(transparent,rgba(0,0,0,.35))}
+.cand .img .up button{background:#000;color:#fff;border-radius:4px;padding:8px 14px;font-size:13px;font-weight:600;border:1px solid #000}
+.cand .img .up button.ghost{background:rgba(255,255,255,.92);color:#111;border-color:#ddd}
+.cand .img .ph{padding:16px 12px 78px}
+.cand .img .ph .up{background:none;position:static;padding:14px 0 0;flex-direction:column;align-items:center;gap:6px}
+.cand .img .ph .up button{padding:8px 14px;font-size:13px;min-width:120px}
+.cand .img .ph .up button{background:#fff;color:#111;border:1px solid var(--line2)}
+.cand .img .ph .up button:hover{border-color:#000}
+.cand .img .ph span{text-align:center;line-height:1.4}
+.cand .img .ph svg{width:52px;height:52px;stroke:#c9c9c9;fill:none;stroke-width:1.2}
+.cand .img .ph .spec{position:absolute;left:14px;right:14px;bottom:12px;font-size:12.5px;color:#9a9a9a;text-align:center;line-height:1.5}
+.cand.wide{width:100%}
+.cand.wide .img{aspect-ratio:3/1}
+.cand.wide .img .ph .spec{font-size:13px}
+.cta2{display:block;margin:12px auto 0;font-size:14.5px;color:var(--ink2);text-decoration:underline;background:none}
+.cta2:disabled{color:#bbb;text-decoration:none;cursor:not-allowed}
+.cand .img .pmask{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);pointer-events:none}
+.cand .img .pmask i{display:block;background:rgba(255,255,255,.62)}
+.cand .img .pmask i.on{background:transparent;outline:2px solid #000;outline-offset:-2px}
+.panels{display:flex;gap:6px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.panels button{border:1px solid var(--line2);border-radius:4px;padding:8px 14px;font-size:13.5px;background:#fff;color:var(--ink2)}
+.panels button b{font-weight:800;margin-right:4px}
+.panels button.on{background:#000;color:#fff;border-color:#000}
+.panels button.hint{border-style:dashed}
+.pdone{margin:10px 0 0;font-size:14px;color:var(--ink2)}
+.panels .mk{background:#000;color:#fff;border-color:#000;font-weight:600}
+.panels .mk:disabled{background:#ddd;border-color:#ddd;color:#fff;cursor:not-allowed}
+.cand .img .ph .pick{margin-top:14px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.cand .img .ph .pick .lbl{font-size:12.5px;color:#9a9a9a}
+.cand .img .ph .pick .nums{display:flex;gap:6px}
+.cand .img .ph .pick .nums button{width:44px;height:40px;border:1px solid var(--line2);border-radius:4px;background:#fff;color:#111;font-size:15px;font-weight:700}
+.cand .img .ph .pick .nums button.hint{border-color:#000;box-shadow:inset 0 0 0 1px #000}
+.cand .img .ph .pick .nums button:hover{background:#000;color:#fff;border-color:#000}
+.cand .img .ph .pick .alt{font-size:12px;color:#9a9a9a;text-decoration:underline;background:none}
+.cand .img .busy{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(255,255,255,.72);color:#111;font-size:14px;font-weight:600}
+.cand .img .busy i{width:26px;height:26px;border:2.5px solid #ddd;border-top-color:#000;border-radius:50%;animation:spin .8s linear infinite;display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cand .meta{text-align:center;font-size:12px;color:var(--muted);margin-top:6px}
+.cand .meta b{color:var(--ink2);font-weight:600}
+.cand.debuted{}
+.cand.debuted .cap{font-size:13.5px;margin-top:10px}
+.cand.debuted .meta{font-size:11px}
+.cand.debuted .cap .pbtn{font-size:12px}
+.cand .cap .del{margin-left:10px;font-size:12.5px;color:#999;text-decoration:underline}
+.cand .cap .del:hover{color:var(--red)}
+.cand .cap{text-align:center;margin-top:18px;font-size:15.5px}
+.cand .cap button{color:var(--ink2)}
+.cand .cap b{font-weight:700}
+.cand .cap .done{color:var(--ink2)}
+.cand .debut{display:flex;gap:8px;justify-content:center;margin-top:12px}
+.cand .debut input{border:1px solid var(--line2);border-radius:4px;padding:10px 12px;font:inherit;font-size:15px;width:200px}
+.cand .debut button{background:#000;color:#fff;padding:10px 18px;border-radius:4px;font-weight:600}
+.cands .empty{color:var(--muted);font-size:15px;margin:0}
+
+/* 프롬프트 박스 */
+.promptbox{border:1px solid var(--line2);border-radius:4px;margin-top:30px}
+.promptbox.under{margin:28px 0 0}
+.promptbox .ph{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.promptbox .ph b{font-size:16px}
+.promptbox .ph span{flex:1;font-size:13.5px;color:var(--muted)}
+.promptbox .ph button{border:1px solid var(--line2);border-radius:4px;padding:8px 16px;font-size:14px;font-weight:600}
+.promptbox .ph button.copied{background:#000;color:#fff;border-color:#000}
+.promptbox pre{margin:0;padding:18px 20px;background:var(--bg2);font:14.5px/1.7 Pretendard,-apple-system,sans-serif;white-space:pre-wrap;word-break:break-word;color:var(--ink)}
+.promptbox .pnote{margin:0;padding:14px 20px 16px;list-style:none;display:grid;gap:6px;font-size:13.5px;color:var(--ink2)}
+.promptbox .pnote li::before{content:"·";margin-right:8px;color:#aaa}
+.promptbox .pnote b{color:var(--ink)}
+.cand .cap .pbtn{display:block;margin:6px auto 0;font-size:13px;color:var(--muted);text-decoration:underline}
+
+/* 하단 바 */
+.bar{border-top:1px solid var(--line);margin-top:44px;padding-top:30px}
+.bar .top{display:flex;justify-content:space-between;align-items:flex-start}
+.bar .who{font-size:18px}
+.bar .who b{font-weight:800;margin-right:6px}
+.bar .who .dot{color:#bbb;margin:0 6px}
+.bar .who span.v{color:var(--ink2)}
+.bar .cost{text-align:right;font-size:14.5px;color:var(--ink2)}
+.bar .cost b{font-size:19px;color:var(--ink);font-weight:800;margin-left:4px}
+.bar .cost small{display:block;font-size:14px;color:var(--ink2)}
+.cta{display:block;margin:40px auto 0;font-size:22px;font-weight:700;color:#cfcfcf;padding:14px 30px;border-radius:4px;letter-spacing:-.01em}
+.cta.ready{background:#000;color:#fff}
+.bar .terms{text-align:center;color:var(--ink2);font-size:14.5px;margin:32px 0 0}
+.bar .terms a{color:var(--ink);text-decoration:underline}
+.bar .terms p{margin:0 0 12px}
+
+/* 푸터 */
+footer{border-top:1px solid var(--line);margin-top:80px;padding:40px 32px 60px;text-align:center;color:var(--ink2);font-size:14px}
+footer .wordmark{font-size:22px;display:block;margin-bottom:10px}
+footer .links{display:flex;gap:26px;justify-content:center;margin-top:22px;font-size:17px;color:var(--ink)}
+footer .links span.dim{color:#aaa}
+
+/* 사진 설정 모달 */
+.modal{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal .card{background:#fff;border-radius:6px;width:560px;max-width:100%;max-height:calc(100vh - 40px);overflow:auto;padding:28px 30px 24px}
+.modal h3{margin:0 0 4px;font-size:20px;font-weight:800;letter-spacing:-.02em}
+.modal .sub{margin:0 0 18px;color:var(--ink2);font-size:14.5px}
+.modal .seg{margin-bottom:18px}
+.modal .seg button{padding:13px;font-size:15px}
+.stage{position:relative;width:100%;aspect-ratio:1;background:#f1f1f1;overflow:hidden;border-radius:4px;touch-action:none;user-select:none;cursor:grab}
+.stage.drag{cursor:grabbing}
+.stage img{position:absolute;left:0;top:0;max-width:none;pointer-events:none;-webkit-user-drag:none}
+.stage .frame{position:absolute;box-shadow:0 0 0 2000px rgba(255,255,255,.72);outline:1.5px solid #000;pointer-events:none}
+.stage .frame::before,.stage .frame::after{content:"";position:absolute;inset:0;pointer-events:none}
+.stage .frame::before{border-left:1px solid rgba(0,0,0,.15);border-right:1px solid rgba(0,0,0,.15);left:33.33%;right:33.33%}
+.stage .frame::after{border-top:1px solid rgba(0,0,0,.15);border-bottom:1px solid rgba(0,0,0,.15);top:33.33%;bottom:33.33%}
+.stage.plain{display:flex;align-items:center;justify-content:center;cursor:default}
+.stage.plain img{position:static;max-width:100%;max-height:100%}
+.ctl{display:flex;align-items:center;gap:14px;margin-top:16px;flex-wrap:wrap}
+.ctl .chips .chip{padding:9px 16px;font-size:14px}
+.ctl .zoom{display:flex;align-items:center;gap:10px;flex:1;min-width:200px;font-size:14px;color:var(--ink2)}
+.ctl .zoom input{flex:1;accent-color:#000}
+.modal .hint{margin:12px 0 0;font-size:13.5px;color:var(--muted)}
+.modal .foot{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+.modal .foot button{padding:12px 22px;border-radius:4px;font-size:15px;font-weight:600;border:1px solid var(--line2)}
+.modal .foot .ok{background:#000;color:#fff;border-color:#000}
+
+/* 라이트박스 */
+.lb{position:fixed;inset:0;z-index:120;background:rgba(0,0,0,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px}
+.lb img{max-width:min(92vw,900px);max-height:76vh;border-radius:4px;background:#222;object-fit:contain;cursor:default}
+.lb .acts{display:flex;gap:14px;align-items:center}
+.lb .acts button{border:1px solid #666;border-radius:8px;background:#1b1b1b;color:#eee;padding:12px 26px;font-size:17px;font-weight:600}
+.lb .acts button:hover{border-color:#aaa}
+.lb .acts .del{border-color:#a33;color:#e55;padding:12px 16px;display:grid;place-items:center}
+.lb .acts .del svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+.lb .cnt{color:#ddd;font-size:17px;font-weight:600}
+.lb .cnt span{color:#999;font-weight:400;margin-left:8px}
+.lb .nav{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:22px;display:grid;place-items:center}
+.lb .nav:hover{background:rgba(255,255,255,.25)}
+.lb .prev{left:22px}.lb .next{right:22px}
+.lb .x{position:absolute;top:18px;right:22px;color:#ccc;font-size:26px}
+/* 얼굴 조정 모달 */
+.adj{position:fixed;inset:0;z-index:130;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:24px}
+.adj .card{background:#fff;border-radius:6px;width:min(1180px,96vw);height:min(860px,94vh);display:flex;flex-direction:column;overflow:hidden}
+.adj .hd{display:flex;align-items:flex-start;justify-content:space-between;padding:18px 26px 14px;border-bottom:1px solid var(--line);flex:0 0 auto}
+.adj .hd h3{margin:0 0 2px;font-size:18px;font-weight:800;letter-spacing:-.02em}
+.adj .hd p{margin:0;color:var(--muted);font-size:13px}
+.adj .hd .x{font-size:24px;color:#333;padding:0 4px}
+.adj .body{display:grid;grid-template-columns:minmax(0,1fr) 316px;gap:22px;padding:20px 26px 20px;flex:1 1 auto;min-height:0;overflow:hidden}
+.adj .pv{background:var(--bg2);border:1px solid var(--line);border-radius:4px;display:flex;align-items:center;justify-content:center;padding:12px;position:relative;min-height:0;overflow:hidden}
+.adj .pv canvas,.adj .pv img{max-width:100%;max-height:100%;width:auto;height:auto;display:block;border-radius:2px;object-fit:contain}
+.adj .pv .st{position:absolute;left:12px;bottom:8px;font-size:11.5px;color:var(--muted);background:rgba(247,247,247,.85);padding:2px 6px;border-radius:3px}
+.adj .pv .work{position:absolute;inset:0;display:grid;place-items:center;background:rgba(255,255,255,.55);font-size:14px;font-weight:600}
+.adj .side{display:flex;flex-direction:column;min-height:0;overflow-y:auto;padding-right:14px;scrollbar-width:thin}
+.adj .grp{font-size:12px;color:var(--muted);margin:10px 0 2px}
+.adj .grp:first-child{margin-top:0}
+.adj .sl{margin:6px 0 4px}
+.adj .sl .l{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:2px}
+.adj .sl .l span{color:var(--muted)}
+.adj .sl input{width:100%;accent-color:#000;height:4px;margin:2px 0}
+.adj .reset{align-self:flex-start;font-size:13.5px;color:var(--muted);text-decoration:underline;margin:8px 0 12px}
+.adj .ft{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto;position:sticky;bottom:0;background:#fff;padding-top:10px}
+.adj .ft button{padding:11px;border-radius:6px;font-size:14.5px;font-weight:600;border:1px solid var(--line2)}
+.adj .ft .ok{background:#000;color:#fff;border-color:#000}
+.adj .ft .ok:disabled{background:#999;border-color:#999}
+.cand .img.clickable{cursor:zoom-in}
+@media (max-width:900px){.adj .body{grid-template-columns:1fr;overflow:auto}.adj .pv{min-height:280px}}
+
+/* Models 페이지 */
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:24px;margin-top:10px}
+.mcard{cursor:zoom-in}
+.mcard .im{aspect-ratio:3/4;background:#ececec;border-radius:4px;overflow:hidden;position:relative}
+.mcard .im img{width:100%;height:100%;object-fit:cover;display:block}
+.mcard .im .lv{position:absolute;top:10px;left:10px;background:#000;color:#fff;font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:4px}
+.mcard .nm{font-size:16px;font-weight:700;margin:12px 0 2px}
+.mcard .dt{font-size:13px;color:var(--muted)}
+.mcard .acts{display:flex;gap:10px;margin-top:8px;font-size:13px}
+.mcard .acts button{color:var(--ink2);text-decoration:underline}
+.mcard .acts button.d{color:#999}
+.mcard .acts button.d:hover{color:var(--red)}
+.mempty{padding:60px 20px;text-align:center;color:var(--muted);border:1px dashed var(--line2);border-radius:4px;margin-top:10px}
+.mempty p{margin:0 0 12px;font-size:15px}
+.mempty .mgo{color:var(--ink);text-decoration:underline;font-size:14.5px}
+
+/* GPT 생성 버튼 · API 설정 */
+.promptbox .ph .gen{background:#000;color:#fff;border-color:#000}
+.promptbox .ph .gen:disabled{background:#bbb;border-color:#bbb;cursor:not-allowed}
+.cand .img .ph .up .gen{background:#000;color:#fff;border-color:#000}
+.cand .img .ph .up{flex-wrap:wrap}
+.hdr nav .resetall.ok{color:var(--ink)}
+.set{position:fixed;inset:0;z-index:140;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:20px}
+.set .card{background:#fff;border-radius:6px;width:520px;max-width:100%;padding:26px 28px 22px}
+.set h3{margin:0 0 4px;font-size:19px;font-weight:800}
+.set .sub{margin:0 0 16px;font-size:13.5px;color:var(--muted)}
+.set label{display:block;font-size:13.5px;color:var(--ink2);margin:12px 0 5px}
+.set input,.set select{width:100%;border:1px solid var(--line2);border-radius:4px;padding:10px 12px;font:inherit;font-size:14.5px}
+.set input:focus,.set select:focus{outline:none;border-color:#000}
+.set .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.set .note{font-size:12.5px;color:var(--muted);margin:10px 0 0;line-height:1.5}
+.set .foot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.set .foot button{padding:11px 20px;border-radius:4px;font-size:14.5px;font-weight:600;border:1px solid var(--line2)}
+.set .foot .ok{background:#000;color:#fff;border-color:#000}
+
+/* 토스트 */
+#toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(10px);background:#000;color:#fff;padding:10px 18px;border-radius:4px;font-size:14px;opacity:0;transition:.2s;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%)}
+
+@media (max-width:900px){
+  .hdr .in,main{padding-left:18px;padding-right:18px}
+  .opts,.opts.two{grid-template-columns:repeat(2,1fr)}
+  .swatches{grid-template-columns:repeat(3,1fr)}
+  .hairrow{flex-direction:column;gap:8px}
+  .bar .top{flex-direction:column;gap:14px}
+  .bar .cost{text-align:left}
+  .cta{font-size:18px}
+}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="in">
+  <span class="wordmark">AI Model</span>
+  <nav><a href="#create" data-view="create" class="on">Create</a><a href="#models" data-view="models">Models <span class="nbadge" id="modelsCount" hidden>0</span></a><button class="resetall" id="apiBtn" title="OpenAI API 키·모델 설정">API 설정</button><button class="resetall" id="resetAll" title="사진·옵션·후보·데뷔 모델을 모두 지우고 처음 상태로">전체 초기화</button></nav>
+</div></header>
+
+<main>
+<div id="viewCreate">
+  <h1>AI 모델 만들기</h1>
+
+  <div class="seg" id="seg">
+    <button class="on" data-mode="selfie"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>내 얼굴 모델</button>
+    <button data-mode="random"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="8.5" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><circle cx="8.5" cy="15.5" r="1.2" fill="currentColor"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor"/></svg>랜덤 모델</button>
+  </div>
+  <p class="lead" id="lead">가장 잘 나온 얼굴 사진을 업로드해 나만의 AI 모델을 만들어 보세요.</p>
+
+  <!-- 얼굴 사진 (내 얼굴 모델) -->
+  <div id="selfieBlock">
+    <section class="section">
+      <p class="label">얼굴 사진 <span class="req">필수</span></p>
+      <input type="file" id="faceFile" accept="image/png,image/jpeg,image/webp" hidden>
+      <div class="dz" id="dz">
+        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="15" rx="2"/><circle cx="9" cy="10.5" r="1.6"/><path d="M3 18l5.5-5 4 3.5 3-2.5L21 18"/><path d="M17 3v4M15 5h4"/></svg>
+        <span>클릭, 드래그 앤 드롭, 또는 붙여넣기(Ctrl+V)</span>
+      </div>
+      <div class="box gray"><b class="t">AI 모델링 팁</b><p>조명이 좋은 <strong>선명한 정면 사진 1장</strong>을 업로드하세요. 밝게 촬영된 셀피나 인물 사진이 AI 모델 생성에 가장 좋아요.</p></div>
+      <div class="box prev" id="prevBox">
+        <div class="h"><b>이전 셀피 사용</b><span>클릭하여 선택</span></div>
+        <div class="thumbs" id="prevThumbs"></div>
+      </div>
+    </section>
+
+    <hr class="sep">
+  </div>
+
+  <!-- 모델 종류 -->
+  <section class="section" id="typeSec">
+    <p class="label">모델 종류</p>
+    <div class="opts" id="type"></div>
+  </section>
+
+  <div id="humanBlock">
+    <section class="section"><p class="label">성별</p><div class="opts two" id="gender"></div></section>
+    <section class="section"><p class="label">인종</p><div class="chips" id="eth"></div></section>
+    <section class="section" id="countrySec"><p class="label">국가 <span class="sub">선택 · 기본 랜덤</span></p><div class="chips" id="country"></div></section>
+    <section class="section"><p class="label">나이대</p><div class="chips" id="age"></div></section>
+
+    <!-- 외형 디테일 -->
+    <div class="details" id="details">
+      <div class="head" id="detHead" data-det="details">
+        <b>외형 디테일</b><span class="sub">선택 입력 · 비우면 자동 랜덤</span>
+        <button class="shuffle" id="shuffle" data-shuffle="human">🎲 셔플</button>
+        <svg class="caret" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>
+      </div>
+      <div class="body">
+        <div class="row"><p class="t">체형</p><div class="txts" id="body"></div></div>
+        <div class="row hairrow"><p class="t"><span class="ic">💇</span>헤어 스타일</p><div class="txts" id="hairStyle"></div></div>
+        <div class="row"><p class="t">헤어 컬러</p><div class="radios" id="hairColor"></div></div>
+        <div class="row"><p class="t">눈동자 색</p><div class="radios" id="eye"></div></div>
+        <div class="row"><p class="t">피부톤</p><div class="swatches" id="skin"></div></div>
+        <div class="row"><p class="t">메이크업 프리셋</p><div class="txts" id="makeup"></div></div>
+        <div class="row"><p class="t">타투</p><div class="txts" id="tattoo"></div></div>
+
+        <div class="dirslot"></div>
+        <div class="dir" id="dir">
+          <p class="label">디렉션 <span class="dash">— 무드, 포즈, 배경, 소품(옵션으로 표현 못 하는 모든 것)</span></p>
+          <textarea id="direction" placeholder="예: 따뜻한 노을 조명, 부드럽고 자연스러운 미소, 카메라 응시, 캐주얼 셔츠, 카페 배경"></textarea>
+          <button class="tipsbtn" id="tipsBtn">Tips</button>
+          <div class="tips" id="tips">
+            <ol>
+              <li><i>1</i>외형(헤어, 눈, 피부, 메이크업, 타투)은 위 옵션으로 선택하세요. Direction에 중복으로 적지 마세요.</li>
+              <li><i>2</i>Direction은 옵션으로 표현 못 하는 분위기·포즈·배경·소품을 위한 거예요 — 예: "노을빛 조명", "카페 배경", "부드러운 미소".</li>
+              <li><i>3</i>짧고 명확하게 — AI는 프롬프트의 앞부분을 가장 비중 있게 봅니다.</li>
+              <li><i>4</i>생성은 그대로 · 약하게 · 글로우 3단계가 한 장에 나와요. 결과를 올리고 마음에 드는 패널을 골라 데뷔하세요. 인종·나이대는 원본을 유지합니다.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 동물 -->
+  <div id="animalBlock" hidden>
+    <section class="section"><p class="label">동물 종류</p><div class="opts" id="species"></div></section>
+    <section class="section"><p class="label">표현 스타일</p><div class="opts" id="aStyle"></div></section>
+    <section class="section"><p class="label">나이</p><div class="opts" id="aAge"></div></section>
+    <div class="details" id="aDetails">
+      <div class="head" data-det="aDetails"><b>외형 디테일</b><span class="sub">선택 입력 · 비우면 자동 랜덤</span><button class="shuffle" data-shuffle="animal">🎲 셔플</button><svg class="caret" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></div>
+      <div class="body">
+        <div class="row"><p class="t">털 색</p><div class="radios" id="fur"></div></div>
+        <div class="row"><p class="t">털 길이</p><div class="txts" id="furLen"></div></div>
+        <div class="row"><p class="t">눈 색</p><div class="radios" id="aEye"></div></div>
+        <div class="row"><p class="t">표정</p><div class="txts" id="aFace"></div></div>
+        <div class="row"><p class="t">악세서리</p><div class="txts" id="aAcc"></div></div>
+        <div class="dirslot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 애니 -->
+  <div id="animeBlock" hidden>
+    <section class="section"><p class="label">성별</p><div class="opts two" id="nGender"></div></section>
+    <section class="section"><p class="label">나이대</p><div class="chips" id="nAge"></div></section>
+    <section class="section"><p class="label">아트 스타일</p><div class="opts" id="nStyle"></div></section>
+    <div class="details" id="nDetails">
+      <div class="head" data-det="nDetails"><b>외형 디테일</b><span class="sub">선택 입력 · 비우면 자동 랜덤</span><button class="shuffle" data-shuffle="anime">🎲 셔플</button><svg class="caret" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></div>
+      <div class="body">
+        <div class="row"><p class="t"><span class="ic">💇</span>헤어 스타일</p><div class="txts" id="nHair"></div></div>
+        <div class="row"><p class="t">헤어 컬러</p><div class="radios" id="nHairC"></div></div>
+        <div class="row"><p class="t">눈 색</p><div class="radios" id="nEye"></div></div>
+        <div class="row"><p class="t">피부톤</p><div class="swatches" id="nSkin"></div></div>
+        <div class="row"><p class="t">의상 컨셉</p><div class="txts" id="nOutfit"></div></div>
+        <div class="row"><p class="t">특징</p><div class="txts" id="nTrait"></div></div>
+        <div class="dirslot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 프롬프트 생성 (요약 · 비용 · 생성 버튼) -->
+  <div class="bar">
+    <div class="top">
+      <div class="who" id="who"></div>
+    </div>
+    <button class="cta" id="cta">계속하려면 얼굴 사진을 업로드하세요</button>
+    <div class="promptbox under"  id="promptBox" hidden>
+      <div class="ph"><b>GPT Image 프롬프트</b><span id="promptFor"></span><button class="gen" id="genGpt">GPT로 바로 생성</button><button id="copyPrompt">복사</button></div>
+      <pre id="promptText"></pre>
+      <ul class="pnote" id="promptNote"></ul>
+    </div>
+  </div>
+
+  <hr class="sep">
+
+  <!-- 내 후보 -->
+  <section class="cands" id="cands">
+    <h2>내 후보</h2>
+    <input type="file" id="quickFile" accept="image/*" hidden>
+    <div class="quick" id="quick" title="클릭, 드래그 앤 드롭, 또는 붙여넣기(Ctrl+V)">
+      <svg viewBox="0 0 24 24"><rect x="2" y="6" width="6" height="12" rx="1"/><rect x="9" y="6" width="6" height="12" rx="1"/><rect x="16" y="6" width="6" height="12" rx="1"/></svg>
+      <div class="t"><b>이미 만든 3단계 비교 이미지가 있나요?</b><span>따로 생성한 비교 이미지를 바로 올려 1 KEEP · 2 NATURAL · 3 GLOW 중 모델을 고르고 데뷔하세요. API 설정을 하면 카드의 "GPT로 바로 생성"으로 이 과정을 건너뛸 수 있어요.</span></div>
+      <button type="button">비교 이미지 바로 올리기</button>
+    </div>
+    <div id="cmpSlot"></div>
+    <div class="listhd"><b>내 모델 · 후보</b><span id="listSub"></span></div>
+    <div class="candgrid" id="candGrid"></div>
+    <input type="file" id="candFile" accept="image/*" hidden>
+</section>
+
+</div>
+
+<!-- Models 페이지: 데뷔한 모델 목록 -->
+<div id="viewModels" hidden>
+  <h1>Models</h1>
+  <p class="lead" id="modelsLead">데뷔한 AI 모델이 여기에 등록돼요.</p>
+  <div class="mgrid" id="modelsGrid"></div>
+  <div class="empty mempty" id="modelsEmpty" hidden>
+    <p>아직 데뷔한 모델이 없어요.</p>
+    <a href="#create" class="mgo">AI 모델 만들기로 가기 →</a>
+  </div>
+</div>
+</main>
+
+<footer>
+  <span class="wordmark">AI Model</span>
+  <div>© AI Model. All rights reserved.</div>
+  <div class="links"><span>KO</span><span class="dim">EN</span><span>Terms</span><span>Privacy</span><span>Contact</span></div>
+</footer>
+
+<!-- 사진 설정 모달 -->
+<div class="modal" id="cropModal" hidden>
+  <div class="card">
+    <h3>사진 설정</h3>
+    <p class="sub">얼굴이 잘 보이도록 잘라서 쓸지, 원본 그대로 쓸지 정하세요.</p>
+    <div class="seg" id="cropMode">
+      <button data-m="none">원본 그대로</button>
+      <button data-m="crop" class="on">크롭</button>
+    </div>
+    <div class="stage" id="stage"><img id="stageImg" alt=""><div class="frame" id="frame"></div></div>
+    <div class="ctl" id="cropCtl">
+      <div class="chips" id="aspect"><button class="chip on" data-a="1">1:1</button><button class="chip" data-a="0.75">3:4</button></div>
+      <label class="zoom">줌<input type="range" id="zoom" min="1" max="3" step="0.01" value="1"></label>
+    </div>
+    <p class="hint" id="cropHint">사진을 드래그해서 위치를 맞추세요. 얼굴이 프레임 가운데 오도록 하면 좋아요.</p>
+    <div class="foot"><button id="cropCancel">취소</button><button class="ok" id="cropApply">적용</button></div>
+  </div>
+</div>
+<div class="lb" id="lb" hidden>
+  <button class="x" id="lbX">✕</button>
+  <button class="nav prev" id="lbPrev">‹</button>
+  <img id="lbImg" alt="">
+  <button class="nav next" id="lbNext">›</button>
+  <div class="acts"><button id="lbAdjust">조정</button><button id="lbUndebut" hidden>데뷔 취소</button><button class="del" id="lbDel" title="삭제"><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg></button></div>
+  <div class="cnt" id="lbCnt"></div>
+</div>
+<div class="adj" id="adj" hidden>
+  <div class="card">
+    <div class="hd"><div><h3>얼굴 조정</h3><p>형태만 다듬어요 — 인물은 그대로 유지됩니다.</p></div><button class="x" id="adjX">✕</button></div>
+    <div class="body">
+      <div class="pv" id="adjPv"><canvas id="adjCv"></canvas><span class="st" id="adjSt"></span></div>
+      <div class="side" id="adjSide"></div>
+    </div>
+  </div>
+</div>
+<div class="set" id="setModal" hidden>
+  <div class="card">
+    <h3>API 설정</h3>
+    <p class="sub">프롬프트로 GPT Image를 바로 호출해 결과를 카드에 자동으로 넣어요. 키는 이 브라우저에만 저장됩니다(내부용).</p>
+    <label>OpenAI API 키</label><input type="password" id="setKey" placeholder="sk-..." autocomplete="off">
+    <div class="row2">
+      <div><label>모델</label><input id="setModel" list="modelList" placeholder="gpt-image-1"><datalist id="modelList"><option value="gpt-image-1"><option value="gpt-image-2"><option value="gpt-image-1-mini"></datalist></div>
+      <div><label>품질</label><select id="setQuality"><option value="high">high</option><option value="medium">medium</option><option value="low">low</option></select></div>
+    </div>
+    <div class="row2">
+      <div><label>입력 충실도 (얼굴 유지)</label><select id="setFid"><option value="high">high</option><option value="">기본</option></select></div>
+      <div><label>비교 이미지 크기</label><select id="setSize"><option value="1536x1024">1536×1024 (가로)</option><option value="auto">auto</option></select></div>
+    </div>
+    <p class="note">내 얼굴 모델은 얼굴 사진을 입력으로 넣는 편집(images/edits) 호출, 랜덤 모델은 텍스트 생성(images/generations) 호출을 씁니다. 모델 이름은 계정에서 쓸 수 있는 ID를 입력하세요. 호출이 거부되면 오류 문구가 그대로 표시돼요.</p>
+    <div class="foot"><button id="setCancel">취소</button><button class="ok" id="setSave">저장</button></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script src="js/prompt.js"></script>
+<script src="js/adjust.js"></script>
+<script src="js/engine.js"></script>
+<script>
+/* ── 데이터 ─────────────────────────────────────────── */
+const STRENGTH=[['keep','그대로','동일 인물 유지','증명사진 톤. 얼굴은 손대지 않고, 아래에서 고른 헤어·메이크업·피부톤 같은 선택 항목만 적용합니다.'],['light','약하게','자연 보정','상업용 헤드샷으로 재촬영. 밝은 하이키 조명과 촉촉한 광채 피부, 클린 메이크업. 얼굴은 가볍게만 다듬어 누가 봐도 본인. 자세는 원본 그대로.'],['glow','글로우','모델급','프리미엄 뷰티 캠페인 컷으로 재해석. 하이키 조명, 윤기 나는 도자기 글래스 스킨(모공·결은 살림), 클린 K-뷰티 메이크업, 에어리 헤어. 얼굴은 과감히 이상화. 자세는 원본 그대로.']];
+const TYPES=[['human','인간'],['animal','동물'],['anime','애니']];
+const GENDER=[['female','여성'],['male','남성']];
+const ETH=[['ea','동아시아',[['🇰🇷','대한민국'],['🇯🇵','일본'],['🇨🇳','중국'],['🇹🇼','대만'],['🇲🇳','몽골'],['🇭🇰','홍콩']]],['sea','동남아시아',[['🇹🇭','태국'],['🇻🇳','베트남'],['🇵🇭','필리핀'],['🇮🇩','인도네시아'],['🇲🇾','말레이시아'],['🇸🇬','싱가포르']]],['eu','유럽',[['🇫🇷','프랑스'],['🇩🇪','독일'],['🇬🇧','영국'],['🇮🇹','이탈리아'],['🇪🇸','스페인'],['🇸🇪','스웨덴']]],['na','북미',[['🇺🇸','미국'],['🇨🇦','캐나다']]],['af','아프리카',[['🇰🇪','케냐'],['🇳🇬','나이지리아'],['🇬🇭','가나'],['🇪🇹','에티오피아'],['🇿🇦','남아공']]],['afd','아프리카계',[['🇺🇸','미국'],['🇧🇷','브라질'],['🇬🇧','영국'],['🇫🇷','프랑스']]],['his','히스패닉',[['🇲🇽','멕시코'],['🇧🇷','브라질'],['🇨🇴','콜롬비아'],['🇦🇷','아르헨티나']]],['me','중동',[['🇦🇪','UAE'],['🇹🇷','튀르키예'],['🇮🇷','이란'],['🇱🇧','레바논']]],['mix','혼혈',[]],['rnd','랜덤',[]]];
+const AGE=[['e20','20대 초반'],['m20','20대 중반'],['l20','20대 후반'],['e30','30대 초반'],['m30','30대 중반'],['l30','30대 후반'],['40','40대'],['50','50대'],['60','60대'],['70','70대']];
+const BODY=['슬림','애슬레틱','근육질','볼륨감','아담한'];
+const HAIR=['긴 생머리','긴 레이어드','긴 웨이브','미디엄 생머리','롱보브','단발','짧은 단발','픽시컷','커튼뱅','옆가르마','가운데 가르마','포니테일','로우번','내추럴 업두','웻룩','부드러운 컬','타이트 컬','땋은 머리','슬릭백','울프컷'];
+const HAIR_M=['지정 안 함','자연스러운 숏컷','댄디컷','쉐도우펌','가르마펌','5:5 센터파트','리프컷','시스루뱅','투블럭','아이비리그컷','크롭컷','페이드컷','콤마헤어','포마드 / 슬릭백','웨이브펌','히피펌','울프컷(남)','장발','헝클어진 머리'];
+const hairList=()=>S.gender==='male'?HAIR_M:HAIR;
+const HAIRC=[['블랙','#151515'],['다크 브라운','#3b2a1e'],['라이트 브라운','#7a5636'],['허니 브라운','#a6753b'],['체스트넛','#5c3a24'],['블론드','#d9b46a'],['애쉬 블론드','#c9bfa8'],['플래티넘','#ece6d8'],['스트로베리','#d89a74'],['레드','#a8372a'],['어번','#7b3a22'],['코퍼','#b6582a'],['애쉬 그레이','#9a9a9a'],['실버','#cfd3d6'],['옴브레','#6b4a35'],['발레아쥬','#8a6a48'],['핑크','#e8a2b8'],['라벤더','#b9a6d6'],['블루블랙','#1a2233']];
+const EYE=[['다크 브라운','#3a2418'],['라이트 브라운','#8a5a34'],['헤이즐','#8b7a3a'],['그린','#5f8a4f'],['블루','#5a86b8'],['그레이','#9aa0a6'],['오드아이','linear-gradient(90deg,#5a86b8 50%,#8a5a34 50%)']];
+const SKIN=[['도자기빛','#f6e9e0'],['밝은 톤','#efd6c3'],['올리브','#c9a482'],['탠','#b07f5a'],['카라멜','#8a5a3a'],['딥','#4a2e22']];
+const MAKEUP=['없음','내추럴','에디토리얼','글래머'];
+const TATTOO=['없음','쇄골','목 옆','귀 뒤','어깨','가슴','등 위쪽','팔뚝'];
+const COST=5;
+/* 프롬프트 엔진은 js/prompt.js */
+const {EN,STRENGTH_EN,POSE_LOCK,humanPrompt,animalPrompt,animePrompt,comparePrompt}=window.PromptEngine;
+/* 동물 */
+const SPECIES=['강아지','고양이','토끼','여우','곰','판다','호랑이','사자','햄스터','앵무새','랜덤'];
+const ASTYLE=['실사','3D 캐릭터','일러스트'];
+const AAGE=['아기','어린','성체'];
+const FUR=[['화이트','#f3f1ec'],['크림','#efe0c4'],['골든','#d3a55a'],['브라운','#7a4f2c'],['블랙','#1c1c1c'],['그레이','#9a9a9a'],['오렌지','#e0863a'],['얼룩','linear-gradient(90deg,#f3f1ec 50%,#3b2a1e 50%)'],['삼색','linear-gradient(90deg,#f3f1ec 33%,#e0863a 33% 66%,#1c1c1c 66%)']];
+const FURLEN=['짧은','보통','긴','컬리'];
+const AEYE=[['브라운','#5a3a22'],['앰버','#c58a2a'],['그린','#5f8a4f'],['블루','#5a86b8'],['헤이즐','#8b7a3a'],['오드아이','linear-gradient(90deg,#5a86b8 50%,#c58a2a 50%)']];
+const AFACE=['무표정','미소','장난스러운','졸린','호기심'];
+const AACC=['없음','리본','스카프','안경','모자','목걸이','꽃'];
+/* 애니 */
+const NAGE=[['teen','10대'],['20','20대'],['30','30대'],['unk','나이 불명']];
+const NSTYLE=['일본 애니','한국 웹툰','2.5D','픽셀아트','수채화','랜덤'];
+const NHAIRC=HAIRC.concat([['민트','#8fd9c4'],['스카이블루','#8ec5f2'],['퍼플','#8a6bd1'],['화이트','#f4f4f4']]);
+const NEYE=[['브라운','#5a3a22'],['블루','#4f8be0'],['그린','#4faa6a'],['레드','#d34a4a'],['골드','#d9a53a'],['퍼플','#8a6bd1'],['핑크','#e78ab0'],['민트','#63c9b0'],['오드아이','linear-gradient(90deg,#4f8be0 50%,#d9a53a 50%)']];
+const NOUTFIT=['교복','캐주얼','판타지','SF','전통 의상','아이돌','메이드·집사'];
+const NTRAIT=['없음','고양이 귀','안경','뿔','날개','엘프 귀','흉터','안대'];
+
+/* ── 상태 ─────────────────────────────────────────── */
+const S={mode:'selfie',face:null,prev:[],consent:false,strength:'light',type:'human',gender:null,eth:'ea',country:null,age:'e20',
+  body:null,hairStyle:null,hairColor:null,eye:null,skin:null,makeup:null,tattoo:null,direction:'',detOpen:true,tips:false,
+  cands:[],sel:null,balance:100,
+  animal:{species:null,style:null,age:null,fur:null,furLen:null,eye:null,face:null,acc:null,open:true},
+  anime:{gender:null,age:null,style:null,hair:null,hairC:null,eye:null,skin:null,outfit:null,trait:null,open:true}};
+const $=s=>document.querySelector(s);
+const el=(t,c,x)=>{const n=document.createElement(t);if(c)n.className=c;if(x!=null)n.innerHTML=x;return n;};
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1600);}
+
+/* ── 렌더 ─────────────────────────────────────────── */
+function opts(host,list,key,{sub,disabled}={}){
+  host.innerHTML='';
+  list.forEach(o=>{const [id,ko,s]=o;const b=el('button','opt'+(S[key]===id?' on':''),ko+(sub&&s?`<small>${s}</small>`:''));
+    if(disabled&&disabled(id))b.disabled=true;
+    b.onclick=()=>{S[key]=S[key]===id&&key!=='type'&&key!=='strength'&&key!=='eth'?null:id;if(key==='eth')S.country=null;render();};host.append(b);});
+}
+function txts(host,list,key){host.innerHTML='';list.forEach(ko=>{const b=el('button','txt'+(S[key]===ko?' on':''),ko);b.onclick=()=>{S[key]=S[key]===ko?null:ko;render();};host.append(b);});}
+function radios(host,list,key){host.innerHTML='';list.forEach(([ko,c])=>{const b=el('button','radio'+(S[key]===ko?' on':''),`<i style="--c:${c}"></i>${ko}`);b.onclick=()=>{S[key]=S[key]===ko?null:ko;render();};host.append(b);});}
+
+function chipsS(host,list,key,{allowEmpty,emptyKo}={}){host.innerHTML='';if(allowEmpty){const b=el('button','chip'+(!S[key]?' on':''),emptyKo||'랜덤');b.onclick=()=>{S[key]=null;render();};host.append(b);}list.forEach(([id,ko])=>{const b=el('button','chip'+(S[key]===id?' on':''),ko);b.onclick=()=>{S[key]=S[key]===id&&key!=='eth'?null:id;if(key==='eth')S.country=null;render();};host.append(b);});}
+function chipsO(host,list,obj,key,{allowEmpty,emptyKo}={}){host.innerHTML='';if(allowEmpty){const b=el('button','chip'+(!obj[key]?' on':''),emptyKo||'랜덤');b.onclick=()=>{obj[key]=null;render();};host.append(b);}list.forEach(o=>{const [id,ko]=Array.isArray(o)?o:[o,o];const b=el('button','chip'+(obj[key]===id?' on':''),ko);b.onclick=()=>{obj[key]=obj[key]===id?null:id;render();};host.append(b);});}
+function optsO(host,list,obj,key){host.innerHTML='';list.forEach(o=>{const [id,ko]=Array.isArray(o)?o:[o,o];const b=el('button','opt'+(obj[key]===id?' on':''),ko);b.onclick=()=>{obj[key]=obj[key]===id?null:id;render();};host.append(b);});}
+function txtsO(host,list,obj,key){host.innerHTML='';list.forEach(ko=>{const b=el('button','txt'+(obj[key]===ko?' on':''),ko);b.onclick=()=>{obj[key]=obj[key]===ko?null:ko;render();};host.append(b);});}
+function radiosO(host,list,obj,key){host.innerHTML='';list.forEach(([ko,c])=>{const b=el('button','radio'+(obj[key]===ko?' on':''),`<i style="--c:${c}"></i>${ko}`);b.onclick=()=>{obj[key]=obj[key]===ko?null:ko;render();};host.append(b);});}
+function swO(host,list,obj,key){host.innerHTML='';list.forEach(([ko,c])=>{const b=el('button','sw'+(obj[key]===ko?' on':''),`<i style="--c:${c}"></i><span>${ko}</span>`);b.onclick=()=>{obj[key]=obj[key]===ko?null:ko;render();};host.append(b);});}
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+
+/* 비교 카드(작업 영역) */
+function renderCompareCard(c){
+  const card=el('div','cand wide'+(S.sel===c.id?' on':''));
+  const img=el('div','img');
+  if(c.busy){img.innerHTML=`<div class="ph"><div class="spec">${c.spec}</div></div><div class="busy"><i></i>${c.busy}</div>`;}
+  else if(c.img){
+    img.innerHTML=`<img src="${c.img}" alt="">`;
+    const m=el('div','pmask');[1,2,3].forEach(n=>{const i=el('i');if(c.panel===n)i.classList.add('on');if(!c.panel)i.style.background='transparent';m.append(i);});img.append(m);
+    const up=el('div','up');const rg=el('button',null,'GPT로 다시 생성');rg.onclick=e=>{e.stopPropagation();generateWithGPT(c);};const rp=el('button','ghost','교체');rp.onclick=e=>{e.stopPropagation();candUpload(c);};const rm=el('button','ghost','제거');rm.onclick=e=>{e.stopPropagation();c.img=null;c.panel=null;c.debutedPanels={};render();};up.append(rg,rp,rm);img.append(up);
+  }else{
+    img.innerHTML=`<div class="ph"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>GPT로 바로 생성하거나, 만든 3단계 비교 이미지를 여기에 올려요</span><div class="up"><button class="gen">GPT로 바로 생성</button><button>이미지 올리기</button></div><div class="spec">${c.spec}</div></div>`;
+    img.querySelector('.up .gen').onclick=e=>{e.stopPropagation();generateWithGPT(c);};img.querySelector('.up button:not(.gen)').onclick=e=>{e.stopPropagation();candUpload(c);};
+  }
+  ['dragenter','dragover'].forEach(ev=>img.addEventListener(ev,e=>{e.preventDefault();img.classList.add('over');}));
+  ['dragleave','drop'].forEach(ev=>img.addEventListener(ev,e=>{e.preventDefault();img.classList.remove('over');}));
+  img.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)setCandImg(c,f);});
+  img.onclick=()=>{if(!c.busy){S.sel=c.id;render();}};
+  card.append(img);
+  const cap=el('div','cap');
+  if(c.img){const pn=el('div','panels');PANELS.forEach(([st,label],i)=>{const n=i+1;const b=el('button',c.panel===n?'on':'',`<b>${n}</b>${label}`);b.onclick=e=>{e.stopPropagation();c.panel=c.panel===n?null:n;render();};pn.append(b);});cap.append(pn);
+    c.debutedPanels=c.debutedPanels||{};
+    if(c.busyPanel){cap.append(el('p','pdone',`${c.busyPanel}번 패널 크롭 · 업스케일 중…`));}
+    else if(c.panel&&c.debutedPanels[c.panel]){cap.append(el('p','pdone',`${c.panel}번 ${PANELS[c.panel-1][1]} · ${c.debutedPanels[c.panel]} 데뷔 완료 → 아래 목록에서 확인`));}
+    else if(c.panel){const f=el('div','debut');f.style.marginTop='10px';const inp=el('input');inp.placeholder=`모델 이름 (${c.panel}번 ${PANELS[c.panel-1][1]})`;inp.value=c.panelName||'';inp.oninput=()=>c.panelName=inp.value;
+      const b=el('button',null,'데뷔');b.onclick=e=>{e.stopPropagation();debutFromPanel(c,c.panel);};f.append(inp,b);cap.append(f);
+      const alt=el('button','pbtn','데뷔하지 않고 후보로만 저장');alt.onclick=e=>{e.stopPropagation();candidateFromPanel(c,c.panel);};cap.append(alt);}
+    else cap.append(el('p','pdone','패널을 선택하면 바로 데뷔할 수 있어요'));}
+  if(cap.childNodes.length)card.append(cap);return card;
+}
+/* 그리드 카드(데뷔 모델 · 후보) */
+function renderGridCard(c,cmp){
+  const card=el('div','cand'+(S.sel===c.id?' on':'')+(c.debuted?' debuted':''));
+  const img=el('div','img');
+  if(c.busy){img.innerHTML=`<div class="ph"><div class="spec">${c.spec}</div></div><div class="busy"><i></i>${c.busy}</div>`;}
+  else if(c.img){img.innerHTML=`<img src="${c.img}" alt="">`;img.classList.add('clickable');
+    if(!c.debuted){const up=el('div','up');const rp=el('button','ghost','교체');rp.onclick=e=>{e.stopPropagation();candUpload(c);};const rm=el('button','ghost','제거');rm.onclick=e=>{e.stopPropagation();c.img=null;render();};up.append(rp,rm);img.append(up);}}
+  else if(c.selfie&&cmp&&cmp.img){
+    const hint={keep:1,light:2,glow:3}[c.strength]||0;
+    img.innerHTML=`<div class="ph"><span>비교 이미지에서 가져올 패널</span><div class="pick"><div class="nums">${[1,2,3].map(n=>`<button data-n="${n}" class="${n===hint?'hint':''}" title="${PANELS[n-1][1]}">${n}</button>`).join('')}</div><span class="lbl">1 KEEP · 2 NATURAL · 3 GLOW</span><button class="alt">직접 올리기</button></div><div class="spec">${c.spec}</div></div>`;
+    img.querySelectorAll('.nums button').forEach(b=>b.onclick=e=>{e.stopPropagation();pullPanel(c,+b.dataset.n);});
+    img.querySelector('.alt').onclick=e=>{e.stopPropagation();candUpload(c);};
+  }else{
+    img.innerHTML=`<div class="ph"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><span>GPT로 바로 생성하거나 이미지를 올려요</span><div class="up"><button class="gen">GPT로 생성</button><button>이미지 올리기</button></div><div class="spec">${c.spec}</div></div>`;
+    img.querySelector('.up .gen').onclick=e=>{e.stopPropagation();generateWithGPT(c);};img.querySelector('.up button:not(.gen)').onclick=e=>{e.stopPropagation();candUpload(c);};
+  }
+  if(c.debuted)img.append(el('span','badge','데뷔됨'));
+  ['dragenter','dragover'].forEach(ev=>img.addEventListener(ev,e=>{e.preventDefault();img.classList.add('over');}));
+  ['dragleave','drop'].forEach(ev=>img.addEventListener(ev,e=>{e.preventDefault();img.classList.remove('over');}));
+  img.addEventListener('drop',e=>{if(c.debuted)return;const f=e.dataTransfer.files[0];if(f)setCandImg(c,f);});
+  img.onclick=()=>{if(c.busy)return;if(c.img){openLightbox(c.id);return;}S.sel=S.sel===c.id?null:c.id;render();};
+  card.append(img);
+  // 하단 바: 선택 / 데뷔 폼 / 데뷔 완료
+  const bar=el('div','bar2');
+  if(c.debuted){bar.classList.add('done');bar.append(document.createTextNode(`${c.name} · 데뷔 완료 →`));const u=el('button','del','데뷔 취소');u.onclick=e=>{e.stopPropagation();undebut(c);};const d=el('button','del','삭제');d.onclick=e=>{e.stopPropagation();deleteCandidate(c);};bar.append(u,d);}
+  else if(S.sel===c.id){const inp=el('input');inp.placeholder='모델 이름';inp.value=c.name||'';inp.oninput=()=>c.name=inp.value;inp.onclick=e=>e.stopPropagation();const go=el('button','go','데뷔');go.onclick=e=>{e.stopPropagation();debut(c);};bar.append(inp,go);bar.style.cursor='default';}
+  else{bar.textContent='선택';bar.onclick=()=>{S.sel=c.id;render();};}
+  card.append(bar);
+  const foot=el('div','meta');const pb=el('button','pbtn','프롬프트 보기');pb.style.margin='0';pb.onclick=()=>{S.sel=c.id;render();$('#promptBox').scrollIntoView({behavior:'smooth',block:'nearest'});};foot.append(pb);
+  if(c.up)foot.append(document.createTextNode(` · ${c.up.factor}× 업스케일 ${c.up.w}×${c.up.h}`));
+  if(!c.debuted){const d=el('button','del','삭제');d.style.cssText='margin-left:6px;font-size:12px;color:#999;text-decoration:underline';d.onclick=()=>deleteCandidate(c);foot.append(d);}
+  card.append(foot);return card;
+}
+function render(){
+  const selfie=S.mode==='selfie';
+  document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.mode===S.mode));
+  $('#lead').textContent=selfie?'가장 잘 나온 얼굴 사진을 업로드해 나만의 AI 모델을 만들어 보세요.':'옵션만 골라 새로운 AI 모델을 만들어 보세요. 비운 항목은 자동으로 랜덤 조합돼요.';
+  $('#selfieBlock').hidden=!selfie;
+  if(selfie)S.type='human';
+  $('#typeSec').hidden=selfie;
+
+  // 얼굴 사진
+  const dz=$('#dz');
+  if(S.face){dz.innerHTML=`<img src="${S.face}" alt=""><span>클릭해서 다른 사진으로 교체 · <u id="recrop">사진 설정</u> · <u id="rmface" class="rm">삭제</u></span>`;dz.querySelector('#recrop').onclick=e=>{e.stopPropagation();openCrop(S.faceOrig||S.face);};dz.querySelector('#rmface').onclick=e=>{e.stopPropagation();S.face=null;S.faceOrig=null;render();toast('얼굴 사진을 지웠어요');};}
+  else dz.innerHTML=`<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="15" rx="2"/><circle cx="9" cy="10.5" r="1.6"/><path d="M3 18l5.5-5 4 3.5 3-2.5L21 18"/><path d="M17 3v4M15 5h4"/></svg><span>클릭, 드래그 앤 드롭, 또는 붙여넣기(Ctrl+V)</span>`;
+  const pt=$('#prevThumbs');pt.innerHTML='';
+  if(S.prev.length){S.prev.forEach(src=>{const t=el('div','th'+(S.face===src?' on':''),`<img src="${src}" alt="">`);t.onclick=()=>{S.face=src;S.faceOrig=null;render();};const x=el('button','x','✕');x.title='이 셀피 삭제';x.onclick=e=>{e.stopPropagation();S.prev=S.prev.filter(p=>p!==src);if(S.face===src){S.face=null;S.faceOrig=null;}render();};t.append(x);pt.append(t);});}
+  else{const t=el('div','th','<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#c4c4c4" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>');pt.append(t);}
+
+  opts($('#type'),TYPES,'type');
+  $('#humanBlock').hidden=S.type!=='human';$('#animalBlock').hidden=S.type!=='animal';$('#animeBlock').hidden=S.type!=='anime';
+  // 디렉션·Tips는 활성 종류의 디테일 패널 안으로 이동
+  const slot={human:'#details',animal:'#aDetails',anime:'#nDetails'}[S.type];
+  document.querySelector(slot+' .dirslot').after($('#dir'));
+  // 동물
+  const A=S.animal;
+  optsO($('#species'),SPECIES,A,'species');optsO($('#aStyle'),ASTYLE,A,'style');optsO($('#aAge'),AAGE,A,'age');
+  $('#aDetails').classList.toggle('closed',!A.open);
+  radiosO($('#fur'),FUR,A,'fur');txtsO($('#furLen'),FURLEN,A,'furLen');radiosO($('#aEye'),AEYE,A,'eye');txtsO($('#aFace'),AFACE,A,'face');txtsO($('#aAcc'),AACC,A,'acc');
+  // 애니
+  const N=S.anime;
+  optsO($('#nGender'),GENDER,N,'gender');chipsO($('#nAge'),NAGE,N,'age',{allowEmpty:true});optsO($('#nStyle'),NSTYLE,N,'style');
+  $('#nDetails').classList.toggle('closed',!N.open);
+  txtsO($('#nHair'),HAIR,N,'hair');radiosO($('#nHairC'),NHAIRC,N,'hairC');radiosO($('#nEye'),NEYE,N,'eye');swO($('#nSkin'),SKIN,N,'skin');txtsO($('#nOutfit'),NOUTFIT,N,'outfit');txtsO($('#nTrait'),NTRAIT,N,'trait');
+  opts($('#gender'),GENDER,'gender');
+  chipsS($('#eth'),ETH,'eth');
+  const eth=ETH.find(e=>e[0]===S.eth);
+  $('#countrySec').hidden=!eth[2].length;
+  const cw=$('#country');cw.innerHTML='';
+  const r=el('button','chip'+(S.country==null?' on':''),'<span class="flag">🎲</span>랜덤');r.onclick=()=>{S.country=null;render();};cw.append(r);
+  eth[2].forEach(([f,ko])=>{const b=el('button','chip'+(S.country===ko?' on':''),`<span class="flag">${f}</span>${ko}`);b.onclick=()=>{S.country=ko;render();};cw.append(b);});
+  chipsS($('#age'),AGE,'age',{allowEmpty:true});
+
+  $('#details').classList.toggle('closed',!S.detOpen);
+  txts($('#body'),BODY,'body');
+  const hs=$('#hairStyle');hs.innerHTML='';
+  const hsel=el('button','txt dim','헤어 선택');hsel.onclick=()=>{S.hairStyle=null;render();};hs.append(hsel);
+  const up=el('button','txt dashed','+ 헤어 올리기');up.onclick=()=>toast('헤어 레퍼런스 업로드는 준비 중입니다');hs.append(up);
+  if(S.hairStyle&&!hairList().includes(S.hairStyle))S.hairStyle=null;
+  hairList().forEach(ko=>{const b=el('button','txt'+(S.hairStyle===ko?' on':''),ko);b.onclick=()=>{S.hairStyle=S.hairStyle===ko?null:ko;render();};hs.append(b);});
+  radios($('#hairColor'),HAIRC,'hairColor');
+  radios($('#eye'),EYE,'eye');
+  const sk=$('#skin');sk.innerHTML='';SKIN.forEach(([ko,c])=>{const b=el('button','sw'+(S.skin===ko?' on':''),`<i style="--c:${c}"></i><span>${ko}</span>`);b.onclick=()=>{S.skin=S.skin===ko?null:ko;render();};sk.append(b);});
+  txts($('#makeup'),MAKEUP,'makeup');
+  txts($('#tattoo'),TATTOO,'tattoo');
+  $('#tips').hidden=!S.tips;
+
+  // 후보 — 비교 카드는 단 하나(작업 영역), 나머지는 균일 그리드
+  const cmpAll=S.cands.filter(c=>c.compare); if(cmpAll.length>1){const keep=cmpAll.find(c=>c.img)||cmpAll[0];S.cands=S.cands.filter(c=>!c.compare||c===keep);}
+  const cmp=S.cands.find(c=>c.compare)||null;
+  // 빈 후보(이미지 없음)는 가장 최근 것 하나만 남기고 정리, 표시 순서는 이미지 있는 카드 → 빈 카드(맨 끝)
+  const empties=S.cands.filter(c=>!c.compare&&!c.img&&!c.debuted&&!c.busy);
+  if(empties.length>1){const keep=empties[0];S.cands=S.cands.filter(c=>!(empties.includes(c)&&c!==keep));}
+  const listCands=S.cands.filter(c=>!c.compare).sort((a,b)=>((a.img||a.busy)?0:1)-((b.img||b.busy)?0:1));
+  const selfieMode=S.mode==='selfie';
+  $('#quick').hidden=!selfieMode;
+  const cmpSlot=$('#cmpSlot');cmpSlot.innerHTML='';cmpSlot.hidden=!selfieMode;
+  if(selfieMode){if(cmp)cmpSlot.append(renderCompareCard(cmp));else cmpSlot.append(el('p','empty','"AI 모델 생성"을 누르거나 위에서 비교 이미지를 바로 올리면 여기에 3단계 비교 카드가 생겨요.'));}
+  document.querySelector('.listhd').classList.toggle('flat',!selfieMode);
+  const cg=$('#candGrid');cg.innerHTML='';
+  const nDeb=listCands.filter(c=>c.debuted).length;
+  $('#listSub').textContent=listCands.length?`데뷔 ${nDeb} · 후보 ${listCands.length-nDeb}`:(selfieMode?'아직 없어요 — 비교 카드에서 패널을 골라 데뷔하면 여기에 쌓여요':'아직 없어요 — "AI 모델 생성"으로 후보를 만들면 여기에 쌓여요');
+  listCands.forEach(c=>cg.append(renderGridCard(c,cmp)));
+  showPrompt();refreshApiBtn();
+  {const n=S.cands.filter(c=>c.debuted&&!c.busy).length;const b=$('#modelsCount');b.textContent=n;b.hidden=!n;if(currentView()==='models')renderModels();}
+
+  // 하단 바
+  const tp=TYPES.find(t=>t[0]===S.type)[1];
+  const line=S.type==='human'?[eth[1],S.country,AGE.find(a=>a[0]===S.age)?.[1]].filter(Boolean).join(', ')
+    :S.type==='animal'?[S.animal.species||'랜덤 동물',S.animal.style,S.animal.age].filter(Boolean).join(', ')
+    :[GENDER.find(g=>g[0]===S.anime.gender)?.[1],NAGE.find(a=>a[0]===S.anime.age)?.[1],S.anime.style].filter(Boolean).join(', ')||'랜덤';
+  $('#who').innerHTML=`<b>${tp}</b><span class="dot">·</span><span class="v">${line}</span>`;
+  const cta=$('#cta');
+  let msg=null;
+  if(selfie&&!S.face)msg='계속하려면 얼굴 사진을 업로드하세요';
+  cta.textContent=msg||(selfie?'AI 모델 생성 — 3단계 한 번에':'AI 모델 생성');cta.classList.toggle('ready',!msg);cta.disabled=!!msg;
+  persist();
+}
+
+/* ── 동작 ─────────────────────────────────────────── */
+document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>{S.mode=b.dataset.mode;render();});
+$('#dz').onclick=()=>$('#faceFile').click();
+$('#faceFile').onchange=e=>{if(e.target.files[0])setFace(e.target.files[0]);e.target.value='';};
+['dragenter','dragover'].forEach(ev=>$('#dz').addEventListener(ev,e=>{e.preventDefault();$('#dz').classList.add('over');}));
+['dragleave','drop'].forEach(ev=>$('#dz').addEventListener(ev,e=>{e.preventDefault();$('#dz').classList.remove('over');}));
+$('#dz').addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f)setFace(f);});
+document.addEventListener('paste',e=>{if(!$('#cropModal').hidden)return;const it=[...e.clipboardData.items].find(i=>i.type.startsWith('image/'));if(!it)return;const f=it.getAsFile();
+  // 얼굴 사진이 아직 없으면 얼굴로, 있으면 3단계 비교 이미지로 (가로로 긴 이미지는 항상 비교 이미지로)
+  const im=new Image();const url=URL.createObjectURL(f);im.onload=()=>{URL.revokeObjectURL(url);if(im.width>im.height*1.8||(S.mode==='selfie'&&S.face))quickFile(f);else if(S.mode==='selfie')setFace(f);};im.src=url;});
+function setFace(f){if(!f.type.startsWith('image/'))return toast('이미지 파일만 올릴 수 있어요');const r=new FileReader();r.onload=()=>openCrop(r.result);r.readAsDataURL(f);}
+function commitFace(src,orig){S.face=src;S.faceOrig=orig||src;if(!S.prev.includes(src))S.prev.unshift(src);S.prev=S.prev.slice(0,4);render();}
+
+/* ── 사진 설정 (크롭) ────────────────────────────────── */
+const CR={src:null,mode:'crop',aspect:1,zoom:1,ox:0,oy:0,iw:0,ih:0,W:0,H:0,drag:null};
+const stage=$('#stage'),stageImg=$('#stageImg'),frame=$('#frame');
+function openCrop(src){
+  CR.src=src;CR.mode='crop';CR.aspect=1;CR.zoom=1;
+  const im=new Image();im.onload=()=>{CR.iw=im.naturalWidth;CR.ih=im.naturalHeight;stageImg.src=src;$('#cropModal').hidden=false;$('#zoom').value=1;layoutCrop(true);};im.src=src;
+}
+function frameSize(){const s=stage.clientWidth;const pad=.86;let W,H;if(CR.aspect>=1){W=s*pad;H=W/CR.aspect;}else{H=s*pad;W=H*CR.aspect;}return{W,H,fx:(s-W)/2,fy:(s-H)/2};}
+function layoutCrop(reset){
+  document.querySelectorAll('#cropMode button').forEach(b=>b.classList.toggle('on',b.dataset.m===CR.mode));
+  document.querySelectorAll('#aspect .chip').forEach(b=>b.classList.toggle('on',+b.dataset.a===CR.aspect));
+  const crop=CR.mode==='crop';
+  $('#cropCtl').hidden=!crop;frame.hidden=!crop;stage.classList.toggle('plain',!crop);
+  $('#cropHint').textContent=crop?'사진을 드래그해서 위치를 맞추세요. 얼굴이 프레임 가운데 오도록 하면 좋아요.':'원본 비율 그대로 사용해요. 얼굴이 작게 나온 사진이면 크롭을 권해요.';
+  if(!crop){stageImg.style.cssText='';return;}
+  const {W,H,fx,fy}=frameSize();CR.W=W;CR.H=H;
+  frame.style.cssText=`left:${fx}px;top:${fy}px;width:${W}px;height:${H}px`;
+  const base=Math.max(W/CR.iw,H/CR.ih),sc=base*CR.zoom,dw=CR.iw*sc,dh=CR.ih*sc;
+  if(reset){CR.ox=(W-dw)/2;CR.oy=(H-dh)/2;}
+  CR.ox=Math.min(0,Math.max(W-dw,CR.ox));CR.oy=Math.min(0,Math.max(H-dh,CR.oy));
+  stageImg.style.cssText=`left:${fx+CR.ox}px;top:${fy+CR.oy}px;width:${dw}px;height:${dh}px`;
+}
+document.querySelectorAll('#cropMode button').forEach(b=>b.onclick=()=>{CR.mode=b.dataset.m;layoutCrop(true);});
+document.querySelectorAll('#aspect .chip').forEach(b=>b.onclick=()=>{CR.aspect=+b.dataset.a;layoutCrop(true);});
+$('#zoom').oninput=e=>{const old=CR.zoom;CR.zoom=+e.target.value;
+  // 줌은 프레임 중심을 기준으로
+  const base=Math.max(CR.W/CR.iw,CR.H/CR.ih);const k=CR.zoom/old;CR.ox=CR.W/2-(CR.W/2-CR.ox)*k;CR.oy=CR.H/2-(CR.H/2-CR.oy)*k;layoutCrop(false);};
+stage.addEventListener('pointerdown',e=>{if(CR.mode!=='crop')return;CR.drag={x:e.clientX,y:e.clientY,ox:CR.ox,oy:CR.oy};stage.classList.add('drag');stage.setPointerCapture(e.pointerId);});
+stage.addEventListener('pointermove',e=>{if(!CR.drag)return;CR.ox=CR.drag.ox+(e.clientX-CR.drag.x);CR.oy=CR.drag.oy+(e.clientY-CR.drag.y);layoutCrop(false);});
+['pointerup','pointercancel'].forEach(ev=>stage.addEventListener(ev,()=>{CR.drag=null;stage.classList.remove('drag');}));
+stage.addEventListener('wheel',e=>{if(CR.mode!=='crop')return;e.preventDefault();const z=$('#zoom');z.value=Math.min(3,Math.max(1,+z.value-(e.deltaY>0?.08:-.08)));z.dispatchEvent(new Event('input'));},{passive:false});
+window.addEventListener('resize',()=>{if(!$('#cropModal').hidden)layoutCrop(false);});
+$('#cropCancel').onclick=()=>{$('#cropModal').hidden=true;};
+$('#cropModal').addEventListener('click',e=>{if(e.target===e.currentTarget)$('#cropModal').hidden=true;});
+$('#cropApply').onclick=()=>{
+  if(CR.mode!=='crop'){$('#cropModal').hidden=true;return commitFace(CR.src,CR.src);}
+  const base=Math.max(CR.W/CR.iw,CR.H/CR.ih),sc=base*CR.zoom;
+  const sx=-CR.ox/sc,sy=-CR.oy/sc,sw=CR.W/sc,sh=CR.H/sc;
+  const outW=Math.min(1200,Math.round(sw)),outH=Math.round(outW*(sh/sw));
+  const c=document.createElement('canvas');c.width=outW;c.height=outH;
+  c.getContext('2d').drawImage(stageImg,sx,sy,sw,sh,0,0,outW,outH);
+  $('#cropModal').hidden=true;commitFace(c.toDataURL('image/jpeg',.92),CR.src);toast('사진을 적용했어요');
+};
+document.querySelectorAll('.details .head').forEach(h=>h.onclick=e=>{if(e.target.closest('.shuffle'))return;const id=h.dataset.det;if(id==='details')S.detOpen=!S.detOpen;else if(id==='aDetails')S.animal.open=!S.animal.open;else S.anime.open=!S.anime.open;render();});
+document.querySelectorAll('.shuffle').forEach(b=>b.onclick=()=>{const p=pick;
+  if(b.dataset.shuffle==='human'){S.body=p(BODY);S.hairStyle=p(hairList().filter(x=>x!=='지정 안 함'));S.hairColor=p(HAIRC)[0];S.eye=p(EYE)[0];S.skin=p(SKIN)[0];S.makeup=p(MAKEUP);S.tattoo=Math.random()<.8?'없음':p(TATTOO.slice(1));S.detOpen=true;}
+  else if(b.dataset.shuffle==='animal'){const A=S.animal;A.fur=p(FUR)[0];A.furLen=p(FURLEN);A.eye=p(AEYE)[0];A.face=p(AFACE);A.acc=Math.random()<.6?'없음':p(AACC.slice(1));A.open=true;}
+  else{const N=S.anime;N.hair=p(HAIR);N.hairC=p(NHAIRC)[0];N.eye=p(NEYE)[0];N.skin=p(SKIN)[0];N.outfit=p(NOUTFIT);N.trait=Math.random()<.6?'없음':p(NTRAIT.slice(1));N.open=true;}
+  render();});
+$('#direction').oninput=e=>S.direction=e.target.value;
+$('#tipsBtn').onclick=()=>{S.tips=!S.tips;render();};
+function makeCompare(){
+  if(S.mode!=='selfie'||!S.face)return toast('얼굴 사진이 필요해요');
+
+  const f={gender:GENDER.find(g=>g[0]===S.gender)?.[1],hairColor:S.hairColor,hairStyle:S.hairStyle,makeup:S.makeup,tattoo:S.tattoo,direction:S.direction};
+  const e=theCompare();
+  if(e){e.prompt=comparePrompt(f);e.spec='3단계 비교 · 그대로 | 약하게 | 글로우';S.sel=e.id;render();toast(e.img?'새 프롬프트를 만들었어요. 생성한 이미지를 비교 카드에 올리면 교체돼요':'비교 카드의 프롬프트를 새 옵션으로 갱신했어요');$('#promptBox').scrollIntoView({behavior:'smooth',block:'start'});return;}
+  const c={id:'c'+Date.now(),spec:'3단계 비교 · 그대로 | 약하게 | 글로우',prompt:comparePrompt(f),selfie:true,compare:true,strength:null,name:'',debuted:false};
+  S.cands.unshift(c);S.sel=c.id;render();toast('3단계 비교 프롬프트를 만들었어요. 복사해서 생성한 뒤 이미지를 후보 카드에 올리세요');$('#promptBox').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function showPrompt(){
+  const box=$('#promptBox');const c=S.cands.find(x=>x.id===S.sel)||S.cands[0];
+  if(!c){box.hidden=true;return;}
+  box.hidden=false;$('#promptText').textContent=c.prompt;
+  const gb=$('#genGpt');gb.disabled=!!c.busy||c.debuted;gb.textContent=c.busy?'생성 중…':c.debuted?'데뷔된 모델':(c.img?'GPT로 다시 생성':'GPT로 바로 생성');
+  const idx=S.cands.length-S.cands.indexOf(c);
+  $('#promptFor').textContent=`후보 ${idx} · ${c.compare?'3단계 비교 · 얼굴 사진을 입력 이미지로, 가로 사이즈로 생성':c.selfie?'얼굴 사진을 참조 이미지로 함께 넣으세요':'텍스트만으로 생성'}`;
+  const st=c.selfie&&c.strength?STRENGTH.find(x=>x[0]===c.strength):null;
+  $('#promptNote').innerHTML=[
+    c.selfie?`<li><b>입력 이미지</b> 업로드한 얼굴 사진(크롭 적용본)을 GPT Image-2의 참조 이미지로 첨부</li>`:'',
+    c.compare?`<li><b>3단계 비교</b> — 증명사진(사진 그대로) / 상업용 헤드샷(조금 더 모델스럽게) / 하이패션 뷰티 커버(프로 메이크업·조명, 얼굴 약간 변형 허용), 세 촬영으로 규정했어요. 가로(3:1 또는 3:2)로 생성 후 이 카드에 올려 비교</li>`:'',
+    st?`<li><b>변형 강도 ${st[1]}</b> — ${st[0]==='keep'?'사진 그대로에 선택 항목만 적용. 얼굴·피부결·표정·각도 전부 원본 고정':st[0]==='light'?'재촬영 프레임. 자세·각도·시선 원본 고정, 눈·코·입·얼굴형 유지. 하이키 정면 뷰티광과 촉촉한 광채 피부(모공 유지)로 글로우 쪽에 가깝게, 메이크업은 클린 내추럴':'재해석 프레임. 자세·각도·시선만 원본 고정, 얼굴은 과감히 이상화(희미한 닮음만). 하이키 정면 뷰티광·글래스 스킨·클린 K-뷰티 메이크업, 배경은 항상 라이트그레이 (일관성 가장 낮음)'}</li>`:'',
+    (c.selfie&&!c.compare)?`<li><b>일관성 팁</b> 생성(Create)이 아니라 <b>편집(Edit, 이미지 입력)</b>으로 넣기 · 얼굴이 크게 나오도록 크롭한 사진 사용 · input_fidelity가 있으면 high · 결과가 여전히 달라지면 디렉션을 비우고 다시</li>`:'',
+    `<li><b>바로 생성</b> API 설정 후 "GPT로 바로 생성"을 누르면 복사·다운로드·업로드 없이 결과가 카드에 자동으로 들어와요</li>`,
+    `<li><b>권장 설정</b> quality high · 1K 미만 해상도는 피부가 자글거리니 피하기</li>`,
+    `<li><b>왜 이렇게 쓰나</b> 첫 문장이 "어떤 사진인가"를 정하고, 부정 목록("no plastic skin" 등)은 오히려 그 단어를 떠올리게 해서 넣지 않았어요</li>`,
+  ].join('');
+}
+$('#copyPrompt').onclick=()=>{navigator.clipboard.writeText($('#promptText').textContent).then(()=>{const b=$('#copyPrompt');b.textContent='복사됨';b.classList.add('copied');setTimeout(()=>{b.textContent='복사';b.classList.remove('copied');},1400);});};
+
+function makeSingle(){
+  if($('#cta').disabled&&!(S.mode==='selfie'&&S.face))return;
+  const p=a=>a[Math.floor(Math.random()*a.length)];
+  const eth=ETH.find(e=>e[0]===S.eth);
+  let spec,prompt;const selfie=S.mode==='selfie';
+  if(S.type==='human'){
+    // 셀피 모드: 비운 항목은 채우지 않음(원본 유지). 랜덤 모드: 전부 랜덤 채움
+    const f={selfie,strength:S.strength,direction:S.direction,
+      gender:GENDER.find(g=>g[0]===S.gender)?.[1]||(selfie?null:p(GENDER)[1]),
+      eth:selfie?null:(eth[0]==='rnd'?p(ETH.slice(0,8))[1]:eth[1]),
+      country:selfie?null:(S.country||(eth[2].length?p(eth[2])[1]:null)),
+      age:selfie?null:(AGE.find(a=>a[0]===S.age)?.[1]||p(AGE)[1]),
+      body:S.body||(selfie?null:p(BODY)),hairColor:S.hairColor||(selfie?null:p(HAIRC)[0]),hairStyle:S.hairStyle||(selfie?null:p(hairList().filter(x=>x!=='지정 안 함'))),
+      eye:S.eye||(selfie?null:p(EYE)[0]),skin:S.skin||(selfie?null:p(SKIN)[0]),makeup:S.makeup||(selfie?null:p(MAKEUP)),tattoo:S.tattoo||'없음'};
+    spec=selfie?[STRENGTH.find(x=>x[0]===S.strength)[1],f.gender,f.body,[f.hairColor,f.hairStyle].filter(Boolean).join(' ')||null,f.eye,f.skin,f.makeup,f.tattoo!=='없음'?f.tattoo:null].filter(Boolean).join(' · ')||'원본 유지'
+      :[f.gender,f.eth,f.country,f.age,f.body,f.hairColor+' '+f.hairStyle,f.eye,f.skin].filter(Boolean).join(' · ');
+    prompt=humanPrompt(f);
+  }
+  else if(S.type==='animal'){const A=S.animal;const f={species:(!A.species||A.species==='랜덤')?p(SPECIES.slice(0,-1)):A.species,style:A.style||p(ASTYLE),age:A.age||p(AAGE),fur:A.fur||p(FUR)[0],furLen:A.furLen||p(FURLEN),eye:A.eye||p(AEYE)[0],face:A.face||p(AFACE),acc:A.acc||(Math.random()<.6?'없음':p(AACC.slice(1))),direction:S.direction};
+    spec=['동물',f.species,f.style,f.age,f.fur+' '+f.furLen+' 털',f.eye+' 눈',f.face,f.acc!=='없음'?f.acc:null].filter(Boolean).join(' · ');prompt=animalPrompt(f);}
+  else{const N=S.anime;const f={gender:GENDER.find(g=>g[0]===N.gender)?.[1]||p(GENDER)[1],age:NAGE.find(a=>a[0]===N.age)?.[1]||p(NAGE)[1],style:(!N.style||N.style==='랜덤')?p(NSTYLE.slice(0,-1)):N.style,hairC:N.hairC||p(NHAIRC)[0],hair:N.hair||p(HAIR),eye:N.eye||p(NEYE)[0],skin:N.skin||p(SKIN)[0],outfit:N.outfit||p(NOUTFIT),trait:N.trait||(Math.random()<.6?'없음':p(NTRAIT.slice(1))),direction:S.direction};
+    spec=['애니',f.gender,f.age,f.style,f.hairC+' '+f.hair,f.eye+' 눈',f.skin,f.outfit,f.trait!=='없음'?f.trait:null].filter(Boolean).join(' · ');prompt=animePrompt(f);}
+  
+  const emptyCand=S.cands.find(c=>!c.compare&&!c.img&&!c.debuted&&!c.busy);
+  if(emptyCand){Object.assign(emptyCand,{spec,prompt,selfie:selfie&&S.type==='human',strength:S.strength});S.sel=emptyCand.id;render();toast('빈 후보 카드의 프롬프트를 새 옵션으로 갱신했어요');$('#promptBox').scrollIntoView({behavior:'smooth',block:'start'});return;}
+  S.cands.unshift({id:'c'+Date.now(),spec,prompt,selfie:selfie&&S.type==='human',strength:S.strength,name:'',debuted:false});
+  S.sel=S.cands[0].id;render();toast('후보가 추가됐어요');
+  $('#promptBox').scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('#cta').onclick=()=>{if($('#cta').disabled)return;(S.mode==='selfie'&&S.type==='human')?makeCompare():makeSingle();};
+const PANELS=[['keep','KEEP'],['light','NATURAL'],['glow','GLOW']];
+const latestCompare=()=>S.cands.find(x=>x.compare&&x.img)||null;
+/* 3패널 비교 이미지에서 n번째(1~3) 패널만 잘라낸다. 흰 간격을 피하려 좌우 2%씩 트림 */
+function cropPanel(src,n){return new Promise(res=>{const im=new Image();im.onload=()=>{const pw=im.naturalWidth/3,trim=Math.round(pw*.02);const sx=Math.round((n-1)*pw+trim),sw=Math.round(pw-trim*2),sh=im.naturalHeight;const c=document.createElement('canvas');c.width=sw;c.height=sh;c.getContext('2d').drawImage(im,sx,0,sw,sh,0,0,sw,sh);res(c.toDataURL('image/jpeg',.92));};im.src=src;});}
+async function pullPanel(c,n){const cmp=latestCompare();if(!cmp)return toast('먼저 3단계 비교 이미지를 올려주세요');c.busy='크롭 · 업스케일 중…';S.sel=c.id;render();
+  try{const r=await panelToImage(cmp,n);c.img=r.img;c.up=r.up;c.fromPanel=n;}catch(e){toast(e.message||'업스케일에 실패했어요');}
+  c.busy=null;render();if(c.img)toast(`${n}번 패널을 ${c.up.factor}× 업스케일해서 가져왔어요`);}
+async function candidateFromPanel(cmp,n){const [st,label]=PANELS[n-1];let r;try{r=await panelToImage(cmp,n);}catch(e){return toast(e.message||'업스케일에 실패했어요');}const img=r.img;
+  const f={selfie:true,strength:st,direction:S.direction,gender:GENDER.find(g=>g[0]===S.gender)?.[1]||null,body:S.body,hairColor:S.hairColor,hairStyle:S.hairStyle,eye:S.eye,skin:S.skin,makeup:S.makeup,tattoo:S.tattoo||'없음'};
+  const c={id:'c'+Date.now(),spec:`${STRENGTH.find(x=>x[0]===st)[1]} · 비교 이미지 ${n}번 패널 (${label})`,prompt:humanPrompt(f),selfie:true,strength:st,img,up:r.up,fromPanel:n,name:'',debuted:false};
+  S.cands.unshift(c);S.sel=c.id;render();toast(`${n}번 패널(${label})을 ${r.up.factor}× 업스케일해 후보로 만들었어요`);}
+async function debutFromPanel(cmp,n){const name=(cmp.panelName||'').trim();if(!name)return toast('모델 이름을 입력하세요');
+  const [st,label]=PANELS[n-1];
+  const f={selfie:true,strength:st,direction:S.direction,gender:GENDER.find(g=>g[0]===S.gender)?.[1]||null,body:S.body,hairColor:S.hairColor,hairStyle:S.hairStyle,eye:S.eye,skin:S.skin,makeup:S.makeup,tattoo:S.tattoo||'없음'};
+  const c={id:'c'+Date.now(),spec:`${STRENGTH.find(x=>x[0]===st)[1]} · 비교 이미지 ${n}번 패널 (${label})`,prompt:humanPrompt(f),selfie:true,strength:st,img:null,fromPanel:n,name,debuted:true,at:Date.now(),busy:'크롭 · 업스케일 중…'};
+  S.cands.splice(S.cands.indexOf(cmp)+1,0,c);cmp.busyPanel=n;render();  // 그리드는 비교 카드를 제외하고 순서대로 표시
+  try{const r=await panelToImage(cmp,n);c.img=r.img;c.up=r.up;cmp.debutedPanels=cmp.debutedPanels||{};cmp.debutedPanels[n]=name;cmp.panelName='';toast(`${name} 데뷔 완료 (${label}) · Models 메뉴에 등록됐어요`);}
+  catch(e){S.cands=S.cands.filter(x=>x!==c);toast(e.message||'업스케일에 실패해 데뷔를 취소했어요');}
+  c.busy=null;cmp.busyPanel=null;S.sel=null;render();}
+const emptyCompare=()=>S.cands.find(x=>x.compare&&!x.img)||null;
+const theCompare=()=>S.cands.find(x=>x.compare)||null;
+function addCompareFromImage(src){
+  // 비어 있는 비교 카드(생성만 하고 이미지가 없는 카드)가 있으면 거기에 채운다 → 카드 중복 방지
+  const e=theCompare();
+  if(e){e.img=src;e.panel=null;e.debutedPanels={};e.panelName='';S.sel=e.id;render();toast('비교 카드에 이미지를 채웠어요. 패널을 골라 데뷔하세요');$('#cands').scrollIntoView({behavior:'smooth',block:'start'});return;}
+  const f={gender:GENDER.find(g=>g[0]===S.gender)?.[1],hairColor:S.hairColor,hairStyle:S.hairStyle,makeup:S.makeup,tattoo:S.tattoo,direction:S.direction};
+  const c={id:'c'+Date.now(),spec:'3단계 비교 · 직접 올린 이미지',prompt:comparePrompt(f),selfie:true,compare:true,strength:null,name:'',debuted:false,img:src,quick:true};
+  S.cands.unshift(c);S.sel=c.id;render();toast('비교 이미지를 올렸어요. 패널을 골라 데뷔하세요');$('#cands').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function quickFile(f){if(!f||!f.type.startsWith('image/'))return toast('이미지 파일만 올릴 수 있어요');const r=new FileReader();r.onload=()=>addCompareFromImage(r.result);r.readAsDataURL(f);}
+$('#quick').onclick=()=>$('#quickFile').click();
+$('#quickFile').onchange=e=>{quickFile(e.target.files[0]);e.target.value='';};
+['dragenter','dragover'].forEach(ev=>$('#quick').addEventListener(ev,e=>{e.preventDefault();$('#quick').classList.add('over');}));
+['dragleave','drop'].forEach(ev=>$('#quick').addEventListener(ev,e=>{e.preventDefault();$('#quick').classList.remove('over');}));
+$('#quick').addEventListener('drop',e=>quickFile(e.dataTransfer.files[0]));
+
+/* ── 저장/복원 (localStorage) ── 후보·이미지·얼굴 사진·옵션. 용량 초과 시 안내만 */
+const LS_KEY='aimodel.create.v1';
+const PERSIST=['mode','face','faceOrig','prev','consent','strength','type','gender','eth','country','age','body','hairStyle','hairColor','eye','skin','makeup','tattoo','direction','cands','balance','animal','anime'];
+let saveWarned=false;
+let persistTimer=null;
+function snapshot(){const o={};PERSIST.forEach(k=>o[k]=S[k]);o.cands=(S.cands||[]).filter(c=>!c.busy).map(c=>Object.assign({},c,{busy:null,busyPanel:null}));return o;}
+function shrinkDataUrl(src,max,q){return new Promise(res=>{if(!src||!src.startsWith('data:'))return res(src);const im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height));if(k>=1&&src.length<400000)return res(src);const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);const g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',q));};im.onerror=()=>res(src);im.src=src;});}
+function persist(){clearTimeout(persistTimer);persistTimer=setTimeout(async()=>{
+  const o=snapshot();
+  try{localStorage.setItem(LS_KEY,JSON.stringify(o));return;}catch(e){}
+  // 용량 초과: 이미지를 축소한 사본으로 재시도 (표시용으로 충분한 크기)
+  try{o.face=await shrinkDataUrl(o.face,1200,.85);o.faceOrig=null;o.prev=await Promise.all((o.prev||[]).slice(0,3).map(x=>shrinkDataUrl(x,600,.8)));
+    o.cands=await Promise.all(o.cands.map(async c=>Object.assign({},c,{img:await shrinkDataUrl(c.img,c.compare?1800:1200,.82)})));
+    localStorage.setItem(LS_KEY,JSON.stringify(o));if(!saveWarned){saveWarned=true;toast('저장 공간을 아끼기 위해 새로고침 후에는 이미지가 축소된 사본으로 복원돼요');}}
+  catch(e){if(!saveWarned){saveWarned=true;toast('저장 공간이 가득 차 새로고침 시 일부 후보 이미지가 사라질 수 있어요. 오래된 후보를 삭제하세요');}}
+},150);}
+function restore(){try{const o=JSON.parse(localStorage.getItem(LS_KEY)||'null');if(!o)return;PERSIST.forEach(k=>{if(o[k]!==undefined)S[k]=o[k];});}catch(e){}}
+/* ── 업스케일 파이프라인 ─────────────────────────────────
+   패널 선택 → cropPanel → upscaleImage → 후보/데뷔 등록.
+   provider:'local' = 브라우저 내 2배 확대(고품질 리샘플) + 언샤프 마스크. 엔진 연동 시 provider를 'api'로 바꾸고
+   apiUpscale()에 Real-ESRGAN / Higgsfield 업스케일 호출을 넣으면 나머지 흐름은 그대로다. */
+const UPSCALE={provider:'local',factor:2,maxSide:2048,sharpen:.35};
+async function upscaleImage(src){return UPSCALE.provider==='api'?apiUpscale(src):localUpscale(src);}
+async function apiUpscale(src){throw new Error('업스케일 API가 아직 연결되지 않았어요');}
+function loadImg(src){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=src;});}
+async function localUpscale(src){
+  const im=await loadImg(src);
+  const f=Math.min(UPSCALE.factor,UPSCALE.maxSide/Math.max(im.naturalWidth,im.naturalHeight));
+  const W=Math.round(im.naturalWidth*f),H=Math.round(im.naturalHeight*f);
+  const mid=document.createElement('canvas');mid.width=Math.round(im.naturalWidth*Math.sqrt(f));mid.height=Math.round(im.naturalHeight*Math.sqrt(f));
+  let g=mid.getContext('2d');g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.drawImage(im,0,0,mid.width,mid.height);
+  const out=document.createElement('canvas');out.width=W;out.height=H;g=out.getContext('2d');g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.drawImage(mid,0,0,W,H);
+  const a=UPSCALE.sharpen;if(a>0){const id=g.getImageData(0,0,W,H),d=id.data,src2=new Uint8ClampedArray(d);
+    for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){const i=(y*W+x)*4;for(let c=0;c<3;c++){const k=i+c;const blur=(src2[k-4]+src2[k+4]+src2[k-W*4]+src2[k+W*4]+src2[k]*4)/8;d[k]=Math.max(0,Math.min(255,src2[k]+(src2[k]-blur)*a*2));}}
+    g.putImageData(id,0,0);}
+  return {img:out.toDataURL('image/jpeg',.93),w:W,h:H,factor:+f.toFixed(2)};
+}
+async function panelToImage(cmp,n){const cropped=await cropPanel(cmp.img,n);const src=await loadImg(cropped);const up=await upscaleImage(cropped);return {img:up.img,up:{factor:up.factor,w:up.w,h:up.h,from:`${src.naturalWidth}×${src.naturalHeight}`}};}
+/* ── 라이트박스 ───────────────────────────────────────── */
+const LB={id:null};
+const lbList=()=>S.cands.filter(c=>c.img&&!c.compare&&!c.busy);
+function openLightbox(id){LB.id=id;renderLightbox();$('#lb').hidden=false;}
+function renderLightbox(){const list=lbList();const i=list.findIndex(c=>c.id===LB.id);if(i<0){$('#lb').hidden=true;return;}const c=list[i];
+  $('#lbImg').src=c.img;$('#lbCnt').innerHTML=`${c.debuted?c.name+' · 데뷔':'후보'}<span>${i+1} / ${list.length}</span>`;
+  $('#lbPrev').hidden=list.length<2;$('#lbNext').hidden=list.length<2;$('#lbUndebut').hidden=!c.debuted;}
+function lbStep(d){const list=lbList();const i=list.findIndex(c=>c.id===LB.id);if(i<0)return;LB.id=list[(i+d+list.length)%list.length].id;renderLightbox();}
+$('#lbX').onclick=()=>{$('#lb').hidden=true;};
+$('#lb').addEventListener('click',e=>{if(e.target===e.currentTarget)$('#lb').hidden=true;});
+$('#lbPrev').onclick=()=>lbStep(-1);$('#lbNext').onclick=()=>lbStep(1);
+function undebut(c){if(!c.debuted)return;if(!confirm(`${c.name} 모델의 데뷔를 취소하고 후보로 되돌릴까요? 이미지와 이름은 유지돼요.`))return false;
+  c.debuted=false;c.at=null;S.cands.forEach(x=>{if(x.compare&&x.debutedPanels)for(const k in x.debutedPanels)if(x.debutedPanels[k]===c.name&&c.fromPanel==+k)delete x.debutedPanels[k];});
+  S.sel=c.id;render();toast(`${c.name} 데뷔를 취소했어요. 다시 선택해 데뷔할 수 있어요`);return true;}
+function deleteCandidate(c){if(!confirm(c.debuted?`${c.name} 데뷔 모델을 삭제할까요?`:'이 후보를 삭제할까요?'))return false;
+  S.cands=S.cands.filter(x=>x.id!==c.id);S.cands.forEach(x=>{if(x.compare&&x.debutedPanels)for(const k in x.debutedPanels)if(x.debutedPanels[k]===c.name&&c.fromPanel==+k)delete x.debutedPanels[k];});
+  if(S.sel===c.id)S.sel=null;render();toast('삭제했어요');return true;}
+$('#lbDel').onclick=()=>{const c=S.cands.find(x=>x.id===LB.id);if(!c)return;if(!deleteCandidate(c))return;const list=lbList();if(list.length){LB.id=list[0].id;renderLightbox();}else $('#lb').hidden=true;};
+$('#lbAdjust').onclick=()=>{const c=S.cands.find(x=>x.id===LB.id);if(c)openAdjust(c);};
+$('#lbUndebut').onclick=()=>{const c=S.cands.find(x=>x.id===LB.id);if(c&&undebut(c))renderLightbox();};
+document.addEventListener('keydown',e=>{if(!$('#adj').hidden){if(e.key==='Escape')closeAdjust();return;}if($('#lb').hidden)return;if(e.key==='Escape')$('#lb').hidden=true;else if(e.key==='ArrowLeft')lbStep(-1);else if(e.key==='ArrowRight')lbStep(1);});
+
+/* ── 얼굴 조정 ───────────────────────────────────────── */
+const ADJ_SLIDERS=[
+  ['grp','형태'],['slim','얼굴형 가름하게',-50,50],['jaw','턱선',-50,50],['eyeSize','눈 크기',-50,50],['eyeGap','눈 간격',-50,50],['nose','코 크기',-50,50],['lips','입술 크기',-50,50],['smile','입꼬리 올리기',-50,50],
+  ['grp','피부'],['skin','피부 보정',0,100],['detail','피부 디테일',0,100],
+  ['grp','톤'],['bright','밝기',-50,50],['warm','따뜻함',-50,50],
+];
+const ADJ={c:null,img:null,features:null,params:null,timer:null,busy:false};
+async function openAdjust(c){
+  ADJ.c=c;ADJ.cache=null;ADJ.params=Object.assign({},FaceAdjust.DEFAULTS,c.adjust||{});
+  const src=c.imgOrig||c.img;ADJ.img=await new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.src=src;});
+  $('#adj').hidden=false;$('#lb').hidden=true;buildAdjSide();
+  $('#adjSt').textContent='얼굴 위치 분석 중…';const cv=$('#adjCv');cv.width=ADJ.img.naturalWidth;cv.height=ADJ.img.naturalHeight;cv.getContext('2d').drawImage(ADJ.img,0,0);
+  ADJ.features=await FaceAdjust.detect(ADJ.img);
+  $('#adjSt').textContent={landmarks:'얼굴 랜드마크 478점 인식 · 미리보기',noface:'이미지에서 얼굴을 찾지 못해 정면 헤드샷 기준 근사 위치로 조정 · 미리보기'}[ADJ.features.source]||'랜드마크 모듈을 불러오지 못해(오프라인?) 근사 위치로 조정 · 미리보기';
+  schedulePreview();
+}
+function closeAdjust(){$('#adj').hidden=true;if(LB.id)$('#lb').hidden=false;}
+$('#adjX').onclick=closeAdjust;
+$('#adj').addEventListener('click',e=>{if(e.target===e.currentTarget)closeAdjust();});
+function buildAdjSide(){const side=$('#adjSide');side.innerHTML='';
+  ADJ_SLIDERS.forEach(([k,label,min,max])=>{if(k==='grp'){side.append(el('div','grp',label));return;}
+    const w=el('div','sl');const l=el('div','l',`<span style="color:var(--ink)">${label}</span><span data-v="${k}">${(+ADJ.params[k]).toFixed(1).replace(/\.0$/,'')}</span>`);
+    const r=el('input');r.type='range';r.min=min;r.max=max;r.step=0.5;r.value=ADJ.params[k];
+    r.oninput=()=>{ADJ.params[k]=+r.value;l.querySelector('[data-v]').textContent=(+r.value).toFixed(1).replace(/\.0$/,'');schedulePreview();};w.append(l,r);side.append(w);});
+  const reset=el('button','reset','초기화');reset.onclick=()=>{ADJ.params=Object.assign({},FaceAdjust.DEFAULTS);buildAdjSide();schedulePreview();};side.append(reset);
+  const ft=el('div','ft');const cancel=el('button',null,'취소');cancel.onclick=closeAdjust;const ok=el('button','ok','적용');ok.id='adjOk';ok.onclick=applyAdjust;ft.append(cancel,ok);side.append(ft);}
+const PREVIEW_SIDE=640;
+function schedulePreview(){ADJ.dirty=true;if(ADJ.rendering)return;requestAnimationFrame(renderPreview);}
+function keyOf(keys){return keys.map(k=>ADJ.params[k]).join(',');}
+function renderPreview(){
+  if(!ADJ.img||!ADJ.features){ADJ.dirty=false;return;}
+  ADJ.rendering=true;ADJ.dirty=false;
+  try{
+    const C=ADJ.cache||(ADJ.cache={});
+    if(!C.base){const b=FaceAdjust.baseCanvas(ADJ.img,PREVIEW_SIDE);C.base=b.cv;C.F=FaceAdjust.scaleFeatures(ADJ.features,b.k);}
+    const kW=keyOf(FaceAdjust.SHAPE_KEYS);
+    if(C.kW!==kW){C.warp=FaceAdjust.warp(C.base,FaceAdjust.controlsFor(C.F,ADJ.params));C.kW=kW;C.kS=null;}
+    const kS=kW+'|'+ADJ.params.skin+'|'+ADJ.params.detail;
+    if(C.kS!==kS){let cv=FaceAdjust.clone(C.warp);cv=FaceAdjust.skinSmooth(cv,ADJ.params.skin);cv=FaceAdjust.skinDetail(cv,ADJ.params.detail);C.skin=cv;C.kS=kS;}
+    const out=(ADJ.params.bright||ADJ.params.warm)?FaceAdjust.tone(FaceAdjust.clone(C.skin),ADJ.params.bright,ADJ.params.warm):C.skin;
+    const cv=$('#adjCv');if(cv.width!==out.width||cv.height!==out.height){cv.width=out.width;cv.height=out.height;}cv.getContext('2d').drawImage(out,0,0);
+  }finally{ADJ.rendering=false;if(ADJ.dirty)requestAnimationFrame(renderPreview);}
+}
+async function applyAdjust(){const c=ADJ.c;if(!c||ADJ.busy)return;ADJ.busy=true;const ok=$('#adjOk');ok.disabled=true;ok.textContent='적용 중…';
+  const work=el('div','work','원본 해상도로 적용 중…');$('#adjPv').append(work);
+  try{const changed=Object.keys(ADJ.params).some(k=>ADJ.params[k]!==FaceAdjust.DEFAULTS[k]);
+    if(!c.imgOrig)c.imgOrig=c.img;
+    if(changed){const out=await FaceAdjust.apply(ADJ.img,ADJ.params,0,ADJ.features);c.img=out.toDataURL('image/jpeg',.93);c.adjust=Object.assign({},ADJ.params);}
+    else{c.img=c.imgOrig;c.adjust=null;}
+    render();toast(changed?'얼굴 조정을 적용했어요':'조정을 초기화했어요');$('#adj').hidden=true;if(LB.id){renderLightbox();$('#lb').hidden=false;}}
+  catch(e){toast('조정 적용에 실패했어요');console.error(e);}
+  finally{work.remove();ADJ.busy=false;ok.disabled=false;ok.textContent='적용';}}
+$('#resetAll').onclick=()=>{if(!confirm('사진, 선택 옵션, 후보와 데뷔 모델을 모두 지우고 처음 상태로 돌릴까요?'))return;try{localStorage.removeItem(LS_KEY);}catch(e){}location.reload();};
+/* ── 뷰 라우팅 (#create / #models) ───────────────────── */
+const LEVEL_KO={keep:'KEEP · 그대로',light:'NATURAL · 약하게',glow:'GLOW · 글로우'};
+function currentView(){return location.hash==='#models'?'models':'create';}
+function renderView(){const v=currentView();
+  $('#viewCreate').hidden=v!=='create';$('#viewModels').hidden=v!=='models';
+  document.querySelectorAll('.hdr nav a[data-view]').forEach(a=>a.classList.toggle('on',a.dataset.view===v));
+  if(v==='models')renderModels();window.scrollTo(0,0);}
+window.addEventListener('hashchange',renderView);
+function fmtDate(t){if(!t)return '';const d=new Date(t);return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
+function renderModels(){
+  const list=S.cands.filter(c=>c.debuted&&!c.busy).sort((a,b)=>(b.at||0)-(a.at||0));
+  const badge=$('#modelsCount');badge.textContent=list.length;badge.hidden=!list.length;
+  $('#modelsLead').textContent=list.length?`데뷔한 모델 ${list.length}명 · 클릭하면 크게 보고 조정할 수 있어요`:'데뷔한 AI 모델이 여기에 등록돼요.';
+  $('#modelsEmpty').hidden=!!list.length;
+  const g=$('#modelsGrid');g.innerHTML='';
+  list.forEach(c=>{const card=el('div','mcard');
+    const im=el('div','im',c.img?`<img src="${c.img}" alt="${c.name}">`:'');if(c.strength&&LEVEL_KO[c.strength])im.append(el('span','lv',LEVEL_KO[c.strength].split(' · ')[0]));
+    im.onclick=()=>{if(c.img)openLightbox(c.id);};
+    card.append(im,el('div','nm',c.name||'이름 없음'),el('div','dt',[LEVEL_KO[c.strength]||(c.selfie?'':'랜덤 모델'),c.at?fmtDate(c.at):''].filter(Boolean).join(' · ')));
+    const acts=el('div','acts');const adj=el('button',null,'조정');adj.onclick=()=>openAdjust(c);const un=el('button','d','데뷔 취소');un.onclick=()=>{if(undebut(c))renderModels();};const del=el('button','d','삭제');del.onclick=()=>{if(deleteCandidate(c))renderModels();};acts.append(adj,un,del);card.append(acts);g.append(card);});
+}
+/* ── API 설정 (localStorage) ─────────────────────────── */
+const API_KEY='aimodel.openai.v1';
+function apiCfg(){try{return Object.assign({apiKey:'',model:'gpt-image-1',quality:'high',fid:'high',size:'1536x1024'},JSON.parse(localStorage.getItem(API_KEY)||'{}'));}catch(e){return {apiKey:'',model:'gpt-image-1',quality:'high',fid:'high',size:'1536x1024'};}}
+function openSettings(){const c=apiCfg();$('#setKey').value=c.apiKey;$('#setModel').value=c.model;$('#setQuality').value=c.quality;$('#setFid').value=c.fid;$('#setSize').value=c.size;$('#setModal').hidden=false;$('#setKey').focus();}
+$('#apiBtn').onclick=openSettings;$('#setCancel').onclick=()=>{$('#setModal').hidden=true;};
+$('#setModal').addEventListener('click',e=>{if(e.target===e.currentTarget)$('#setModal').hidden=true;});
+$('#setSave').onclick=()=>{const c={apiKey:$('#setKey').value.trim(),model:$('#setModel').value.trim()||'gpt-image-1',quality:$('#setQuality').value,fid:$('#setFid').value,size:$('#setSize').value};try{localStorage.setItem(API_KEY,JSON.stringify(c));}catch(e){}$('#setModal').hidden=true;render();toast(c.apiKey?'API 설정을 저장했어요':'API 키가 비어 있어요');};
+function refreshApiBtn(){const ok=!!apiCfg().apiKey;$('#apiBtn').classList.toggle('ok',ok);$('#apiBtn').textContent=ok?'API 설정 ✓':'API 설정';}
+
+/* ── GPT로 바로 생성 ─────────────────────────────────── */
+let genAbort=null;
+async function generateWithGPT(c){
+  if(!c||c.busy)return;const cfg=apiCfg();if(!cfg.apiKey){openSettings();return toast('먼저 OpenAI API 키를 입력하세요');}
+  const useEdit=c.selfie&&!!S.face;
+  if(c.selfie&&!S.face)return toast('얼굴 사진이 필요해요');
+  c.busy='GPT 이미지 생성 준비 중…';S.sel=c.id;render();
+  genAbort=new AbortController();
+  try{
+    const o={apiKey:cfg.apiKey,model:cfg.model,prompt:c.prompt,quality:cfg.quality,signal:genAbort.signal,onStatus:m=>{c.busy=m;render();}};
+    let img;
+    if(useEdit){img=await ImageEngine.edit(Object.assign(o,{imageDataUrl:S.faceOrig||S.face,size:c.compare?cfg.size:'1024x1536',inputFidelity:cfg.fid||undefined}));}
+    else{img=await ImageEngine.generate(Object.assign(o,{size:c.compare?cfg.size:'1024x1536'}));}
+    c.img=img;if(c.compare){c.panel=null;c.debutedPanels={};c.panelName='';}c.busy=null;render();
+    toast(c.compare?'3단계 비교 이미지가 들어왔어요. 패널을 골라 데뷔하세요':'이미지가 들어왔어요');
+    $('#cands').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){c.busy=null;render();toast(e.name==='AbortError'?'생성을 취소했어요':'생성 실패: '+(e.message||e));console.error(e);}
+  finally{genAbort=null;}
+}
+$('#genGpt').onclick=()=>{const c=S.cands.find(x=>x.id===S.sel)||S.cands.find(x=>x.compare)||S.cands[0];if(c)generateWithGPT(c);};
+let candTarget=null;
+function candUpload(c){candTarget=c;$('#candFile').click();}
+$('#candFile').onchange=e=>{const f=e.target.files[0];if(f&&candTarget)setCandImg(candTarget,f);e.target.value='';candTarget=null;};
+function setCandImg(c,f){if(!f.type.startsWith('image/'))return toast('이미지 파일만 올릴 수 있어요');const r=new FileReader();r.onload=()=>{c.img=r.result;if(c.compare){c.panel=null;c.debutedPanels={};c.panelName='';}S.sel=c.id;render();toast(c.compare?'비교 이미지를 올렸어요. 패널을 골라 데뷔하세요':'후보 이미지를 올렸어요');};r.readAsDataURL(f);}
+function debut(c){if(!(c.name||'').trim())return toast('모델 이름을 입력하세요');c.debuted=true;c.at=Date.now();S.sel=null;render();toast(`${c.name} 데뷔 완료`);}
+restore();render();renderView();
+</script>
+</body>
+</html>
