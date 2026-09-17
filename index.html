@@ -375,7 +375,7 @@ footer .links span.dim{color:#aaa}
 .set .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .set .cloudsec{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
 .set .cloudsec h3{font-size:16px;display:flex;align-items:center;gap:10px}
-.set .cstat{font-size:12px;font-weight:600;color:#fff;background:#999;border-radius:99px;padding:2px 9px}
+.set .cstat{font-size:12px;font-weight:600;color:#fff;background:#999;border-radius:99px;padding:2px 9px;white-space:normal;line-height:1.5;max-width:100%}
 .set .cstat.idle{background:#1b7f3b}.set .cstat.sync{background:#2a6fd6}.set .cstat.err{background:var(--red)}.set .cstat.out{background:#666}
 .set .cbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .set .cbtns button{border:1px solid var(--line2);border-radius:4px;padding:8px 12px;font-size:13px;font-weight:600;background:#fff}
@@ -908,7 +908,7 @@ const S={mode:'selfie',face:null,prev:[],consent:false,strength:'light',type:'hu
   anime:{gender:null,age:null,style:null,hair:null,hairC:null,eye:null,skin:null,outfit:null,trait:null,open:true}};
 const $=s=>document.querySelector(s);
 const el=(t,c,x)=>{const n=document.createElement(t);if(c)n.className=c;if(x!=null)n.innerHTML=x;return n;};
-let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1600);}
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),m.length>40?4200:2200);}
 
 /* ── 렌더 ─────────────────────────────────────────── */
 function opts(host,list,key,{sub,disabled}={}){
@@ -1798,8 +1798,9 @@ function cloudUI(status,msg){const st=$('#cloudStat');st.textContent=msg||status
   const on=!!(Cloud.client&&Cloud.user);$('#cloudLogout').hidden=!on;$('#cloudSync').hidden=!on;$('#cloudPushAll').hidden=!on;$('#cloudLogin').hidden=on;$('#cloudSignup').hidden=on;}
 $('#cloudBtn').onclick=()=>{openSettings();$('#cloudUrl').scrollIntoView({block:'center'});};
 $('#cloudSaveCfg').onclick=async()=>{const c={url:$('#cloudUrl').value.trim().replace(/\/$/,''),anonKey:$('#cloudKey').value.trim()};if(!c.url||!c.anonKey)return toast('URL과 anon key를 모두 입력하세요');Cloud.saveCfg(c);Cloud.unsubscribe();Cloud.client=null;Cloud.user=null;await Cloud.init(cloudHooks());toast('연결 정보를 저장했어요. 이메일로 로그인하세요');};
-$('#cloudLogin').onclick=async()=>{if(!Cloud.client)return toast('먼저 연결 정보를 저장하세요');try{await Cloud.signIn($('#cloudEmail').value.trim(),$('#cloudPw').value);toast('로그인했어요. 동기화를 시작합니다');}catch(e){toast('로그인 실패: '+(e.message||e));}};
-$('#cloudSignup').onclick=async()=>{if(!Cloud.client)return toast('먼저 연결 정보를 저장하세요');try{const d=await Cloud.signUp($('#cloudEmail').value.trim(),$('#cloudPw').value);toast(d.session?'가입·로그인 완료':'가입 완료 — 확인 메일의 링크를 누른 뒤 로그인하세요');}catch(e){toast('가입 실패: '+(e.message||e));}};
+const CLOUD_ERR_KO=m=>/Email not confirmed/i.test(m)?'이메일 확인이 안 됐어요 — 확인 메일의 링크를 누르거나 Supabase Auth 설정에서 Confirm email을 끄세요':/Invalid login credentials/i.test(m)?'이메일 또는 비밀번호가 맞지 않아요 (가입을 먼저 했는지 확인)':/User already registered/i.test(m)?'이미 가입된 이메일이에요 — 3. 로그인을 누르세요':/Password should be/i.test(m)?'비밀번호는 6자 이상이어야 해요':/rate limit/i.test(m)?'요청이 너무 잦아요 — 잠시 후 다시':m;
+$('#cloudLogin').onclick=async()=>{if(!Cloud.client)return toast('먼저 연결 정보를 저장하세요');cloudUI('sync','로그인 중…');try{await Cloud.signIn($('#cloudEmail').value.trim(),$('#cloudPw').value);toast('로그인했어요. 동기화를 시작합니다');}catch(e){const m=CLOUD_ERR_KO(e.message||String(e));cloudUI('err','로그인 실패: '+m);toast('로그인 실패: '+m);}};
+$('#cloudSignup').onclick=async()=>{if(!Cloud.client)return toast('먼저 연결 정보를 저장하세요');cloudUI('sync','가입 중…');try{const d=await Cloud.signUp($('#cloudEmail').value.trim(),$('#cloudPw').value);if(d.session){toast('가입·로그인 완료');}else{cloudUI('out','가입 완료 — 확인 메일의 링크를 누른 뒤 3. 로그인');toast('가입 완료 — 확인 메일의 링크를 누른 뒤 로그인하세요');}}catch(e){const m=CLOUD_ERR_KO(e.message||String(e));cloudUI('err','가입 실패: '+m);toast('가입 실패: '+m);}};
 $('#cloudLogout').onclick=async()=>{await Cloud.signOut();toast('로그아웃했어요');};
 $('#cloudSync').onclick=()=>Cloud.sync();
 $('#cloudPushAll').onclick=async()=>{if(!confirm('이 브라우저의 모델·룩·배경 컷·배경을 팀 저장소에 모두 올릴까요? 같은 id가 있으면 이 브라우저 내용으로 덮어써요.'))return;await Cloud.pushAll();};
