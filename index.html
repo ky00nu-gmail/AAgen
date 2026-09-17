@@ -373,6 +373,15 @@ footer .links span.dim{color:#aaa}
 .set input,.set select{width:100%;border:1px solid var(--line2);border-radius:4px;padding:10px 12px;font:inherit;font-size:14.5px}
 .set input:focus,.set select:focus{outline:none;border-color:#000}
 .set .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.set .cloudsec{margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.set .cloudsec h3{font-size:16px;display:flex;align-items:center;gap:10px}
+.set .cstat{font-size:12px;font-weight:600;color:#fff;background:#999;border-radius:99px;padding:2px 9px}
+.set .cstat.idle{background:#1b7f3b}.set .cstat.sync{background:#2a6fd6}.set .cstat.err{background:var(--red)}.set .cstat.out{background:#666}
+.set .cbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.set .cbtns button{border:1px solid var(--line2);border-radius:4px;padding:8px 12px;font-size:13px;font-weight:600;background:#fff}
+.set .cbtns button:hover{border-color:#000}
+.set .card{max-height:92vh;overflow:auto}
+.hdr nav .resetall.cloud-idle{color:#1b7f3b}.hdr nav .resetall.cloud-err{color:var(--red)}.hdr nav .resetall.cloud-sync{color:#2a6fd6}
 .set .note{font-size:12.5px;color:var(--muted);margin:10px 0 0;line-height:1.5}
 .set .foot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
 .set .foot button{padding:11px 20px;border-radius:4px;font-size:14.5px;font-weight:600;border:1px solid var(--line2)}
@@ -503,7 +512,7 @@ footer .links span.dim{color:#aaa}
 <body>
 <header class="hdr"><div class="in">
   <span class="wordmark">AI Model</span>
-  <nav><a href="#create" data-view="create" class="on">Create</a><a href="#models" data-view="models">Models <span class="nbadge" id="modelsCount" hidden>0</span></a><a href="#bg" data-view="bg">Backgrounds <span class="nbadge" id="bgCount" hidden>0</span></a><button class="resetall" id="apiBtn" title="OpenAI API 키·모델 설정">API 설정</button><button class="resetall" id="resetAll" title="사진·옵션·후보·데뷔 모델을 모두 지우고 처음 상태로">전체 초기화</button></nav>
+  <nav><a href="#create" data-view="create" class="on">Create</a><a href="#models" data-view="models">Models <span class="nbadge" id="modelsCount" hidden>0</span></a><a href="#bg" data-view="bg">Backgrounds <span class="nbadge" id="bgCount" hidden>0</span></a><button class="resetall" id="apiBtn" title="OpenAI API 키·모델 설정">API 설정</button><button class="resetall" id="cloudBtn" title="팀 동기화 (Supabase)">☁ 동기화</button><button class="resetall" id="resetAll" title="사진·옵션·후보·데뷔 모델을 모두 지우고 처음 상태로">전체 초기화</button></nav>
 </div></header>
 
 <main>
@@ -835,14 +844,24 @@ footer .links span.dim{color:#aaa}
     </div>
     <label style="display:flex;align-items:center;gap:10px;margin-top:14px;cursor:pointer"><input type="checkbox" id="setFaceFix" style="width:auto"> 룩 상반신 생성 후 <b>얼굴 보정 패스</b> 자동 실행 (얼굴만 잘라 1024px로 다시 편집 · 호출 1회 추가)</label>
     <p class="note">내 얼굴 모델은 얼굴 사진을 입력으로 넣는 편집(images/edits) 호출, 랜덤 모델은 텍스트 생성(images/generations) 호출을 씁니다. 모델 이름은 계정에서 쓸 수 있는 ID를 입력하세요. 호출이 거부되면 오류 문구가 그대로 표시돼요.</p>
+    <div class="cloudsec">
+      <h3>팀 동기화 <span class="cstat" id="cloudStat">설정 없음</span></h3>
+      <p class="sub">Supabase 프로젝트에 모델·룩·배경 컷·배경을 저장해 팀원과 같은 목록을 봐요. 얼굴 사진과 작업 중인 비교 카드는 이 브라우저에만 남아요.</p>
+      <div class="row2"><div><label>Project URL</label><input id="cloudUrl" placeholder="https://xxxx.supabase.co" autocomplete="off"></div><div><label>anon public key</label><input type="password" id="cloudKey" placeholder="eyJ..." autocomplete="off"></div></div>
+      <div class="row2"><div><label>이메일</label><input id="cloudEmail" type="email" placeholder="name@estsoft.com" autocomplete="username"></div><div><label>비밀번호</label><input id="cloudPw" type="password" autocomplete="current-password"></div></div>
+      <div class="cbtns"><button id="cloudSaveCfg">연결 저장</button><button id="cloudLogin">로그인</button><button id="cloudSignup">가입</button><button id="cloudLogout" hidden>로그아웃</button><button id="cloudSync" hidden>지금 동기화</button><button id="cloudPushAll" hidden title="이 브라우저의 모델·룩·배경을 전부 팀 저장소로 올려요">이 브라우저 데이터 전부 올리기</button></div>
+      <p class="note">허용된 이메일(allowed_emails 테이블)만 읽고 쓸 수 있어요. 처음 한 번 <code>supabase/schema.sql</code>을 프로젝트 SQL Editor에서 실행하세요. 가입 후 확인 메일이 오면 링크를 눌러야 로그인돼요(Auth 설정에서 Confirm email을 끄면 바로 로그인).</p>
+    </div>
     <div class="foot"><button id="setCancel">취소</button><button class="ok" id="setSave">저장</button></div>
   </div>
 </div>
 <div id="toast"></div>
 
-<script src="js/prompt.js?v=291138"></script>
-<script src="js/adjust.js?v=291138"></script>
-<script src="js/engine.js?v=291138"></script>
+<script src="js/prompt.js?v=291139"></script>
+<script src="js/adjust.js?v=291139"></script>
+<script src="js/engine.js?v=291139"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/cloud.js?v=291139"></script>
 <script>
 /* ── 데이터 ─────────────────────────────────────────── */
 const STRENGTH=[['keep','그대로','동일 인물 유지','증명사진 톤. 얼굴은 손대지 않고, 아래에서 고른 헤어·메이크업·피부톤 같은 선택 항목만 적용합니다.'],['light','약하게','자연 보정','상업용 헤드샷으로 재촬영. 밝은 하이키 조명과 촉촉한 광채 피부, 클린 메이크업. 얼굴은 가볍게만 다듬어 누가 봐도 본인. 자세는 원본 그대로.'],['glow','글로우','모델급','프리미엄 뷰티 캠페인 컷으로 재해석. 하이키 조명, 윤기 나는 도자기 글래스 스킨(모공·결은 살림), 클린 K-뷰티 메이크업, 에어리 헤어. 얼굴은 과감히 이상화. 자세는 원본 그대로.']];
@@ -1231,7 +1250,7 @@ $('#quick').addEventListener('drop',e=>quickFile(e.dataTransfer.files[0]));
 
 /* ── 저장/복원 (localStorage) ── 후보·이미지·얼굴 사진·옵션. 용량 초과 시 안내만 */
 const LS_KEY='aimodel.create.v1';
-const PERSIST=['mode','face','faceOrig','prev','consent','strength','type','gender','eth','country','age','body','height','hairStyle','hairColor','eye','skin','makeup','tattoo','direction','cands','balance','animal','anime','bgs','bgOpt','sc'];
+const PERSIST=['mode','face','faceOrig','prev','consent','strength','type','gender','eth','country','age','body','height','hairStyle','hairColor','eye','skin','makeup','tattoo','direction','cands','balance','animal','anime','bgs','bgOpt','sc','cloudIds'];
 let saveWarned=false;
 /* IndexedDB 저장소: localStorage(약 5MB)는 이미지 몇 장이면 넘쳐 저장이 실패하고 새로고침 시 초기화된다.
    IndexedDB는 수백 MB까지 허용되므로 전체 상태를 여기에 저장하고, localStorage는 예전 데이터 이전용·최후 폴백으로만 쓴다. */
@@ -1247,6 +1266,7 @@ function shrinkDataUrl(src,max,q){return new Promise(res=>{if(!src||!src.startsW
 function persist(){clearTimeout(persistTimer);persistTimer=setTimeout(async()=>{
   const o=snapshot();
   // 1순위: IndexedDB (용량 제한 사실상 없음). 성공하면 localStorage의 옛 사본은 지운다(오래된 데이터로 복원되는 것 방지)
+  if(window.Cloud&&Cloud.user&&!Cloud.busy)Cloud.schedule();
   try{await IDB.set(LS_KEY,o);storeMode='idb';try{localStorage.removeItem(LS_KEY);}catch(e){}return;}catch(e){storeMode='ls';}
   // 2순위: localStorage 원본 그대로
   try{localStorage.setItem(LS_KEY,JSON.stringify(o));return;}catch(e){}
@@ -1266,7 +1286,7 @@ async function restore(){let o=null;try{o=await IDB.get(LS_KEY);}catch(e){storeM
 const UPSCALE={provider:'local',factor:2,maxSide:2048,sharpen:.15};
 async function upscaleImage(src){return UPSCALE.provider==='api'?apiUpscale(src):localUpscale(src);}
 async function apiUpscale(src){throw new Error('업스케일 API가 아직 연결되지 않았어요');}
-function loadImg(src){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src=src;});}
+function loadImg(src){return new Promise((res,rej)=>{const im=new Image();if(/^https?:/.test(src))im.crossOrigin='anonymous';im.onload=()=>res(im);im.onerror=rej;im.src=src;});}
 async function localUpscale(src){
   const im=await loadImg(src);
   const f=Math.min(UPSCALE.factor,UPSCALE.maxSide/Math.max(im.naturalWidth,im.naturalHeight));
@@ -1763,11 +1783,22 @@ function renderModels(){
 /* ── API 설정 (localStorage) ─────────────────────────── */
 const API_KEY='aimodel.openai.v1';
 function apiCfg(){try{return Object.assign({apiKey:'',model:'gpt-image-1',quality:'high',fid:'high',size:'1536x1024',faceFix:true},JSON.parse(localStorage.getItem(API_KEY)||'{}'));}catch(e){return {apiKey:'',model:'gpt-image-1',quality:'high',fid:'high',size:'1536x1024',faceFix:true};}}
-function openSettings(){const c=apiCfg();$('#setKey').value=c.apiKey;$('#setModel').value=c.model;$('#setQuality').value=c.quality;$('#setFid').value=c.fid;$('#setSize').value=c.size;$('#setFaceFix').checked=c.faceFix!==false;$('#setModal').hidden=false;$('#setKey').focus();}
+function openSettings(){{const cc=Cloud.cfg();$('#cloudUrl').value=cc.url;$('#cloudKey').value=cc.anonKey;cloudUI(Cloud.status,Cloud.msg);}const c=apiCfg();$('#setKey').value=c.apiKey;$('#setModel').value=c.model;$('#setQuality').value=c.quality;$('#setFid').value=c.fid;$('#setSize').value=c.size;$('#setFaceFix').checked=c.faceFix!==false;$('#setModal').hidden=false;$('#setKey').focus();}
 $('#apiBtn').onclick=openSettings;$('#setCancel').onclick=()=>{$('#setModal').hidden=true;};
 $('#setModal').addEventListener('click',e=>{if(e.target===e.currentTarget)$('#setModal').hidden=true;});
 $('#setSave').onclick=()=>{const c={apiKey:$('#setKey').value.trim(),model:$('#setModel').value.trim()||'gpt-image-1',quality:$('#setQuality').value,fid:$('#setFid').value,size:$('#setSize').value,faceFix:$('#setFaceFix').checked};try{localStorage.setItem(API_KEY,JSON.stringify(c));}catch(e){}$('#setModal').hidden=true;render();toast(c.apiKey?'API 설정을 저장했어요':'API 키가 비어 있어요');};
 function refreshApiBtn(){const ok=!!apiCfg().apiKey;$('#apiBtn').classList.toggle('ok',ok);$('#apiBtn').textContent=ok?'API 설정 ✓':'API 설정';}
+/* ── 팀 동기화 UI ── */
+function cloudUI(status,msg){const st=$('#cloudStat');st.textContent=msg||status;st.className='cstat '+status;const b=$('#cloudBtn');b.className='resetall cloud-'+status;b.textContent={idle:'☁ 동기화됨',sync:'☁ 동기화 중',err:'☁ 오류',out:'☁ 로그인',off:'☁ 동기화'}[status]||'☁ 동기화';b.title=msg||'';
+  const on=!!(Cloud.client&&Cloud.user);$('#cloudLogout').hidden=!on;$('#cloudSync').hidden=!on;$('#cloudPushAll').hidden=!on;$('#cloudLogin').hidden=on;$('#cloudSignup').hidden=on;}
+$('#cloudBtn').onclick=()=>{openSettings();$('#cloudUrl').scrollIntoView({block:'center'});};
+$('#cloudSaveCfg').onclick=async()=>{const c={url:$('#cloudUrl').value.trim().replace(/\/$/,''),anonKey:$('#cloudKey').value.trim()};if(!c.url||!c.anonKey)return toast('URL과 anon key를 모두 입력하세요');Cloud.saveCfg(c);Cloud.unsubscribe();Cloud.client=null;Cloud.user=null;await Cloud.init(cloudHooks());toast('연결 정보를 저장했어요. 이메일로 로그인하세요');};
+$('#cloudLogin').onclick=async()=>{if(!Cloud.client)return toast('먼저 연결 정보를 저장하세요');try{await Cloud.signIn($('#cloudEmail').value.trim(),$('#cloudPw').value);toast('로그인했어요. 동기화를 시작합니다');}catch(e){toast('로그인 실패: '+(e.message||e));}};
+$('#cloudSignup').onclick=async()=>{if(!Cloud.client)return toast('먼저 연결 정보를 저장하세요');try{const d=await Cloud.signUp($('#cloudEmail').value.trim(),$('#cloudPw').value);toast(d.session?'가입·로그인 완료':'가입 완료 — 확인 메일의 링크를 누른 뒤 로그인하세요');}catch(e){toast('가입 실패: '+(e.message||e));}};
+$('#cloudLogout').onclick=async()=>{await Cloud.signOut();toast('로그아웃했어요');};
+$('#cloudSync').onclick=()=>Cloud.sync();
+$('#cloudPushAll').onclick=async()=>{if(!confirm('이 브라우저의 모델·룩·배경 컷·배경을 팀 저장소에 모두 올릴까요? 같은 id가 있으면 이 브라우저 내용으로 덮어써요.'))return;await Cloud.pushAll();};
+function cloudHooks(){return {state:()=>S,onStatus:cloudUI,onPulled:()=>{render();renderView();},onSaved:()=>{try{IDB.set(LS_KEY,snapshot());}catch(e){}}};}
 
 /* ── GPT로 바로 생성 ─────────────────────────────────── */
 let genAbort=null;
@@ -1794,7 +1825,7 @@ function candUpload(c){candTarget=c;$('#candFile').click();}
 $('#candFile').onchange=e=>{const f=e.target.files[0];if(f&&candTarget)setCandImg(candTarget,f);else if(candTarget&&candTarget.uploaded&&!candTarget.img)S.cands=S.cands.filter(x=>x!==candTarget);e.target.value='';candTarget=null;};
 function setCandImg(c,f){if(!f.type.startsWith('image/'))return toast('이미지 파일만 올릴 수 있어요');const r=new FileReader();r.onload=()=>{c.img=r.result;if(c.compare){c.panel=null;c.debutedPanels={};c.panelName='';}S.sel=c.id;render();toast(c.compare?'비교 이미지를 올렸어요. 패널을 골라 데뷔하세요':'후보 이미지를 올렸어요');};r.readAsDataURL(f);}
 function debut(c){if(!(c.name||'').trim())return toast('모델 이름을 입력하세요');c.debuted=true;c.at=Date.now();S.sel=null;render();toast(`${c.name} 데뷔 완료`);}
-render();renderView();restore().then(()=>{render();renderView();if(storeMode==='ls')toast('이 브라우저는 대용량 저장(IndexedDB)을 쓸 수 없어 이미지가 많으면 저장이 실패할 수 있어요');});
+render();renderView();restore().then(()=>{render();renderView();Cloud.init(cloudHooks());if(storeMode==='ls')toast('이 브라우저는 대용량 저장(IndexedDB)을 쓸 수 없어 이미지가 많으면 저장이 실패할 수 있어요');});
 </script>
 </body>
 </html>

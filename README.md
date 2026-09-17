@@ -19,6 +19,8 @@ python3 -m http.server 8765
 | `js/adjust.js` | 얼굴 조정(브라우저 처리): MediaPipe 랜드마크 + 국소 워프, 피부 보정/디테일, 밝기/따뜻함 |
 | `js/engine.js` | OpenAI Images API 어댑터(edits / generations). 키는 localStorage |
 | `tools/sample-prompts.js` | 검증용 프롬프트 매트릭스 생성 → `docs/prompt-samples.md` |
+| `js/cloud.js` | 팀 동기화(Supabase items 테이블 + avatar-images 버킷) |
+| `supabase/schema.sql` | 동기화용 테이블·RLS·버킷 생성 SQL(1회 실행) |
 | `tools/export-gpt-skill.js` | **GPT 스킬 문서 생성** → `docs/gpt-skill/` (INSTRUCTIONS.md 지침 + A~F 흐름별 지식 파일 + AI_model.md 통합). 프롬프트가 결정적이므로 코드에서 자동 추출 |
 | `releases/ver1`, `releases/ver2`, `releases/ver3` | 버전 스냅샷 |
 
@@ -71,6 +73,15 @@ python3 -m http.server 8765
 ### 저장소 (2026-09-17)
 - 상태·이미지는 **IndexedDB**(`aimodel.store` / 키 `aimodel.create.v1`)에 저장한다. localStorage는 약 5MB 한도라 이미지 몇 장이면 저장이 실패해 새로고침 시 초기화되던 문제를 해결. 옛 localStorage 데이터는 첫 실행 시 자동 이전되고, IndexedDB 저장이 되면 localStorage 사본은 지운다. IndexedDB를 쓸 수 없는 브라우저(사생활 보호 모드 등)에서는 localStorage 축소 저장으로 폴백하며 안내 토스트를 띄운다.
 - 저장은 브라우저·주소(origin)별이다. `localhost:8765`, GitHub Pages, 다른 PC의 데이터는 서로 보이지 않는다. 옮기려면 다운로드 → 업로드.
+
+## ver4 (진행 중 · 2026-09-17~)
+
+### 팀 동기화 — Supabase (`js/cloud.js`, `supabase/schema.sql`)
+- 목적: 모델·룩·배경 컷·배경을 팀원과 같은 목록으로 본다. 얼굴 사진·작업 중 비교 카드·옵션은 브라우저 로컬(IndexedDB)에만.
+- 준비(1회): Supabase 프로젝트 SQL Editor에서 `supabase/schema.sql` 실행 → `allowed_emails`(허용 이메일), `items`(kind: model/look/scene/bg, data jsonb, image_path/orig_path), RLS(`is_allowed()`), realtime publication, 비공개 버킷 `avatar-images`. 팀원 추가는 `insert into allowed_emails(email) values (...)`.
+- 사용: 헤더 "☁ 동기화" → 설정 모달의 팀 동기화 칸에 Project URL·anon key 저장 → 이메일·비밀번호로 가입/로그인(허용 이메일만 데이터 접근). 처음 연결한 브라우저는 "이 브라우저 데이터 전부 올리기"로 기존 데이터를 업로드.
+- 동작: 로컬 상태가 원본, `Cloud.sync()`가 저장(persist) 뒤 2.5초 디바운스로 실행 + realtime 변경 알림 시 재실행. 항목별 `cloudSig`(data 서명)·`cloudAt`(원격 updated_at)로 변경 감지, `S.cloudIds`(지난 동기화 id 집합)로 삭제 추적(로컬에서 사라짐→원격 삭제·파일 삭제, 원격에서 사라짐→로컬 삭제). 충돌은 로컬이 바뀌었으면 로컬 우선. 이미지는 dataURL→Blob 업로드(`kind/id.jpg`, 모델 원본은 `model/id_orig.jpg`), 내려받을 때 dataURL로 캐시.
+- 설정 키: `aimodel.supabase.v1`(url, anonKey). supabase-js는 jsDelivr UMD.
 
 ## 알려진 사항
 
