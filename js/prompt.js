@@ -229,13 +229,13 @@ function lookPrompts(f){
   const full=one(P[2][3]+', the full figure filling the frame from top to bottom without cropping the head or feet','Tall portrait format, 1024×1536.',!!f.bustRef,hp,'full');
   // ChatGPT용: 한 메시지에 3장을 요구하면 이미지 도구가 1회만 돌아 같은 크롭의 변주만 나온다.
   // 그래서 3개의 연속 메시지로 만든다. 각 메시지는 첫 문장에서 "이미지 1장, 이 캔버스 비율"을 못 박고, 2·3단계는 직전 결과의 의상을 그대로 입힌다.
-  const shared=S_(SCENE()+' '+FACE_DETAIL)+' '+S_(dirLine)+'Photorealistic, premium brand lookbook quality.';
-  // 포즈는 세 장에서 동일해야 함 — shared 뒤에 명시
-
-  const step1=[S_('Generate exactly ONE image, SQUARE format 1:1 (1024×1024). Image 1 is the model. Edit Image 1 into '+P[0][3]+'. The bottom edge of the frame cuts at the upper chest just below the shoulders: no arms below the shoulder, no waist or hands visible, the face large and detailed in frame. '+identity(f,'bust')),
-    S_(outfitText(Object.assign({},f,{refBase:2}))), shared].map(x=>x.trim()).filter(Boolean).join('\n\n');
-  const step2=[S_('Now generate exactly ONE new image, SQUARE format 1:1 (1024×1024), with a DIFFERENT, wider crop — this must NOT be a variation of the previous image. Same model as Image 1, wearing EXACTLY the outfit and accessories from the image you just generated (identical garments, colors, fit and styling). Framing: '+P[1][3]+'. The bottom edge of the frame cuts at the mid-thigh, just above the knees: the thighs visible, no knees, shins or feet. The figure is noticeably smaller than before, with clear empty space above the head. '+identity(f,'knee')+hp), shared].map(x=>x.trim()).filter(Boolean).join('\n\n');
-  const step3=[S_('Now generate exactly ONE new image in TALL PORTRAIT format 2:3 (1024×1536, vertical) — this must NOT be a variation of the previous images. Same model as Image 1, wearing EXACTLY the outfit and accessories from the images you just generated. Framing: '+P[2][3]+': head to toe in frame, shoes and the floor visible, a little space above the head and below the feet, nothing cropped. The figure is small in the tall frame. '+identity(f,'full')+hp), shared].map(x=>x.trim()).filter(Boolean).join('\n\n');
+  // ChatGPT 3단계: 개별 프롬프트(one)와 같은 구조를 그대로 쓴다. 2·3단계가 "직전 결과"를 참조하면 GPT가 그 이미지를 편집해 같은 프레임이 반복되므로,
+  // 매 단계 "첨부한 원본 Image 1을 새로 편집"하라고 못 박고, 프레이밍을 첫 문장에 둔다. 의상 일치는 마지막 문장에서만 요구.
+  const kneeSolo=one(P[1][3],'Square 1:1 format, 1024×1024.',false,hp,'knee');
+  const fullSolo=one(P[2][3]+', the full figure filling the frame from top to bottom without cropping the head or feet','Tall portrait format, 1024×1536.',false,hp,'full');
+  const step1='Generate exactly ONE image, SQUARE format 1:1 (1024×1024). Framing: a tight head-and-shoulders headshot — the bottom edge cuts at the upper chest just below the shoulders, the face large in frame.\n\n'+bust;
+  const step2='Now generate exactly ONE NEW image, SQUARE format 1:1 (1024×1024), with a completely DIFFERENT and much WIDER framing than the previous image: a three-quarter shot from just above the head down to the mid-thigh (just above the knees) — the whole upper body, hips and thighs visible, the figure clearly smaller in frame with empty space above the head. Do NOT reuse or re-crop your previous output. Start again from the ORIGINAL attached photo (Image 1) and edit that.\n\n'+kneeSolo+'\n\nThe outfit, accessories, hair and styling must be exactly the same as in the previous image — only the framing is different.';
+  const step3='Now generate exactly ONE NEW image in TALL PORTRAIT format 2:3 (1024×1536, vertical), with a completely DIFFERENT framing again: a FULL-BODY shot from the top of the head to the shoes with floor visible below the feet — the entire standing figure small in the tall frame, nothing cropped. Do NOT reuse or re-crop your previous outputs. Start again from the ORIGINAL attached photo (Image 1) and edit that.\n\n'+fullSolo+'\n\nThe outfit, accessories, hair and styling must be exactly the same as in the previous images — only the framing is different.';
   const chatSteps=[step1,step2,step3];
   const combined=chatSteps.map((t,i)=>`━━━━━━ ${i+1}단계 · ChatGPT에 ${i===0?'모델 이미지(와 의상 참조)를 첨부해':'이어서'} 보내기 ━━━━━━\n\n${t}`).join('\n\n\n');
   return {bust,knee,full,combined,chatSteps};

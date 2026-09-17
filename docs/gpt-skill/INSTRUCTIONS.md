@@ -1,6 +1,6 @@
 # 지침 (커스텀 GPT Instructions에 붙여 넣기)
 
-생성일 2026-09-14 · 원본 엔진 `js/prompt.js` · 이 문서는 `node tools/export-gpt-skill.js`로 자동 생성됨. 손으로 고치지 말고 코드 → 재생성.
+생성일 2026-09-17 · 원본 엔진 `js/prompt.js` · 이 문서는 `node tools/export-gpt-skill.js`로 자동 생성됨. 손으로 고치지 말고 코드 → 재생성.
 
 ## 흐름 선택
 - 얼굴 사진 + "모델 만들어" → **A** (3단계 비교 1장). 패널 번호를 고르면 그 패널만 잘라 쓴다고 안내.
