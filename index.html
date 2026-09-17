@@ -30,6 +30,9 @@ button{font-family:inherit;font-size:inherit;color:inherit;background:none;borde
 /* 본문 */
 main{max-width:1400px;margin:0 auto;padding:28px 32px 200px}
 h1{font-size:30px;font-weight:800;letter-spacing:-.02em;margin:10px 0 26px}
+.seg.three{grid-template-columns:1fr 1fr 1fr}
+.seg .nbadge{display:inline-block;min-width:18px;padding:0 6px;border-radius:99px;background:#000;color:#fff;font-size:11px;line-height:18px;margin-left:2px}
+.seg button.on .nbadge{background:#fff;color:#000}
 .seg{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line2);border-radius:4px;overflow:hidden}
 .seg button{padding:18px;font-size:16px;color:var(--ink2);display:flex;align-items:center;justify-content:center;gap:8px}
 .seg button.on{background:#000;color:#fff;font-weight:600}
@@ -336,10 +339,13 @@ footer .links span.dim{color:#aaa}
 .mcard .im.dashed .ph small{font-size:12px;color:#aaa}
 .mcard.upload{cursor:default}
 .mcard.dim{opacity:.45}
+.cand.dim{opacity:.45}
+.cand.dim:hover{opacity:1}
+.cand .lk .use{color:var(--ink);font-weight:600;text-decoration:underline;margin-left:auto;margin-right:10px;white-space:nowrap}
 .mcard.dim:hover{opacity:1}
 .lookhd{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .lookfilter{display:flex;gap:8px;margin-left:auto}
-.lookfilter .chip{padding:7px 14px;font-size:13px}
+.lookfilter .chip{padding:7px 14px;font-size:13px;white-space:nowrap}
 .lookfilter .chip i{font-style:normal;color:#999;margin-left:4px;font-size:12px}
 .lookfilter .chip.on i{color:#bbb}
 .mcard .im .lv{position:absolute;top:10px;left:10px;background:#000;color:#fff;font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:4px}
@@ -416,6 +422,47 @@ footer .links span.dim{color:#aaa}
 .steps b{color:var(--ink);font-weight:600}
 .steps button{padding:6px 10px;font-size:12px;border:1px solid var(--line2);background:#fff;border-radius:4px;color:var(--ink)}
 .steps button:hover{border-color:#000}
+.refgrid.three{grid-template-columns:repeat(6,1fr)}
+.pickgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.pickgrid.wide{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.pickgrid .pk{aspect-ratio:3/4;border:2px solid transparent;border-radius:4px;overflow:hidden;background:#ececec;position:relative;cursor:pointer}
+.pickgrid .pk img{width:100%;height:100%;object-fit:contain;display:block}
+.pickgrid .pk.on{border-color:#000}
+.pickgrid .pk .tg{position:absolute;top:6px;left:6px;background:#000;color:#fff;font-size:11px;padding:2px 7px;border-radius:3px}
+.pickgrid .pk.empty{display:flex;align-items:center;justify-content:center;color:#aaa;font-size:13px;text-align:center;padding:10px;border:1.5px dashed var(--line2);background:var(--bg2)}
+.cand .img.bgimg img{object-fit:contain;background:#ececec}
+.cand .img.land{aspect-ratio:3/2}
+.cand .img.sq{aspect-ratio:1}
+.cand .img.tall{aspect-ratio:2/3}
+.h1{font-size:34px;font-weight:800;margin:6px 0 10px;letter-spacing:-.5px}
+.lead{font-size:15px;color:var(--ink2);margin:0 0 26px;line-height:1.55}
+.linkb{text-decoration:underline;color:var(--ink);font-weight:600}
+.chip.go2{font-weight:700}
+.chip.go2:disabled{opacity:.4;cursor:not-allowed}
+.ctarow{display:flex;gap:10px;align-items:stretch}
+.ctarow .cta{flex:1;margin:0}
+.ctarow .ghostb.tall{white-space:nowrap;font-weight:600}
+.chips.small .chip{padding:7px 12px;font-size:13px}
+.comp{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:22px;align-items:start}
+.comp .stage{position:relative;background:#e9e9e9;border-radius:4px;overflow:hidden;display:flex;align-items:center;justify-content:center;min-height:320px}
+.comp .stage canvas{display:block;max-width:100%;max-height:78vh;cursor:grab;touch-action:none}
+.comp .stage canvas.drag{cursor:grabbing}
+.comp .busy2{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:10px;background:rgba(255,255,255,.7);font-size:14px;font-weight:600}
+.comp .busy2 i{width:22px;height:22px;border:2.5px solid #ddd;border-top-color:#000;border-radius:50%;animation:spin .8s linear infinite;display:block}
+.comp .panel{display:grid;gap:18px;font-size:13px;color:var(--ink2)}
+.comp .grp{border:1px solid var(--line2);border-radius:4px;padding:12px 14px 10px;display:grid;gap:8px}
+.comp .grp>b{font-size:13px;color:var(--ink);margin-bottom:2px}
+.comp .panel label.sl{display:grid;grid-template-columns:104px 1fr 44px;align-items:center;gap:10px}
+.comp .panel label.sl span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.comp .panel label.sl .v{font-style:normal;color:#999;font-size:12px;text-align:right}
+.comp .panel .checks{display:flex;gap:16px;flex-wrap:wrap;margin-top:4px}
+.comp .panel label.row{display:flex;align-items:center;gap:6px;color:var(--ink)}
+.comp .panel input[type=range]{width:100%;accent-color:#000;margin:0}
+.comp .panel .btns{display:grid;gap:8px;margin-top:6px}
+.comp .panel .btns button{width:100%}
+@media (max-width:900px){.comp{grid-template-columns:1fr}}
+.recorow{display:flex;align-items:center;gap:14px;margin-top:14px;font-size:13px;color:var(--ink2);line-height:1.5}
+.recorow .ghostb{white-space:nowrap}
 .lookdrop{display:flex;align-items:center;justify-content:space-between;gap:20px;border:1.5px dashed var(--line2);border-radius:4px;background:var(--bg2);padding:18px 20px;margin-bottom:22px}
 .lookdrop.over{border-color:#000;background:#eee}
 .lookdrop b{display:block;font-size:15px;margin-bottom:4px}
@@ -456,7 +503,7 @@ footer .links span.dim{color:#aaa}
 <body>
 <header class="hdr"><div class="in">
   <span class="wordmark">AI Model</span>
-  <nav><a href="#create" data-view="create" class="on">Create</a><a href="#models" data-view="models">Models <span class="nbadge" id="modelsCount" hidden>0</span></a><button class="resetall" id="apiBtn" title="OpenAI API 키·모델 설정">API 설정</button><button class="resetall" id="resetAll" title="사진·옵션·후보·데뷔 모델을 모두 지우고 처음 상태로">전체 초기화</button></nav>
+  <nav><a href="#create" data-view="create" class="on">Create</a><a href="#models" data-view="models">Models <span class="nbadge" id="modelsCount" hidden>0</span></a><a href="#bg" data-view="bg">Backgrounds <span class="nbadge" id="bgCount" hidden>0</span></a><button class="resetall" id="apiBtn" title="OpenAI API 키·모델 설정">API 설정</button><button class="resetall" id="resetAll" title="사진·옵션·후보·데뷔 모델을 모두 지우고 처음 상태로">전체 초기화</button></nav>
 </div></header>
 
 <main>
@@ -625,10 +672,78 @@ footer .links span.dim{color:#aaa}
   </div>
   <div class="listhd lookhd"><b>룩</b><span id="mdLookSub"></span><div class="lookfilter" id="mdFilter"></div></div>
   <div class="mgrid" id="mdLooks"></div>
+  <div class="listhd"><b>배경 컷</b><span id="mdSceneSub"></span><div class="lookfilter"><button class="chip" id="mdToBg">배경 합성하기 →</button></div></div>
+  <div class="mgrid" id="mdScenes"></div>
   <div class="empty mempty" id="mdEmpty" hidden><p>아직 룩이 없어요.</p><button class="mgo" id="mdEmptyGo">첫 룩 만들기 →</button></div>
 </div>
 
 <!-- 스타일링 페이지: 데뷔 모델의 옷·악세서리 -->
+<div id="viewBg" hidden>
+  <h1 class="h1">배경</h1>
+  <p class="lead">룩에 어울리는 배경 플레이트(모델 없음)를 만들어 라이브러리에 모아요. 맨 아래 "룩에 배경 합성"에서 룩의 인물을 잘라 배경 위에 바로 올려 확인하고 저장해요.</p>
+  <div class="seg" id="bgMode" style="max-width:560px;margin-bottom:34px"><button data-m="make" class="on">배경 만들기</button><button data-m="lib">배경 라이브러리 <span class="nbadge" id="bgLibBadge" hidden>0</span></button></div>
+
+  <div id="bgMake">
+    <section class="section"><p class="label">기준 룩 <span class="sub">선택 · 어떤 룩에 어울리는 배경인지</span></p><div class="chips" id="mkModel"></div><div class="pickgrid" id="mkLooks" style="margin-top:12px"></div></section>
+    <section class="section" id="mkRecoSec" hidden><p class="label">이 룩에 어울리는 배경 <span class="sub">빠른 장면 힌트 · 누르면 아래 장면으로 선택돼요</span></p><div class="chips" id="mkRecoChips"></div>
+      <div class="recorow"><button class="ghostb" id="mkRecoBtn">ChatGPT에 자유 탐색 프롬프트 받기</button><div class="chips small" id="mkCount"></div><span>개수·카테고리를 정하지 않고 크리에이티브 디렉터처럼 이 룩이 살아날 장소를 자유롭게 제안하고, 서로 확실히 다른 배경 플레이트(모델 없음)를 한 장씩 만들게 해요. 받은 이미지는 배경 라이브러리에 올리세요</span></div>
+      <div class="promptbox under" id="mkRecoBox" hidden><div class="ph"><b>ChatGPT 프롬프트 · 배경 자유 탐색</b><span id="mkRecoFor"></span><button id="mkRecoCopy">복사</button></div><pre id="mkRecoText"></pre></div></section>
+    <section class="section"><p class="label">장면 <span class="sub">비우면 참조·디렉션으로만</span></p><div class="chips" id="bgScene"></div></section>
+    <section class="section" id="bgColorSec" hidden><p class="label">스튜디오 컬러</p><div class="chips" id="bgColor"></div></section>
+    <section class="section"><p class="label">조명 · 시간대</p><div class="chips" id="bgLight"></div></section>
+    <section class="section"><p class="label">심도 · 카메라</p><div class="chips" id="bgDepth"></div><div class="chips" id="bgCamera" style="margin-top:10px"></div></section>
+    <section class="section"><p class="label">비율 <span class="sub">풀샷 합성용은 2:3 세로 권장</span></p><div class="chips" id="bgAspect"></div></section>
+    <section class="section"><p class="label">참조 이미지 <span class="sub">선택 · 최대 3장 · 장소·무드 참고</span></p><div class="refgrid three" id="bgRefList"></div><input type="file" id="bgRefFile" accept="image/*" multiple hidden></section>
+    <section class="section"><p class="label">디렉션 <span class="dash">— 소재, 색감, 분위기</span></p><textarea class="free" id="bgDirection" placeholder="예: 따뜻한 우드 톤, 큰 창으로 햇살, 관엽식물 조금" style="min-height:80px"></textarea></section>
+    <div class="ctarow"><button class="cta ready" id="bgCta">배경 프롬프트 만들기</button><button class="ghostb tall" id="bgRandom" title="장면·조명·심도·카메라와 디테일 한 가지를 무작위로 채워요">🎲 랜덤 무드</button></div><p class="hint2" id="bgTwist" hidden></p>
+    <div class="promptbox under" id="bgPromptBox" hidden><div class="ph"><b>GPT Image 프롬프트 · 배경</b><span id="bgPromptFor"></span><button class="gen" id="bgGen">GPT로 바로 생성</button><button id="bgCopy">복사</button></div><pre id="bgPromptText"></pre>
+      <ul class="pnote"><li><b>사람 없음</b> 모델을 나중에 합성할 수 있게 가운데 앞쪽을 비우고 바닥이 보이게 만들어요</li><li><b>참조 이미지</b>가 있으면 편집(Edit) 입력 1~N번으로 넣고, 없으면 텍스트 생성(Generate)으로 만들어요</li></ul></div>
+  </div>
+
+  <div id="bgLib" hidden>
+    <div class="lookdrop" id="bgDrop"><div><b>배경 이미지 올리기</b><span>GPT에서 받은 배경이나 직접 찍은 장소 사진을 여러 장 한 번에 끌어다 놓거나 선택하세요. 비율은 자동으로 판별되고, "룩에 배경 합성"에서 골라 쓸 수 있어요</span></div><button class="primaryb" id="bgPick">이미지 올리기</button></div>
+    <input type="file" id="bgFile" accept="image/*" multiple hidden>
+    <div class="listhd flat"><b>배경 라이브러리</b><span id="bgLibSub"></span><div class="lookfilter" id="bgLibFilter"></div></div>
+    <div class="candgrid" id="bgGrid"></div>
+  </div>
+
+  <div class="pagefoot" style="margin:40px 0 10px"><button class="primaryb" id="scToggle">룩에 배경 합성 — 배경 위에 올려 보기</button></div>
+  <div id="bgSceneWrap" hidden>
+    <div class="listhd"><b>룩에 배경 합성</b><span>룩의 인물을 잘라 배경 위에 올려 바로 확인해요 · 드래그로 위치, 휠이나 슬라이더로 크기</span><div class="lookfilter"><button class="chip" id="scClose">접기</button></div></div>
+    <section class="section"><p class="label">1. 모델</p><div class="chips" id="scModel"></div></section>
+    <section class="section"><p class="label">2. 룩 <span class="sub" id="scLookSub"></span></p><div class="pickgrid" id="scLooks"></div></section>
+    <section class="section"><p class="label">3. 배경 <span class="sub">라이브러리에서 선택</span></p><div class="pickgrid wide" id="scBgs"></div><p class="hint2" id="scBgHint" hidden>라이브러리가 비어 있어요. <button class="linkb" id="scToLib">배경 라이브러리 탭</button>에서 이미지를 올리면 여기서 고를 수 있어요.</p></section>
+    <section class="section"><p class="label">출력 비율 <span class="sub">"룩과 동일"이면 상체·니샷 1:1, 풀샷 2:3</span></p><div class="chips" id="scRatio"></div></section>
+    <section class="section" id="scEditor" hidden>
+      <div class="comp">
+        <div class="stage" id="scStage"><canvas id="scCanvas"></canvas><div class="busy2" id="scBusy" hidden><i></i><span>인물 잘라내는 중…</span></div></div>
+        <div class="panel">
+          <div class="grp"><b>인물</b>
+            <label class="sl"><span>크기</span><input type="range" id="cpScale" min="0.1" max="1.6" step="0.002"><i class="v" id="cpScaleV"></i></label>
+            <label class="sl"><span>누끼 허용치</span><input type="range" id="cpTol" min="4" max="60" step="1"><i class="v" id="cpTolV"></i></label>
+            <label class="sl"><span>구멍 제거</span><input type="range" id="cpHole" min="0" max="30" step="1"><i class="v" id="cpHoleV"></i></label>
+            <label class="sl"><span>엣지 다듬기</span><input type="range" id="cpChoke" min="0" max="4" step="1"><i class="v" id="cpChokeV"></i></label>
+            <label class="sl"><span>가장자리 부드럽게</span><input type="range" id="cpFeather" min="0" max="8" step="1"><i class="v" id="cpFeatherV"></i></label>
+            <label class="sl"><span>배경 톤 섞기</span><input type="range" id="cpTone" min="0" max="60" step="1"><i class="v" id="cpToneV"></i></label>
+            <div class="checks"><label class="row"><input type="checkbox" id="cpFlip"> 좌우 반전</label><label class="row"><input type="checkbox" id="cpShadow"> 바닥 그림자</label></div>
+          </div>
+          <div class="grp"><b>배경</b>
+            <label class="sl"><span>심도 (흐림)</span><input type="range" id="cpBlur" min="0" max="30" step="1"><i class="v" id="cpBlurV"></i></label>
+            <div class="checks"><label class="row"><input type="checkbox" id="cpCover"> 배경 채우기 (끄면 전체 보이기)</label></div>
+          </div>
+          <div class="btns"><button class="ghostb" id="cpReset">위치·크기 초기화</button><button class="ghostb" id="cpDown">다운로드</button><button class="primaryb" id="cpSave">배경 컷으로 저장</button></div>
+          <p class="hint2">라이트그레이 배경을 자동으로 지워요. 다리 사이·가방 틈처럼 갇힌 배경은 "구멍 제거"가 처리해요(흰 셔츠가 사라지면 값을 낮추세요). 회색 테두리가 보이면 엣지 다듬기를 올리세요.</p>
+        </div>
+      </div>
+    </section>
+    <section class="cands" style="margin-top:34px">
+      <div class="lookdrop" id="scDrop"><div><b>합성한 배경 컷 올리기</b><span>GPT에서 받은 결과를 여러 장 올리면 선택한 모델·룩의 배경 컷으로 저장돼요</span></div><button class="primaryb" id="scPick">이미지 올리기</button></div>
+      <input type="file" id="scFile" accept="image/*" multiple hidden>
+      <div class="listhd"><b>배경 컷</b><span id="scSub"></span></div>
+      <div class="candgrid" id="scGrid"></div></section>
+  </div>
+  <div class="pagefoot" style="margin-top:20px"><a class="ghostb" href="#models" style="text-decoration:none">모델 리스트로 이동 →</a></div>
+</div>
 <div id="viewStyle" hidden>
   <a href="#models" class="back" id="stBack">← 모델 페이지</a>
   <div class="sthead"><div class="stthumb" id="stThumb"></div><div><h1 id="stName" style="margin:0 0 4px">스타일링</h1><p class="lead" id="stLead" style="margin:0"></p></div></div>
@@ -725,9 +840,9 @@ footer .links span.dim{color:#aaa}
 </div>
 <div id="toast"></div>
 
-<script src="js/prompt.js?v=291125"></script>
-<script src="js/adjust.js?v=291125"></script>
-<script src="js/engine.js?v=291125"></script>
+<script src="js/prompt.js?v=291137"></script>
+<script src="js/adjust.js?v=291137"></script>
+<script src="js/engine.js?v=291137"></script>
 <script>
 /* ── 데이터 ─────────────────────────────────────────── */
 const STRENGTH=[['keep','그대로','동일 인물 유지','증명사진 톤. 얼굴은 손대지 않고, 아래에서 고른 헤어·메이크업·피부톤 같은 선택 항목만 적용합니다.'],['light','약하게','자연 보정','상업용 헤드샷으로 재촬영. 밝은 하이키 조명과 촉촉한 광채 피부, 클린 메이크업. 얼굴은 가볍게만 다듬어 누가 봐도 본인. 자세는 원본 그대로.'],['glow','글로우','모델급','프리미엄 뷰티 캠페인 컷으로 재해석. 하이키 조명, 윤기 나는 도자기 글래스 스킨(모공·결은 살림), 클린 K-뷰티 메이크업, 에어리 헤어. 얼굴은 과감히 이상화. 자세는 원본 그대로.']];
@@ -767,7 +882,7 @@ const NTRAIT=['없음','고양이 귀','안경','뿔','날개','엘프 귀','흉
 
 /* ── 상태 ─────────────────────────────────────────── */
 const S={mode:'selfie',face:null,prev:[],consent:false,strength:'light',type:'human',gender:null,eth:'ea',country:null,age:'e20',
-  body:null,height:null,hairStyle:null,hairColor:null,eye:null,skin:null,makeup:null,tattoo:null,direction:'',detOpen:true,tips:false,
+  body:null,height:null,hairStyle:null,hairColor:null,eye:null,skin:null,makeup:null,tattoo:null,direction:'',detOpen:true,tips:false,bgs:[],bgOpt:{scene:null,color:null,light:null,depth:null,camera:null,aspect:'2:3 세로',direction:'',refs:[]},sc:{modelId:null,lookId:null,bgId:null,sceneText:null,direction:'',ratio:null},
   cands:[],sel:null,balance:100,
   animal:{species:null,style:null,age:null,fur:null,furLen:null,eye:null,face:null,acc:null,open:true},
   anime:{gender:null,age:null,style:null,hair:null,hairC:null,eye:null,skin:null,outfit:null,trait:null,open:true}};
@@ -1116,10 +1231,10 @@ $('#quick').addEventListener('drop',e=>quickFile(e.dataTransfer.files[0]));
 
 /* ── 저장/복원 (localStorage) ── 후보·이미지·얼굴 사진·옵션. 용량 초과 시 안내만 */
 const LS_KEY='aimodel.create.v1';
-const PERSIST=['mode','face','faceOrig','prev','consent','strength','type','gender','eth','country','age','body','height','hairStyle','hairColor','eye','skin','makeup','tattoo','direction','cands','balance','animal','anime'];
+const PERSIST=['mode','face','faceOrig','prev','consent','strength','type','gender','eth','country','age','body','height','hairStyle','hairColor','eye','skin','makeup','tattoo','direction','cands','balance','animal','anime','bgs','bgOpt','sc'];
 let saveWarned=false;
 let persistTimer=null;
-function snapshot(){const o={};PERSIST.forEach(k=>o[k]=S[k]);o.cands=(S.cands||[]).filter(c=>!c.busy).map(c=>Object.assign({},c,{busy:null,busyPanel:null}));return o;}
+function snapshot(){const o={};PERSIST.forEach(k=>o[k]=S[k]);o.cands=(S.cands||[]).filter(c=>!c.busy).map(c=>Object.assign({},c,{busy:null,busyPanel:null}));o.bgs=(S.bgs||[]).filter(b=>!b.busy);return o;}
 function shrinkDataUrl(src,max,q){return new Promise(res=>{if(!src||!src.startsWith('data:'))return res(src);const im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height));if(k>=1&&src.length<400000)return res(src);const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);const g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(im,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',q));};im.onerror=()=>res(src);im.src=src;});}
 function persist(){clearTimeout(persistTimer);persistTimer=setTimeout(async()=>{
   const o=snapshot();
@@ -1130,7 +1245,7 @@ function persist(){clearTimeout(persistTimer);persistTimer=setTimeout(async()=>{
     localStorage.setItem(LS_KEY,JSON.stringify(o));if(!saveWarned){saveWarned=true;toast('저장 공간을 아끼기 위해 새로고침 후에는 이미지가 축소된 사본으로 복원돼요');}}
   catch(e){if(!saveWarned){saveWarned=true;toast('저장 공간이 가득 차 새로고침 시 일부 후보 이미지가 사라질 수 있어요. 오래된 후보를 삭제하세요');}}
 },150);}
-function restore(){try{const o=JSON.parse(localStorage.getItem(LS_KEY)||'null');if(!o)return;PERSIST.forEach(k=>{if(o[k]!==undefined)S[k]=o[k];});(S.cands||[]).forEach(c=>{c.busy=null;c.busyPanel=null;(c.looks||[]).forEach(l=>l.busy=null);if(c.lookWork){c.lookWork.busy=null;c.lookWork.busyPanel=null;}});}catch(e){}}
+function restore(){try{const o=JSON.parse(localStorage.getItem(LS_KEY)||'null');if(!o)return;PERSIST.forEach(k=>{if(o[k]!==undefined)S[k]=o[k];});(S.bgs||[]).forEach(b=>b.busy=null);if(!S.bgOpt)S.bgOpt={scene:null,color:null,light:null,aspect:'2:3 세로',direction:'',refs:[]};if(!S.sc)S.sc={modelId:null,lookId:null,bgId:null,sceneText:null,direction:''};(S.cands||[]).forEach(c=>{c.busy=null;c.busyPanel=null;(c.scenes||[]).forEach(x=>x.busy=null);(c.looks||[]).forEach(l=>l.busy=null);if(c.lookWork){c.lookWork.busy=null;c.lookWork.busyPanel=null;}});}catch(e){}}
 /* ── 업스케일 파이프라인 ─────────────────────────────────
    패널 선택 → cropPanel → upscaleImage → 후보/데뷔 등록.
    provider:'local' = 브라우저 내 2배 확대(고품질 리샘플) + 언샤프 마스크. 엔진 연동 시 provider를 'api'로 바꾸고
@@ -1156,7 +1271,7 @@ async function panelToImage(cmp,n,count){const cropped=count==='sheet2'?await cr
 /* ── 라이트박스 ───────────────────────────────────────── */
 const LB={id:null};
 const lbList=()=>S.cands.filter(c=>c.img&&!c.compare&&!c.busy);
-function openLightbox(id){LB.id=id;$('#lbAdjust').hidden=false;$('#lbDel').onclick=lbDelDefault;renderLightbox();$('#lb').hidden=false;}
+function openLightbox(id){LB.id=id;$('#lbAdjust').hidden=false;$('#lbDel').hidden=false;$('#lbDel').onclick=lbDelDefault;renderLightbox();$('#lb').hidden=false;}
 function renderLightbox(){const list=lbList();const i=list.findIndex(c=>c.id===LB.id);if(i<0){$('#lb').hidden=true;return;}const c=list[i];
   $('#lbImg').src=c.img;$('#lbCnt').innerHTML=`${c.debuted?c.name+' · 데뷔':'후보'}<span>${i+1} / ${list.length}</span>`;
   $('#lbPrev').hidden=list.length<2;$('#lbNext').hidden=list.length<2;$('#lbUndebut').hidden=!c.debuted;}
@@ -1340,7 +1455,8 @@ $('#lookPick').onclick=()=>$('#lookFile').click();
 $('#lookFile').onchange=e=>{const m=styleModel();if(m&&e.target.files.length)addLookFiles(m,e.target.files);e.target.value='';};
 {const dz=$('#lookDrop');['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over');}));['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('over');}));
   dz.addEventListener('drop',e=>{const m=styleModel();if(m&&e.dataTransfer.files.length)addLookFiles(m,e.dataTransfer.files);});}
-function openLookLightbox(m,lk,after){$('#lbImg').src=lk.img;$('#lbCnt').innerHTML=`${m.name} · 룩 <span>· ${lk.spec||''}</span>`;$('#lbPrev').hidden=true;$('#lbNext').hidden=true;$('#lbUndebut').hidden=true;$('#lbAdjust').hidden=true;$('#lbDel').onclick=()=>{if(confirm('이 룩을 삭제할까요?')){m.looks=m.looks.filter(x=>x!==lk);$('#lb').hidden=true;persist();(after||renderStyle)();}};LB.id=null;$('#lb').hidden=false;}
+function openAnyLightbox({img,cap,onDelete}){$('#lbImg').src=img;$('#lbCnt').innerHTML=cap||'';$('#lbPrev').hidden=true;$('#lbNext').hidden=true;$('#lbUndebut').hidden=true;$('#lbAdjust').hidden=true;$('#lbDel').hidden=!onDelete;$('#lbDel').onclick=()=>{if(onDelete&&confirm('삭제할까요?')){onDelete();$('#lb').hidden=true;}};LB.id=null;$('#lb').hidden=false;}
+function openLookLightbox(m,lk,after){$('#lbDel').hidden=false;$('#lbImg').src=lk.img;$('#lbCnt').innerHTML=`${m.name} · 룩 <span>· ${lk.spec||''}</span>`;$('#lbPrev').hidden=true;$('#lbNext').hidden=true;$('#lbUndebut').hidden=true;$('#lbAdjust').hidden=true;$('#lbDel').onclick=()=>{if(confirm('이 룩을 삭제할까요?')){m.looks=m.looks.filter(x=>x!==lk);$('#lb').hidden=true;persist();(after||renderStyle)();}};LB.id=null;$('#lb').hidden=false;}
 
 function renderGarments(m,P){const host=$('#garmentList');host.innerHTML='';
   P.refs.forEach((src,i)=>{const sl=el('div','slot',`<img src="${src}" alt=""><span class="n">${i+2}</span>`);const x=el('button','x','✕');x.onclick=e=>{e.stopPropagation();P.refs.splice(i,1);renderStyle();};sl.append(x);sl.title=`입력 이미지 ${i+2}번`;host.append(sl);});
@@ -1373,6 +1489,11 @@ function renderModelPage(){
   sorted.forEach(lk=>{const card=el('div','mcard');const im=el('div','im lookimg'+(!isFullLook(lk)?' fill':''),`<img src="${lk.img}" alt="">`);if(lk.frameKo)im.append(el('span','lv',lk.frameKo));if(MD.filter&&lookFrame(lk)!==MD.filter)card.classList.add('dim');im.onclick=()=>openLookLightbox(m,lk,()=>renderModelPage());
     const cap=el('div','cap2');cap.append(document.createTextNode(lk.spec||'룩'));const d=el('button',null,'삭제');d.onclick=()=>{if(confirm('이 룩을 삭제할까요?')){m.looks=m.looks.filter(x=>x!==lk);persist();renderModelPage();}};cap.append(d);
     card.append(im,cap,el('div','dt',lk.at?fmtDate(lk.at):''));g.append(card);});
+  // 배경 컷
+  m.scenes=m.scenes||[];$('#mdSceneSub').textContent=m.scenes.length?`${m.scenes.length}개`:'아직 없어요 — Backgrounds에서 룩에 배경을 합성하면 여기에 쌓여요';
+  $('#mdToBg').onclick=()=>{S.sc.modelId=m.id;S.sc.lookId=null;BG.mode='lib';BG.compose=true;location.hash='#bg';setTimeout(()=>$('#bgSceneWrap').scrollIntoView({behavior:'smooth',block:'start'}),150);};
+  {const sg=$('#mdScenes');sg.innerHTML='';m.scenes.slice().sort((a,b)=>(b.at||0)-(a.at||0)).forEach(sc=>{const card=el('div','mcard');const im=el('div','im lookimg'+(sc.frame==='full'?'':' fill'),sc.busy?`<div class="busy"><i></i>${sc.busy}</div>`:`<img src="${sc.img}" alt="">`);im.append(el('span','lv','배경 컷'));if(!sc.busy)im.onclick=()=>openAnyLightbox({img:sc.img,cap:`${m.name} · 배경 컷 · ${sc.spec||''}`,onDelete:()=>{m.scenes=m.scenes.filter(x=>x!==sc);persist();renderModelPage();}});
+    const cap=el('div','cap2');cap.append(document.createTextNode(sc.spec||'배경 컷'));const d=el('button',null,'삭제');d.onclick=()=>{if(confirm('이 배경 컷을 삭제할까요?')){m.scenes=m.scenes.filter(x=>x!==sc);persist();renderModelPage();}};cap.append(d);card.append(im,cap,el('div','dt',sc.at?fmtDate(sc.at):''));sg.append(card);});}
   // 맨 끝 고정 슬롯: 룩 이미지를 직접 올려 추가 (여러 장 · 자동 분류)
   {const card=el('div','mcard upload');const im=el('div','im dashed',`<div class="ph"><svg viewBox="0 0 24 24"><path d="M12 16V5M7 10l5-5 5 5M4 20h16"/></svg><span>룩 이미지를 올려<br>바로 추가해요</span><button class="ghostb">이미지 올리기</button><small>여러 장 가능 · 상체·니샷·풀샷 자동 구분</small></div>`);
     const pick=()=>{$('#mdLookFile').onchange=e=>{if(e.target.files.length)addLookFiles(m,e.target.files,renderModelPage);e.target.value='';};$('#mdLookFile').click();};
@@ -1383,11 +1504,235 @@ function renderModelPage(){
 }
 /* ── 뷰 라우팅 (#create / #models / #model/<id> / #style/<id>) ─────── */
 const LEVEL_KO={keep:'KEEP · 그대로',light:'NATURAL · 약하게',glow:'GLOW · 글로우'};
-function currentView(){if(location.hash==='#models')return 'models';if(location.hash.startsWith('#style/'))return 'style';if(location.hash.startsWith('#model/'))return 'model';return 'create';}
+
+/* ===== Backgrounds 페이지 ===== */
+const BG={mode:'make',prompt:null,scPrompt:null,busy:false,scBusy:false};
+const BG_ASPECT_CLS={'1:1':'sq','2:3 세로':'tall','3:2 가로':'land'};
+function bgChips(host,list,obj,key,{allowEmpty,emptyKo,colors,onPick}={}){host.innerHTML='';
+  if(allowEmpty){const b=el('button','chip'+(!obj[key]?' on':''),emptyKo||'자동');b.onclick=()=>{obj[key]=null;(onPick||renderBg)();};host.append(b);}
+  list.forEach(item=>{const v=Array.isArray(item)?item[0]:item;const b=el('button','chip'+(obj[key]===v?' on':''),v);if(colors&&Array.isArray(item)){b.classList.add('color2');b.style.setProperty('--c',item[1]);}b.onclick=()=>{obj[key]=obj[key]===v?null:v;(onPick||renderBg)();};host.append(b);});}
+function bgSpec(o){return [o.scene,o.scene==='컬러 스튜디오'&&o.color?o.color:null,o.light,o.depth,o.camera,o.twist?'+디테일':null,o.aspect,o.refs.length?`참조 ${o.refs.length}장`:null,o.direction.trim()?'디렉션: '+o.direction.trim().slice(0,30):null].filter(Boolean).join(' · ');}
+function renderBg(){const O=S.bgOpt;const BE=PromptEngine.BG_EN;
+  document.querySelectorAll('#bgMode button').forEach(b=>b.classList.toggle('on',b.dataset.m===BG.mode));
+  if(BG.mode==='scene')BG.mode='lib';$('#bgMake').hidden=BG.mode!=='make';$('#bgLib').hidden=BG.mode!=='lib';$('#bgSceneWrap').hidden=!BG.compose;$('#scToggle').textContent=BG.compose?'룩에 배경 합성 — 닫기':'룩에 배경 합성 — 배경 위에 올려 보기';
+  {const n=S.bgs.filter(b=>!b.busy).length;const b=$('#bgCount');b.textContent=n;b.hidden=!n;const b2=$('#bgLibBadge');b2.textContent=n;b2.hidden=!n;}
+  if(BG.mode==='make'){
+    bgChips($('#bgScene'),Object.keys(BE.scene),O,'scene',{allowEmpty:true,emptyKo:'지정 안 함'});
+    $('#bgColorSec').hidden=O.scene!=='컬러 스튜디오';bgChips($('#bgColor'),ST_COLORS,O,'color',{allowEmpty:true,emptyKo:'자동',colors:true});
+    bgChips($('#bgLight'),Object.keys(BE.light),O,'light',{allowEmpty:true,emptyKo:'자동'});
+    bgChips($('#bgDepth'),Object.keys(BE.depth),O,'depth',{allowEmpty:true,emptyKo:'심도 자동'});bgChips($('#bgCamera'),Object.keys(BE.camera),O,'camera',{allowEmpty:true,emptyKo:'카메라 자동'});
+    renderPick('#mkModel','#mkLooks',null);renderMkReco();
+    {const t=$('#bgTwist');t.hidden=!O.twist;if(O.twist){t.innerHTML='';t.append(document.createTextNode('디테일: '+O.twist+' '));const x=el('button','linkb','지우기');x.onclick=()=>{O.twist=null;renderBg();};t.append(x);}}
+    bgChips($('#bgAspect'),Object.keys(BE.aspect),O,'aspect');
+    if($('#bgDirection').value!==O.direction)$('#bgDirection').value=O.direction;
+    // 참조
+    const host=$('#bgRefList');host.innerHTML='';O.refs.forEach((src,i)=>{const sl=el('div','slot',`<img src="${src}" alt=""><span class="n">${i+1}</span>`);const x=el('button','x','✕');x.onclick=e=>{e.stopPropagation();O.refs.splice(i,1);renderBg();};sl.append(x);host.append(sl);});
+    if(O.refs.length<3){const add=el('div','slot',`<span style="font-size:20px">＋</span><span>이미지 추가</span>`);add.onclick=()=>$('#bgRefFile').click();['dragenter','dragover'].forEach(ev=>add.addEventListener(ev,e=>{e.preventDefault();add.classList.add('over');}));['dragleave','drop'].forEach(ev=>add.addEventListener(ev,e=>{e.preventDefault();add.classList.remove('over');}));add.addEventListener('drop',e=>addBgRefs([...e.dataTransfer.files]));host.append(add);}
+    // 프롬프트
+    const box=$('#bgPromptBox');box.hidden=!BG.prompt;if(BG.prompt){$('#bgPromptText').textContent=BG.prompt;$('#bgPromptFor').textContent=`${bgSpec(O)||'자유'} · ${O.refs.length?`입력: 참조 1~${O.refs.length}`:'텍스트 생성'} · ${BE.aspect[O.aspect]}`;$('#bgGen').disabled=BG.busy;$('#bgGen').textContent=BG.busy?'생성 중…':'GPT로 바로 생성';}
+  }else renderBgLib();
+  renderScene();
+  persist();
+}
+function renderBgLib(){
+  {const fh=$('#bgLibFilter');fh.innerHTML='';[[null,'전체'],['2:3 세로','세로'],['1:1','1:1'],['3:2 가로','가로']].forEach(([k,ko])=>{const n=k?S.bgs.filter(b=>b.aspect===k).length:S.bgs.length;const b=el('button','chip'+(BG.libFilter===k?' on':''),`${ko} <i>${n}</i>`);b.onclick=()=>{BG.libFilter=BG.libFilter===k?null:k;renderBg();};fh.append(b);});}
+    const g=$('#bgGrid');g.innerHTML='';$('#bgLibSub').textContent=S.bgs.length?`${S.bgs.length}개 · 클릭하면 크게 볼 수 있어요`:'아직 없어요 — 위에서 만들거나 이미지를 올리면 여기에 쌓여요';
+    S.bgs.slice().sort((a,b)=>{if(BG.libFilter){const fa=a.aspect===BG.libFilter?0:1,fb=b.aspect===BG.libFilter?0:1;if(fa!==fb)return fa-fb;}return (b.at||0)-(a.at||0);}).forEach(bg=>{const card=el('div','cand'+(BG.libFilter&&bg.aspect!==BG.libFilter?' dim':''));const img=el('div','img bgimg '+(BG_ASPECT_CLS[bg.aspect]||'tall'));
+      if(bg.busy){img.innerHTML=`<div class="ph"><div class="spec">${bg.spec||''}</div></div><div class="busy"><i></i>${bg.busy}</div>`;}
+      else{img.innerHTML=`<img src="${bg.img}" alt="">`;img.classList.add('clickable');img.onclick=()=>openAnyLightbox({img:bg.img,cap:`배경 · ${bg.spec||''}`,onDelete:()=>{S.bgs=S.bgs.filter(x=>x!==bg);renderBg();}});img.append(el('span','badge',bg.aspect||''));}
+      card.append(img);const bar=el('div','lk');bar.append(document.createTextNode(bg.spec||'배경'));if(!bg.busy){const use=el('button','use','이 배경으로 합성 →');use.onclick=()=>{S.sc.bgId=bg.id;S.sc.sceneText=null;BG.compose=true;renderBg();$('#bgSceneWrap').scrollIntoView({behavior:'smooth',block:'start'});};bar.append(use);}const d=el('button','d','삭제');d.onclick=()=>{if(confirm('이 배경을 삭제할까요?')){S.bgs=S.bgs.filter(x=>x!==bg);if(S.sc.bgId===bg.id)S.sc.bgId=null;renderBg();}};bar.append(d);card.append(bar);g.append(card);});
+}
+function addBgRefs(files){const O=S.bgOpt;const room=3-O.refs.length;files.filter(f=>f.type.startsWith('image/')).slice(0,room).forEach(f=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1200/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);O.refs.push(c.toDataURL('image/jpeg',.9));renderBg();};im.src=r.result;};r.readAsDataURL(f);});}
+$('#bgRefFile').onchange=e=>{addBgRefs([...e.target.files]);e.target.value='';};
+$('#bgDirection').oninput=e=>{S.bgOpt.direction=e.target.value;};
+document.querySelectorAll('#bgMode button').forEach(b=>b.onclick=()=>{BG.mode=b.dataset.m;renderBg();});
+$('#bgCta').onclick=()=>{const O=S.bgOpt;BG.prompt=PromptEngine.bgPrompt({scene:O.scene,color:O.color,light:O.light,depth:O.depth,camera:O.camera,twist:O.twist,aspect:O.aspect,direction:O.direction,refs:O.refs.length});renderBg();$('#bgPromptBox').scrollIntoView({behavior:'smooth',block:'start'});toast('배경 프롬프트를 만들었어요');};
+$('#bgRandom').onclick=()=>{const O=S.bgOpt;const b=PromptEngine.randomBrief();Object.assign(O,b);if(O.scene!=='컬러 스튜디오')O.color=null;else O.color=ST_COLORS[Math.floor(Math.random()*ST_COLORS.length)][0];BG.prompt=PromptEngine.bgPrompt({scene:O.scene,color:O.color,light:O.light,depth:O.depth,camera:O.camera,twist:O.twist,aspect:O.aspect,direction:O.direction,refs:O.refs.length});renderBg();toast('무작위 무드로 채웠어요 — 다시 누르면 새로 뽑아요');};
+$('#bgCopy').onclick=()=>navigator.clipboard.writeText($('#bgPromptText').textContent).then(()=>toast('복사됨'));
+async function generateBg(){if(BG.busy||!BG.prompt)return;const cfg=apiCfg();if(!cfg.apiKey){openSettings();return toast('먼저 OpenAI API 키를 입력하세요');}
+  const O=S.bgOpt;const size=PromptEngine.BG_EN.aspect[O.aspect]||'1024x1536';const bg={id:'b'+Date.now(),aspect:O.aspect,spec:bgSpec(O)||'자유 배경',prompt:BG.prompt,at:Date.now(),busy:'배경 생성 중…'};S.bgs.unshift(bg);BG.busy=true;renderBg();
+  try{const base={apiKey:cfg.apiKey,model:cfg.model,quality:cfg.quality,prompt:BG.prompt,size,onStatus:s=>{bg.busy=s;renderBg();}};
+    bg.img=O.refs.length?await ImageEngine.edit(Object.assign({},base,{inputFidelity:undefined,imageDataUrl:O.refs[0],extraImages:O.refs.slice(1)})):await ImageEngine.generate(base);
+    bg.busy=null;toast('배경을 라이브러리에 저장했어요 (배경 라이브러리 탭)');}
+  catch(e){S.bgs=S.bgs.filter(x=>x!==bg);toast('생성 실패: '+(e.message||e));}
+  finally{BG.busy=false;renderBg();}}
+$('#bgGen').onclick=generateBg;
+async function addBgFiles(files){const list=[...files].filter(f=>f.type.startsWith('image/'));if(!list.length)return toast('이미지 파일만 올릴 수 있어요');let n=0;
+  for(const f of list){const src=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(f);});const im=await loadImg(src);const r=im.naturalHeight/im.naturalWidth;const aspect=r>1.15?'2:3 세로':(r<0.87?'3:2 가로':'1:1');
+    S.bgs.unshift({id:'b'+Date.now()+n,img:src,aspect,spec:`직접 올린 배경 · ${aspect}`,prompt:'',at:Date.now()+n,uploaded:true});n++;}
+  BG.mode='lib';renderBg();toast(`${n}장을 배경 라이브러리에 저장했어요`);}
+$('#bgPick').onclick=()=>$('#bgFile').click();$('#bgFile').onchange=e=>{if(e.target.files.length)addBgFiles(e.target.files);e.target.value='';};
+{const dz=$('#bgDrop');['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over');}));['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('over');}));dz.addEventListener('drop',e=>{if(e.dataTransfer.files.length)addBgFiles(e.dataTransfer.files);});}
+
+/* 룩에 배경 합성 */
+function scModel(){return S.cands.find(c=>c.id===S.sc.modelId&&c.debuted)||null;}
+function scLook(m){return m&&(m.looks||[]).find(l=>l.id===S.sc.lookId)||null;}
+function scBg(){return S.bgs.find(b=>b.id===S.sc.bgId&&!b.busy)||null;}
+/* 모델·룩 선택 UI (배경 만들기 기준 룩 / 합성 블록 공용, 상태는 S.sc 공유) */
+function renderPick(modelSel,lookSel,subSel){const C=S.sc;const models=S.cands.filter(c=>c.debuted&&!c.busy);
+  if(!models.find(x=>x.id===C.modelId))C.modelId=models[0]?models[0].id:null;const m=scModel();
+  {const h=$(modelSel);h.innerHTML='';if(!models.length)h.append(el('p','empty','데뷔한 모델이 없어요. Create에서 먼저 모델을 데뷔하세요.'));models.forEach(x=>{const b=el('button','chip'+(x.id===C.modelId?' on':''),x.name||'이름 없음');b.onclick=()=>{C.modelId=x.id;C.lookId=null;renderBg();};h.append(b);});}
+  {const h=$(lookSel);h.innerHTML='';const looks=m?(m.looks||[]).filter(l=>l.img&&!l.busy):[];if(subSel)$(subSel).textContent=looks.length?`${looks.length}개 · 하나 선택`:'';
+    if(!looks.length)h.append(el('div','pk empty',m?'저장한 룩이 없어요. 모델 세부 → 새 룩 만들기':'모델을 먼저 선택'));
+    if(C.lookId&&!looks.find(l=>l.id===C.lookId))C.lookId=null;
+    looks.forEach(l=>{const d=el('div','pk'+(l.id===C.lookId?' on':''),`<img src="${l.img}" alt=""><span class="tg">${l.frameKo||''}</span>`);d.onclick=()=>{C.lookId=C.lookId===l.id?null:l.id;renderBg();};h.append(d);});}}
+/* 배경 만들기: 기준 룩에 어울리는 배경 추천 */
+function lookText(lk){return [lk.spec,lk.params&&Object.values(lk.params).flat().filter(x=>typeof x==='string').join(' ')].filter(Boolean).join(' ');}
+function renderMkReco(){const O=S.bgOpt;const m=scModel();const lk=scLook(m);$('#mkRecoSec').hidden=!lk;if(!lk)return;
+  {const h=$('#mkCount');h.innerHTML='';[[null,'개수 자유'],[3,'3장'],[5,'5장'],[8,'8장']].forEach(([v,ko])=>{const b=el('button','chip'+((BG.recoCount||null)===v?' on':''),ko);b.onclick=()=>{BG.recoCount=v;renderBg();};h.append(b);});}
+  const reco=PromptEngine.recommendScenes(lookText(lk));const h=$('#mkRecoChips');h.innerHTML='';reco.forEach(k=>{const b=el('button','chip'+(O.scene===k?' on':''),k);b.onclick=()=>{O.scene=O.scene===k?null:k;renderBg();};h.append(b);});
+  const box=$('#mkRecoBox');box.hidden=!BG.recoPrompt||BG.recoLook!==lk.id;if(!box.hidden){$('#mkRecoText').textContent=BG.recoPrompt;$('#mkRecoFor').textContent=`${m.name} · ${lk.frameKo||''} · 첨부: 이 룩 이미지 1장 · 결과: 배경 플레이트 ${BG.recoCount?BG.recoCount+'장':'여러 장(개수 자유)'} · 모델 없음 · ${O.aspect}`;}}
+$('#mkRecoBtn').onclick=()=>{const m=scModel();const lk=scLook(m);if(!m||!lk)return toast('기준 룩을 먼저 선택하세요');BG.recoPrompt=PromptEngine.bgFreePrompt({count:BG.recoCount||null,aspect:S.bgOpt.aspect,frame:lookFrame(lk),spec:(lk.spec||'').replace(/^(상체|니샷|풀샷|상반신|전신|무릎까지) · /,''),direction:S.bgOpt.direction});BG.recoLook=lk.id;renderBg();$('#mkRecoBox').scrollIntoView({behavior:'smooth',block:'start'});toast('자유 탐색 프롬프트를 만들었어요');};
+$('#mkRecoCopy').onclick=()=>navigator.clipboard.writeText($('#mkRecoText').textContent).then(()=>toast('복사됨'));
+function renderScene(){const C=S.sc;const m=scModel();
+  renderPick('#scModel','#scLooks','#scLookSub');
+  bgChips($('#scRatio'),Object.keys(PromptEngine.OUT_RATIO),C,'ratio',{allowEmpty:true,emptyKo:'룩과 동일'});
+  {const h=$('#scBgs');h.innerHTML='';const bgs=S.bgs.filter(b=>!b.busy);h.hidden=!bgs.length;$('#scBgHint').hidden=!!bgs.length;
+    bgs.forEach(b=>{const d=el('div','pk'+(b.id===C.bgId?' on':''),`<img src="${b.img}" alt=""><span class="tg">${b.aspect||''}</span>`);d.onclick=()=>{C.bgId=C.bgId===b.id?null:b.id;renderBg();};h.append(d);});}
+  const lk=scLook(m),bg=scBg();$('#scEditor').hidden=!(lk&&bg);
+  if(lk&&bg)prepareComposite(m,lk,bg);
+  // 결과 목록(선택 모델)
+  const g=$('#scGrid');g.innerHTML='';const scenes=m?(m.scenes||[]):[];$('#scSub').textContent=m?(scenes.length?`${m.name} · ${scenes.length}개`:`${m.name} · 아직 없어요`):'';
+  scenes.forEach(sc=>{const card=el('div','cand');const img=el('div','img bgimg '+(sc.frame==='full'?'tall':'sq'));
+    if(sc.busy){img.innerHTML=`<div class="ph"><div class="spec">${sc.spec||''}</div></div><div class="busy"><i></i>${sc.busy}</div>`;}
+    else{img.innerHTML=`<img src="${sc.img}" alt="">`;img.classList.add('clickable');img.onclick=()=>openAnyLightbox({img:sc.img,cap:`${m.name} · 배경 컷 · ${sc.spec||''}`,onDelete:()=>{m.scenes=m.scenes.filter(x=>x!==sc);renderBg();}});img.append(el('span','badge','배경 컷'));}
+    card.append(img);const bar=el('div','lk');bar.append(document.createTextNode(sc.spec||'배경 컷'));const d=el('button','d','삭제');d.onclick=()=>{if(confirm('이 배경 컷을 삭제할까요?')){m.scenes=m.scenes.filter(x=>x!==sc);renderBg();}};bar.append(d);card.append(bar);g.append(card);});
+}
+$('#scToLib').onclick=()=>{BG.mode='lib';renderBg();window.scrollTo(0,0);};
+$('#scToggle').onclick=()=>{BG.compose=!BG.compose;renderBg();if(BG.compose)$('#bgSceneWrap').scrollIntoView({behavior:'smooth',block:'start'});};
+$('#scClose').onclick=()=>{BG.compose=false;renderBg();};
+
+/* ===== 브라우저 합성기: 룩의 인물을 잘라 배경 위에 올린다 (프롬프트 없이 바로 확인) ===== */
+const CP={key:null,cut:null,cutKey:null,bgImg:null,bgKey:null,p:null,drag:null,busy:false,raf:0};
+const CP_DEFAULT=()=>({scale:null,x:0.5,y:null,flip:false,shadow:true,tol:12,hole:10,feather:1,choke:1,tone:0,blur:0,cover:true});
+/* 라이트그레이(단색) 배경 제거: 테두리 색을 기준으로 가장자리에서 연결된 유사색 영역만 지운다 → 옷 안쪽 회색은 보존 */
+async function cutoutPerson(src,tol,feather,choke,holeTol){const im=await loadImg(src);const k=Math.min(1,1400/Math.max(im.naturalWidth,im.naturalHeight));const W=Math.round(im.naturalWidth*k),H=Math.round(im.naturalHeight*k);
+  const c=document.createElement('canvas');c.width=W;c.height=H;const g=c.getContext('2d');g.drawImage(im,0,0,W,H);const id=g.getImageData(0,0,W,H);const d=id.data;const N=W*H;
+  // 1) 배경색: 테두리 2px 픽셀의 중앙값
+  const rs=[],gs=[],bs=[];const push=(x,y)=>{const o=(y*W+x)*4;rs.push(d[o]);gs.push(d[o+1]);bs.push(d[o+2]);};
+  for(let x=0;x<W;x+=2){push(x,0);push(x,1);push(x,H-1);push(x,H-2);}for(let y=0;y<H;y+=2){push(0,y);push(1,y);push(W-1,y);push(W-2,y);}
+  const med=a=>{a.sort((p,q)=>p-q);return a[a.length>>1];};const br=med(rs),bgc=med(gs),bb=med(bs);const bgL=(br+bgc+bb)/3;
+  // 2) 행별 배경색: 각 행의 좌·우 테두리 6px 중앙값(위아래 그라디언트 흡수). 거리 = 채도 차이 ×4 + 밝기 차이 ×0.8 → 밝은 옷은 보호, 바닥 그라디언트는 행별 색으로 흡수
+  const rowBg=new Float32Array(H*3);{const win=[];for(let y=0;y<H;y++){const ar=[],ag=[],ab=[];for(let x=0;x<6;x++){let o=(y*W+x)*4;ar.push(d[o]);ag.push(d[o+1]);ab.push(d[o+2]);o=(y*W+(W-1-x))*4;ar.push(d[o]);ag.push(d[o+1]);ab.push(d[o+2]);}
+      // 테두리에 인물이 걸친 행: 전역 배경색과 너무 다르면 전역값 사용
+      let r=med(ar),gq=med(ag),b=med(ab);if(Math.abs((r+gq+b)/3-bgL)>40){r=br;gq=bgc;b=bb;}rowBg[y*3]=r;rowBg[y*3+1]=gq;rowBg[y*3+2]=b;}}
+  const distAt=(o,y,wl)=>{const r=d[o],gg=d[o+1],b=d[o+2];const R=rowBg[y*3],G=rowBg[y*3+1],B=rowBg[y*3+2];const L=(r+gg+b)/3,bL=(R+G+B)/3;const cr=(r-L)-(R-bL),cg=(gg-L)-(G-bL),cb=(b-L)-(B-bL);const chroma=Math.sqrt(cr*cr+cg*cg+cb*cb);const dl=L-bL;return Math.sqrt(chroma*chroma*4+dl*dl*wl);};
+  const dist=o=>{const i=o>>2;const y=(i-(i%W))/W;return distAt(o,y,1.0);};
+  const hi=tol*1.3;const alpha=new Uint8ClampedArray(N).fill(255);const seen=new Uint8Array(N);const stack=new Int32Array(N);let sp=0;
+  const seed=(x,y)=>{const i=y*W+x;if(!seen[i]&&dist(i*4)<hi){seen[i]=1;stack[sp++]=i;}};
+  for(let x=0;x<W;x++){seed(x,0);seed(x,H-1);}for(let y=0;y<H;y++){seed(0,y);seed(W-1,y);}
+  while(sp){const i=stack[--sp];const dd=dist(i*4);alpha[i]=dd<tol?0:Math.round((dd-tol)/(hi-tol)*255);const x=i%W,y=(i-x)/W;
+    if(x>0)seed(x-1,y);if(x<W-1)seed(x+1,y);if(y>0)seed(x,y-1);if(y<H-1)seed(x,y+1);}
+  // 2a) 반투명은 배경(알파 0) 경계 3px 안에서만 허용: 배경과 색이 비슷한 밝은 옷의 안쪽이 반투명해지지 않게
+  {const z=new Uint8Array(N);for(let i=0;i<N;i++)z[i]=alpha[i]===0?1:0;const t=new Uint8Array(N);const R3=3;
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){let m=0;for(let k=-R3;k<=R3&&!m;k++){const xx=x+k;if(xx>=0&&xx<W&&z[y*W+xx])m=1;}t[y*W+x]=m;}
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){let m=0;for(let k=-R3;k<=R3&&!m;k++){const yy=y+k;if(yy>=0&&yy<H&&t[yy*W+x])m=1;}if(!m&&alpha[y*W+x]>0)alpha[y*W+x]=255;}}
+  // 2b) 바닥 그림자 패스: 배경과 연결된 저채도·어두운 픽셀(행 배경보다 최대 70 어두움)을 인물 하단 22% 영역에서만 배경으로 확장
+  {let yTop=H,yBot=0;for(let i=0;i<N;i++)if(alpha[i]>=128){const y=(i-(i%W))/W;if(y<yTop)yTop=y;if(y>yBot)yBot=y;}const yFrom=yBot-(yBot-yTop)*0.22;
+    const isShadow=(i)=>{const y=(i-(i%W))/W;if(y<yFrom||alpha[i]<128)return false;const o=i*4;const r=d[o],gg=d[o+1],b=d[o+2];const L=(r+gg+b)/3;const R=rowBg[y*3],G=rowBg[y*3+1],B=rowBg[y*3+2];const bL=(R+G+B)/3;const cr=(r-L)-(R-bL),cg=(gg-L)-(G-bL),cb=(b-L)-(B-bL);const chroma=Math.sqrt(cr*cr+cg*cg+cb*cb);return chroma<9&&L<bL&&bL-L<70;};
+    let sp2=0;for(let i=0;i<N;i++){if(alpha[i]<128&&seen[i]){const x=i%W,y=(i-x)/W;const nb=[x>0?i-1:-1,x<W-1?i+1:-1,y>0?i-W:-1,y<H-1?i+W:-1];for(const n of nb)if(n>=0&&isShadow(n)&&!seen[n]){seen[n]=1;stack[sp2++]=n;}}}
+    while(sp2){const i=stack[--sp2];alpha[i]=0;const x=i%W,y=(i-x)/W;const nb=[x>0?i-1:-1,x<W-1?i+1:-1,y>0?i-W:-1,y<H-1?i+W:-1];for(const n of nb)if(n>=0&&!seen[n]&&isShadow(n)){seen[n]=1;stack[sp2++]=n;}}}
+  // 3) 섬 제거: 가장 큰 전경 덩어리(인물)와 그 3% 이상만 남김 → 발 주변의 흰 잔여물 제거
+  {const lab=new Int32Array(N);let nl=0;const sizes=[0];const q=new Int32Array(N);
+    for(let i=0;i<N;i++){if(alpha[i]<128||lab[i])continue;nl++;let qs=0,qe=0;q[qe++]=i;lab[i]=nl;let cnt=0;
+      while(qs<qe){const j=q[qs++];cnt++;const x=j%W,y=(j-x)/W;const nb=[j-1,j+1,j-W,j+W];for(let t=0;t<4;t++){const n=nb[t];if(n<0||n>=N)continue;if(t===0&&x===0)continue;if(t===1&&x===W-1)continue;if(alpha[n]>=128&&!lab[n]){lab[n]=nl;q[qe++]=n;}}}
+      sizes.push(cnt);}
+    const maxS=Math.max(...sizes);for(let i=0;i<N;i++){const l=lab[i];if(alpha[i]>0&&(l===0||sizes[l]<maxS*0.03)){/* 라벨 없는 반투명·작은 섬 */ if(l===0&&alpha[i]>=128)continue;if(l&&sizes[l]<maxS*0.03)alpha[i]=0;}}
+    // 반투명(<128) 픽셀 중 인물 덩어리에 붙어 있지 않은 것도 제거
+    for(let i=0;i<N;i++){if(alpha[i]>0&&alpha[i]<128){const x=i%W,y=(i-x)/W;let near=false;for(let dy=-2;dy<=2&&!near;dy++)for(let dx=-2;dx<=2;dx++){const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=W||yy>=H)continue;const l=lab[yy*W+xx];if(l&&sizes[l]>=maxS*0.03){near=true;break;}}if(!near)alpha[i]=0;}}}
+  // 3b) 닫힌 구멍 제거: 다리 사이·가방과 치마 사이처럼 테두리와 연결되지 않은 배경 조각.
+  //     행별 배경색(바깥 배경의 행 중앙값)과 아주 가까운 색의 작은 덩어리만 지운다 → 흰 셔츠(배경보다 밝음·큼)는 보존
+  if(holeTol>0){const rowR=new Float32Array(H),rowG=new Float32Array(H),rowB=new Float32Array(H);
+    for(let y=0;y<H;y++){const ar=[],ag=[],ab=[];for(let x=0;x<W;x+=3){const i=y*W+x;if(seen[i]&&alpha[i]<64){const o=i*4;ar.push(d[o]);ag.push(d[o+1]);ab.push(d[o+2]);}}
+      if(ar.length>=4){rowR[y]=med(ar);rowG[y]=med(ag);rowB[y]=med(ab);}else{rowR[y]=rowBg[y*3];rowG[y]=rowBg[y*3+1];rowB[y]=rowBg[y*3+2];}}
+    const tight=i=>{const o=i*4;const y=(i-(i%W))/W;const r=d[o],gg=d[o+1],b=d[o+2];const L=(r+gg+b)/3,bL=(rowR[y]+rowG[y]+rowB[y])/3;const cr=(r-L)-(rowR[y]-bL),cg=(gg-L)-(rowG[y]-bL),cb=(b-L)-(rowB[y]-bL);return Math.sqrt((cr*cr+cg*cg+cb*cb)*4+(L-bL)*(L-bL));};
+    const cand=new Uint8Array(N);let fg=0;for(let i=0;i<N;i++){if(alpha[i]>=128){fg++;if(tight(i)<holeTol*1.8)cand[i]=1;}}
+    const lab2=new Int32Array(N);const q=new Int32Array(N);let nl=0;
+    for(let i=0;i<N;i++){if(!cand[i]||lab2[i])continue;nl++;let qs=0,qe=0;q[qe++]=i;lab2[i]=nl;const px=[];let touch=false;
+      while(qs<qe){const j=q[qs++];px.push(j);const x=j%W,y=(j-x)/W;if(x===0||y===0||x===W-1||y===H-1)touch=true;
+        if(x>0&&cand[j-1]&&!lab2[j-1]){lab2[j-1]=nl;q[qe++]=j-1;}if(x<W-1&&cand[j+1]&&!lab2[j+1]){lab2[j+1]=nl;q[qe++]=j+1;}if(y>0&&cand[j-W]&&!lab2[j-W]){lab2[j-W]=nl;q[qe++]=j-W;}if(y<H-1&&cand[j+W]&&!lab2[j+W]){lab2[j+W]=nl;q[qe++]=j+W;}}
+      // 조건: 사람 면적의 10% 미만, 테두리 미접촉, 덩어리 평균색이 행 배경색과 거의 같음(< holeTol), 근접 픽셀 60% 이상 → 흰 셔츠(배경보다 밝음)는 통과 못 함
+      if(touch||px.length>fg*0.10||px.length<6)continue;let close=0,sum=0;for(const j of px){const t=tight(j);sum+=t;if(t<holeTol)close++;}if(sum/px.length>=holeTol||close<px.length*0.6)continue;
+      for(const j of px){const t=tight(j);alpha[j]=t<holeTol?0:Math.min(alpha[j],Math.round((t-holeTol)/(holeTol*0.8)*255));}}}
+  // 4) 엣지 다듬기(choke): 알파 최소값 필터로 1~3px 안쪽으로 조여 회색 헤일로 제거
+  let a=alpha;if(choke>0){const r=choke;let src1=a;for(let pass=0;pass<2;pass++){const out=new Uint8ClampedArray(N);if(pass===0){for(let y=0;y<H;y++)for(let x=0;x<W;x++){let m=255;for(let t=-r;t<=r;t++){const xx=Math.min(W-1,Math.max(0,x+t));const v=src1[y*W+xx];if(v<m)m=v;}out[y*W+x]=m;}}else{for(let y=0;y<H;y++)for(let x=0;x<W;x++){let m=255;for(let t=-r;t<=r;t++){const yy=Math.min(H-1,Math.max(0,y+t));const v=src1[yy*W+x];if(v<m)m=v;}out[y*W+x]=m;}}src1=out;}a=src1;}
+  // 5) 페더: 알파 박스 블러(분리형)
+  if(feather>0){const r=feather;const tmp=new Float32Array(N);const out=new Uint8ClampedArray(N);
+    for(let y=0;y<H;y++){let acc=0;for(let x=-r;x<=r;x++)acc+=a[y*W+Math.min(W-1,Math.max(0,x))];for(let x=0;x<W;x++){tmp[y*W+x]=acc/(2*r+1);acc+=a[y*W+Math.min(W-1,x+r+1)]-a[y*W+Math.max(0,x-r)];}}
+    for(let x=0;x<W;x++){let acc=0;for(let y=-r;y<=r;y++)acc+=tmp[Math.min(H-1,Math.max(0,y))*W+x];for(let y=0;y<H;y++){out[y*W+x]=Math.round(acc/(2*r+1));acc+=tmp[Math.min(H-1,y+r+1)*W+x]-tmp[Math.max(0,y-r)*W+x];}}
+    a=out;}
+  // 6) 색 분리(decontamination): 반투명 가장자리에서 섞인 배경색을 빼서 회색 테두리 제거
+  let x0=W,y0=H,x1=0,y1=0;for(let i=0;i<N;i++){const av=a[i];const o=i*4;d[o+3]=av;if(av>0&&av<255){const f=av/255;d[o]=Math.min(255,Math.max(0,(d[o]-br*(1-f))/f));d[o+1]=Math.min(255,Math.max(0,(d[o+1]-bgc*(1-f))/f));d[o+2]=Math.min(255,Math.max(0,(d[o+2]-bb*(1-f))/f));}
+    if(av>12){const x=i%W,y=(i-x)/W;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;}}
+  g.putImageData(id,0,0);if(x1<x0){x0=0;y0=0;x1=W-1;y1=H-1;}
+  return {canvas:c,bbox:{x:x0,y:y0,w:x1-x0+1,h:y1-y0+1},bgColor:[br,bgc,bb]};}
+function cpRatio(lk){const R=PromptEngine.OUT_RATIO[S.sc.ratio];if(R)return R.r;return lookFrame(lk)==='full'?2/3:1;}
+function cpCanvasSize(bgImg,r,maxSide){let W=bgImg.naturalWidth,H=Math.round(W/r);if(H>bgImg.naturalHeight){H=bgImg.naturalHeight;W=Math.round(H*r);}const k=Math.min(1,maxSide/Math.max(W,H));return {W:Math.round(W*k),H:Math.round(H*k)};}
+async function prepareComposite(m,lk,bg){const key=lk.id+'|'+bg.id+'|'+(S.sc.ratio||'');
+  if(CP.key!==key){CP.key=key;CP.p=CP_DEFAULT();}
+  const p=CP.p;const ck=lk.id+'|'+p.tol+'|'+p.feather+'|'+p.choke+'|'+p.hole;
+  if(CP.bgKey!==bg.id){CP.bgImg=await loadImg(bg.img);CP.bgKey=bg.id;}
+  if(CP.cutKey!==ck){if(CP.busy)return;CP.busy=true;$('#scBusy').hidden=false;try{CP.cut=await cutoutPerson(lk.img,p.tol,p.feather,p.choke,p.hole);CP.cutKey=ck;}finally{CP.busy=false;$('#scBusy').hidden=true;}}
+  syncPanel();drawComposite();}
+function cpDefaults(lk){const p=CP.p;const cut=CP.cut;if(!cut||!CP.bgImg)return;const fr=lookFrame(lk);
+  if(p.scale==null){p.scale=fr==='full'?0.88:(fr==='knee'?0.95:0.85);}
+  if(p.y==null)p.y=fr==='full'?0.95:1.0;}
+function syncPanel(){const p=CP.p;if(!p)return;const lk=scLook(scModel());cpDefaults(lk);
+  $('#cpScale').value=p.scale||1;$('#cpScaleV').textContent=Math.round((p.scale||1)*100)+'%';$('#cpTol').value=p.tol;$('#cpTolV').textContent=p.tol;$('#cpFeather').value=p.feather;$('#cpFeatherV').textContent=p.feather+'px';$('#cpChoke').value=p.choke;$('#cpChokeV').textContent=p.choke+'px';$('#cpHole').value=p.hole;$('#cpHoleV').textContent=p.hole?p.hole:'끔';$('#cpBlur').value=p.blur;$('#cpBlurV').textContent=p.blur?p.blur+'px':'없음';$('#cpTone').value=p.tone;$('#cpToneV').textContent=p.tone+'%';
+  $('#cpShadow').checked=p.shadow;$('#cpFlip').checked=p.flip;$('#cpCover').checked=p.cover;}
+/* 캔버스에 그리기. exportMax: 저장용 해상도(긴 변), 미리보기는 1000 */
+function paintComposite(ctx,W,H,lk){const p=CP.p,cut=CP.cut,bgImg=CP.bgImg;ctx.clearRect(0,0,W,H);
+  // 배경
+  const bw=bgImg.naturalWidth,bh=bgImg.naturalHeight;const kc=p.cover?Math.max(W/bw,H/bh):Math.min(W/bw,H/bh);const dw=bw*kc,dh=bh*kc;
+  {const avg=cpAvgColor(bgImg);ctx.fillStyle=p.cover?`rgb(${avg[0]},${avg[1]},${avg[2]})`:'#e9e9e9';ctx.fillRect(0,0,W,H);}
+  if(p.blur>0){const bpx=p.blur*W/1000;ctx.save();ctx.filter=`blur(${bpx.toFixed(2)}px)`;const ex=1+bpx*3/Math.min(dw,dh);ctx.drawImage(bgImg,(W-dw*ex)/2,(H-dh*ex)/2,dw*ex,dh*ex);ctx.restore();}else ctx.drawImage(bgImg,(W-dw)/2,(H-dh)/2,dw,dh);
+  // 인물 크기·위치 (bbox 기준: 가로 중심 x, 발/하단 y)
+  const bb=cut.bbox;const ph=p.scale*H,pw=bb.w*(ph/bb.h);const cx=p.x*W,by=p.y*H;const left=cx-pw/2,top=by-ph;
+  // 그림자
+  if(p.shadow&&lookFrame(lk)==='full'){const sw=pw*0.62,sh=Math.max(6,pw*0.09);const gr=ctx.createRadialGradient(cx,by-sh*0.15,0,cx,by-sh*0.15,sw/2);gr.addColorStop(0,'rgba(0,0,0,.34)');gr.addColorStop(0.6,'rgba(0,0,0,.14)');gr.addColorStop(1,'rgba(0,0,0,0)');ctx.save();ctx.translate(cx,by-sh*0.15);ctx.scale(1,sh/sw);ctx.translate(-cx,-(by-sh*0.15));ctx.fillStyle=gr;ctx.beginPath();ctx.arc(cx,by-sh*0.15,sw/2,0,Math.PI*2);ctx.fill();ctx.restore();}
+  // 인물(누끼) — 톤 섞기는 임시 캔버스에서 source-atop
+  const tmp=document.createElement('canvas');tmp.width=Math.max(1,Math.round(pw));tmp.height=Math.max(1,Math.round(ph));const tg=tmp.getContext('2d');tg.imageSmoothingQuality='high';
+  if(p.flip){tg.translate(tmp.width,0);tg.scale(-1,1);}tg.drawImage(cut.canvas,bb.x,bb.y,bb.w,bb.h,0,0,tmp.width,tmp.height);
+  if(p.tone>0){const avg=cpAvgColor(bgImg);tg.setTransform(1,0,0,1,0,0);tg.globalCompositeOperation='source-atop';tg.fillStyle=`rgba(${avg[0]},${avg[1]},${avg[2]},${p.tone/100})`;tg.fillRect(0,0,tmp.width,tmp.height);}
+  ctx.drawImage(tmp,left,top);}
+let cpAvgCache={key:null,v:[128,128,128]};
+function cpAvgColor(img){if(cpAvgCache.key===img.src)return cpAvgCache.v;const c=document.createElement('canvas');c.width=16;c.height=16;const g=c.getContext('2d');g.drawImage(img,0,0,16,16);const d=g.getImageData(0,0,16,16).data;let r=0,gg=0,b=0;for(let i=0;i<d.length;i+=4){r+=d[i];gg+=d[i+1];b+=d[i+2];}const n=d.length/4;cpAvgCache={key:img.src,v:[Math.round(r/n),Math.round(gg/n),Math.round(b/n)]};return cpAvgCache.v;}
+function drawComposite(){const lk=scLook(scModel());if(!lk||!CP.cut||!CP.bgImg||!CP.p)return;cpDefaults(lk);
+  const {W,H}=cpCanvasSize(CP.bgImg,cpRatio(lk),1000);const cv=$('#scCanvas');if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H;}
+  paintComposite(cv.getContext('2d'),W,H,lk);}
+function exportComposite(){const lk=scLook(scModel());const {W,H}=cpCanvasSize(CP.bgImg,cpRatio(lk),2048);const c=document.createElement('canvas');c.width=W;c.height=H;paintComposite(c.getContext('2d'),W,H,lk);return c.toDataURL('image/jpeg',.93);}
+const cpQueue=()=>{cancelAnimationFrame(CP.raf);CP.raf=requestAnimationFrame(drawComposite);};
+$('#cpScale').oninput=e=>{CP.p.scale=+e.target.value;$('#cpScaleV').textContent=Math.round(CP.p.scale*100)+'%';cpQueue();};
+$('#cpTone').oninput=e=>{CP.p.tone=+e.target.value;$('#cpToneV').textContent=CP.p.tone+'%';cpQueue();};
+$('#cpTol').onchange=e=>{CP.p.tol=+e.target.value;$('#cpTolV').textContent=CP.p.tol;renderBg();};$('#cpTol').oninput=e=>{$('#cpTolV').textContent=e.target.value;};
+$('#cpFeather').onchange=e=>{CP.p.feather=+e.target.value;$('#cpFeatherV').textContent=CP.p.feather+'px';renderBg();};$('#cpFeather').oninput=e=>{$('#cpFeatherV').textContent=e.target.value+'px';};
+$('#cpHole').onchange=e=>{CP.p.hole=+e.target.value;$('#cpHoleV').textContent=CP.p.hole||'끔';renderBg();};$('#cpHole').oninput=e=>{$('#cpHoleV').textContent=+e.target.value||'끔';};
+$('#cpChoke').onchange=e=>{CP.p.choke=+e.target.value;$('#cpChokeV').textContent=CP.p.choke+'px';renderBg();};$('#cpChoke').oninput=e=>{$('#cpChokeV').textContent=e.target.value+'px';};
+$('#cpBlur').oninput=e=>{CP.p.blur=+e.target.value;$('#cpBlurV').textContent=CP.p.blur?CP.p.blur+'px':'없음';cpQueue();};
+$('#cpShadow').onchange=e=>{CP.p.shadow=e.target.checked;cpQueue();};$('#cpFlip').onchange=e=>{CP.p.flip=e.target.checked;cpQueue();};$('#cpCover').onchange=e=>{CP.p.cover=e.target.checked;cpQueue();};
+$('#cpReset').onclick=()=>{const p=CP.p;Object.assign(p,{scale:null,x:0.5,y:null,flip:false});syncPanel();cpQueue();toast('위치·크기를 초기화했어요');};
+$('#cpDown').onclick=()=>{if(!CP.cut)return;const m=scModel(),lk=scLook(m),bg=scBg();downloadImage(exportComposite(),`${m.name} · 합성 · ${lk.frameKo||''} · ${bg.spec||''}`);};
+$('#cpSave').onclick=()=>{if(!CP.cut)return;const m=scModel(),lk=scLook(m),bg=scBg();const img=exportComposite();m.scenes=m.scenes||[];
+  m.scenes.unshift({id:'s'+Date.now(),img,lookId:lk.id,bgId:bg.id,frame:lookFrame(lk),ratio:S.sc.ratio||null,spec:['합성',lk.frameKo,S.sc.ratio||null,bg.spec].filter(Boolean).join(' · '),comp:Object.assign({},CP.p),at:Date.now()});renderBg();toast('배경 컷으로 저장했어요');};
+// 드래그 이동 · 휠 크기
+{const cv=$('#scCanvas');const pos=e=>{const r=cv.getBoundingClientRect();return {x:(e.clientX-r.left)/r.width,y:(e.clientY-r.top)/r.height};};
+  cv.addEventListener('pointerdown',e=>{if(!CP.p)return;const q=pos(e);CP.drag={dx:CP.p.x-q.x,dy:CP.p.y-q.y};cv.setPointerCapture(e.pointerId);cv.classList.add('drag');});
+  cv.addEventListener('pointermove',e=>{if(!CP.drag)return;const q=pos(e);CP.p.x=q.x+CP.drag.dx;CP.p.y=q.y+CP.drag.dy;cpQueue();});
+  const end=e=>{CP.drag=null;cv.classList.remove('drag');};cv.addEventListener('pointerup',end);cv.addEventListener('pointercancel',end);
+  cv.addEventListener('wheel',e=>{if(!CP.p||!CP.p.scale)return;e.preventDefault();CP.p.scale=Math.min(1.6,Math.max(0.1,CP.p.scale*(e.deltaY<0?1.04:0.96)));syncPanel();cpQueue();},{passive:false});}
+function scSpec(m,lk,bg){return [lk?lk.frameKo:null,S.sc.ratio||null,bg?bg.spec:null].filter(Boolean).join(' · ');}
+async function addSceneFiles(files){const m=scModel();if(!m)return toast('모델을 먼저 선택하세요');const lk=scLook(m);const bg=scBg();const list=[...files].filter(f=>f.type.startsWith('image/'));if(!list.length)return toast('이미지 파일만 올릴 수 있어요');let n=0;
+  for(const f of list){const src=await new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.readAsDataURL(f);});const im=await loadImg(src);const frame=lk?lookFrame(lk):(im.naturalHeight/im.naturalWidth>1.15?'full':'knee');
+    m.scenes=m.scenes||[];m.scenes.unshift({id:'s'+Date.now()+n,img:src,lookId:lk?lk.id:null,bgId:bg?bg.id:null,frame,spec:scSpec(m,lk,bg)||'직접 올린 배경 컷',at:Date.now()+n,uploaded:true});n++;}
+  renderBg();toast(`${n}장을 ${m.name}의 배경 컷으로 저장했어요`);}
+$('#scPick').onclick=()=>$('#scFile').click();$('#scFile').onchange=e=>{if(e.target.files.length)addSceneFiles(e.target.files);e.target.value='';};
+{const dz=$('#scDrop');['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over');}));['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('over');}));dz.addEventListener('drop',e=>{if(e.dataTransfer.files.length)addSceneFiles(e.dataTransfer.files);});}
+
+function currentView(){if(location.hash==='#models')return 'models';if(location.hash==='#bg')return 'bg';if(location.hash.startsWith('#style/'))return 'style';if(location.hash.startsWith('#model/'))return 'model';return 'create';}
 function renderView(){const v=currentView();
-  $('#viewCreate').hidden=v!=='create';$('#viewModels').hidden=v!=='models';$('#viewStyle').hidden=v!=='style';$('#viewModel').hidden=v!=='model';
+  $('#viewCreate').hidden=v!=='create';$('#viewModels').hidden=v!=='models';$('#viewStyle').hidden=v!=='style';$('#viewModel').hidden=v!=='model';$('#viewBg').hidden=v!=='bg';
   document.querySelectorAll('.hdr nav a[data-view]').forEach(a=>a.classList.toggle('on',a.dataset.view===((v==='style'||v==='model')?'models':v)));
-  if(v==='models')renderModels();if(v==='model'){MD.id=location.hash.slice(7);renderModelPage();}if(v==='style'){const id=location.hash.slice(7);if(ST.id!==id){ST.id=id;}$('#stBack').href='#model/'+id;$('#lbAdjust').hidden=false;renderStyle();}window.scrollTo(0,0);}
+  if(v==='bg')renderBg();if(v==='models')renderModels();if(v==='model'){MD.id=location.hash.slice(7);renderModelPage();}if(v==='style'){const id=location.hash.slice(7);if(ST.id!==id){ST.id=id;}$('#stBack').href='#model/'+id;$('#lbAdjust').hidden=false;renderStyle();}window.scrollTo(0,0);}
 window.addEventListener('hashchange',renderView);
 function fmtDate(t){if(!t)return '';const d=new Date(t);return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
 function renderModels(){

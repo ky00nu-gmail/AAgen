@@ -242,7 +242,95 @@ function lookPrompts(f){
 }
 /* 구버전 호환: 단일 시트 프롬프트는 상반신 프롬프트를 돌려준다 */
 function stylePrompt(f){return lookPrompts(f).bust;}
-const PromptEngine={STYLE_EN,LOOK_PANELS,POSES,POSE_EN,poseText,FACE_DETAIL,FACE_FIX,heightPhrase,stylePrompt,lookPrompts,EN,LOOK,POSE_LOCK,STRENGTH_EN,humanPrompt,animalPrompt,animePrompt,comparePrompt};
+
+/* ===== 배경(Background) 단계 ===== */
+const BG_EN={
+  scene:{
+    '화이트 스튜디오':'a clean seamless white photo studio with a soft gradient floor',
+    '컬러 스튜디오':'a seamless single-color photo studio backdrop with a matching floor',
+    '미니멀 인테리어':'a bright minimal interior with plaster walls, a light wooden floor and soft window light',
+    '카페':'a modern cafe interior with warm wood, large windows and soft daylight',
+    '도심 거리':'a clean modern city street with glass storefronts and a wide sidewalk',
+    '매장 / 쇼핑몰':'a bright premium retail store interior with display shelves and a polished floor',
+    '오피스 로비':'a modern office lobby with glass, light stone and soft ambient light',
+    '공원 / 자연':'a green urban park with trees, a paved path and dappled sunlight',
+    '해변':'a calm sandy beach with soft waves and a pale sky',
+    '네온 야경':'a city street at night with soft neon signs and bokeh lights',
+    '럭셔리 호텔':'an elegant hotel lobby with marble floors, warm lamps and tall ceilings',
+    '갤러리':'a white-cube art gallery with a concrete floor and a skylight',
+    '강변 / 스카이라인':'a riverside promenade with a city skyline in the distance'
+  },
+  light:{'자연광 (낮)':'bright natural daylight','골든아워':'warm golden-hour sunlight with long soft shadows','흐린 날':'soft overcast diffused light','실내 소프트':'soft indoor ambient light','야간':'night with ambient artificial light','스튜디오 조명':'controlled, even studio lighting'},
+  aspect:{'1:1':'1024x1024','2:3 세로':'1024x1536','3:2 가로':'1536x1024'},
+  depth:{'얕은 심도':'shallow depth of field — the background planes softly out of focus, the standing area in front crisp','보통 심도':'moderate depth of field with the mid-ground gently soft','깊은 심도':'deep focus — the whole space crisp and legible'},
+  camera:{'아이레벨 35mm':'camera at eye level, 35mm-equivalent perspective','로우앵글 24mm':'camera slightly below eye level, wide 24mm-equivalent perspective that stretches the floor toward the viewer','압축 85mm':'camera at chest height, 85mm-equivalent telephoto that compresses the space'}
+};
+/* 배경 플레이트 프롬프트: 사람 없이, 가운데 앞쪽에 모델이 설 자리를 비워 둔다 */
+function bgPrompt(o){
+  o=o||{};const n=(o.refs||0);const sceneRaw=BG_EN.scene[o.scene]||'';const col=STYLE_EN.color[o.color]||'';
+  const scene=o.scene==='컬러 스튜디오'&&col?sceneRaw.replace('single-color',col):sceneRaw;
+  const light=BG_EN.light[o.light]||'';const dir=(o.direction||'').trim();const depth=BG_EN.depth[o.depth]||'';const cam=BG_EN.camera[o.camera]||'camera at eye level, moderate 35mm-equivalent perspective';
+  const refLine=n?`Images 1 to ${n} are reference photos of the location and mood. Recreate the same kind of space, materials, colors and atmosphere as a new, clean plate — do not copy them pixel for pixel. `:'';
+  const twist=(o.twist||'').trim();
+  const what=scene?`Create an empty background plate: ${scene}${twist?`, with ${twist}`:''}.`:(n?'Create an empty background plate of this kind of place.':'Create an empty, clean background plate suitable for a fashion lookbook.');
+  const asp={'1:1':'Square 1:1 format, 1024×1024.','2:3 세로':'Tall portrait format 2:3, 1024×1536.','3:2 가로':'Landscape format 3:2, 1536×1024.'}[o.aspect]||'Tall portrait format 2:3, 1024×1536.';
+  return [S_(refLine+what+(dir?` Direction: "${dir}".`:'')),
+    S_('This plate will later have a fashion model composited into it, so it must contain NO people, mannequins, text, logos or signage. Leave a clear, unobstructed standing area in the center foreground with the floor visible at the bottom of the frame and nothing important at the center. '+cap(cam)+', the main planes of the scene roughly 3 to 5 meters from the camera'+(depth?'. '+cap(depth):'')),
+    S_((light?`Lighting: ${light}. `:'')+'Photorealistic, clean, premium campaign look with realistic materials and smooth tonal gradients. '+asp)].map(x=>x.trim()).filter(Boolean).join('\n\n');
+}
+/* 합성 출력 비율: en=프롬프트 문구, api=가장 가까운 API 캔버스, r=최종 가로/세로 비(후처리 센터 크롭) */
+const OUT_RATIO={
+  '1:1':{en:'square 1:1',api:'1024x1024',r:1},
+  '3:4 세로':{en:'portrait 3:4',api:'1024x1536',r:3/4},
+  '2:3 세로':{en:'tall portrait 2:3',api:'1024x1536',r:2/3},
+  '9:16 세로':{en:'vertical 9:16 (mobile / kiosk screen)',api:'1024x1536',r:9/16},
+  '4:3 가로':{en:'landscape 4:3',api:'1536x1024',r:4/3},
+  '3:2 가로':{en:'landscape 3:2',api:'1536x1024',r:3/2},
+  '16:9 가로':{en:'widescreen 16:9',api:'1536x1024',r:16/9}
+};
+/* 룩 + 배경 합성 프롬프트: 모델·의상·포즈는 그대로, 라이트그레이 배경만 장면으로 교체 */
+function scenePrompt(o){
+  o=o||{};const frame=o.frame||'full';const dir=(o.direction||'').trim();
+  const R=OUT_RATIO[o.ratio]||null;
+  const fmt=R?`Output format: ${R.en}. Extend the scene to fill the new canvas — never crop the model; keep the model at the same size and position relative to the frame center and let the environment continue naturally into the added area.`:({bust:'Square 1:1 format, 1024×1024.',knee:'Square 1:1 format, 1024×1024.',full:'Tall portrait format 2:3, 1024×1536.'}[frame]||'Same canvas as Image 1.');
+  const bgLine=o.hasBg?'Image 2 is the background scene.':`There is no background image; use this scene: ${o.bgText||'a clean, bright, premium location'}.`;
+  const ground=frame==='full'?'the feet planted on the visible floor with a natural soft contact shadow and correct scale':'natural soft ambient shadowing consistent with the scene';
+  return [S_(`Image 1 is a lookbook photo of a model on a flat light-gray studio backdrop. ${bgLine} Composite the model into that scene.`),
+    S_('Keep the model 100% identical to Image 1 — face, hair, expression, gaze, pose, body, and every garment and accessory exactly as they are'+(R?', at the same scale, only the canvas around the model changes':', with the SAME framing, crop and canvas as Image 1')+'. Do not restyle, redraw or move the model'),
+    S_(`Replace ONLY the gray backdrop with the environment${o.hasBg?' of Image 2':''}, seen from the same eye-level camera. Integrate the model naturally: apply the scene\'s lighting direction, color temperature and contrast to the model, ${ground}, and a slight depth of field on the background so the model remains the sharpest element`),
+    S_((dir?`Direction: "${dir}". `:'')+'No text, no extra people. Photorealistic, premium campaign quality. '+fmt)].map(x=>x.trim()).filter(Boolean).join('\n\n');
+}
+
+
+/* 룩에 어울리는 배경 추천: 스펙 키워드 → 장면 점수 → 상위 4개 */
+const BG_RULES=[
+  [/트렌치|코트|블레이저|재킷|자켓|슬랙스|셔츠|로퍼|테일러/, ['오피스 로비','도심 거리','럭셔리 호텔','갤러리']],
+  [/니트|스웨터|카디건|플리스|울/, ['카페','미니멀 인테리어','공원 / 자연','강변 / 스카이라인']],
+  [/데님|청|티셔츠|후드|스니커즈|트레이닝|캡/, ['도심 거리','네온 야경','공원 / 자연','매장 / 쇼핑몰']],
+  [/드레스|원피스|스커트|힐|실크|새틴/, ['럭셔리 호텔','갤러리','강변 / 스카이라인','화이트 스튜디오']],
+  [/레더|가죽|블랙|차콜/, ['네온 야경','갤러리','도심 거리','컬러 스튜디오']],
+  [/린넨|여름|반팔|샌들|화이트|크림|오프화이트/, ['해변','공원 / 자연','카페','화이트 스튜디오']],
+  [/베이지|카멜|브라운|카키|올리브/, ['카페','미니멀 인테리어','공원 / 자연','럭셔리 호텔']],
+  [/스포티|애슬레저|러닝/, ['공원 / 자연','도심 거리','강변 / 스카이라인','매장 / 쇼핑몰']],
+  [/미니멀|클린|베이직/, ['화이트 스튜디오','미니멀 인테리어','갤러리','컬러 스튜디오']],
+  [/스트릿|힙|오버사이즈/, ['도심 거리','네온 야경','매장 / 쇼핑몰','강변 / 스카이라인']]
+];
+const BG_DEFAULT_RECO=['화이트 스튜디오','미니멀 인테리어','도심 거리','카페'];
+function recommendScenes(text){const score={};BG_RULES.forEach(([re,list])=>{if(re.test(text||''))list.forEach((k,i)=>{score[k]=(score[k]||0)+(4-i);});});
+  const ranked=Object.keys(score).sort((a,b)=>score[b]-score[a]);const out=ranked.slice(0,4);BG_DEFAULT_RECO.forEach(k=>{if(out.length<4&&!out.includes(k))out.push(k);});return out;}
+/* ChatGPT용 자유 탐색 프롬프트: 개수·카테고리를 정하지 않고, 룩을 보고 서로 다른 배경 플레이트를 자유롭게 제안·생성하게 한다 */
+function bgFreePrompt(o){o=o||{};
+  const asp={'1:1':'square 1:1 (1024×1024)','2:3 세로':'tall portrait 2:3 (1024×1536)','3:2 가로':'landscape 3:2 (1536×1024)'}[o.aspect]||(o.frame==='full'?'tall portrait 2:3 (1024×1536)':'square 1:1 (1024×1024)');
+  const hint=o.spec?` Outfit notes: ${o.spec}.`:'';const dir=(o.direction||'').trim();const n=o.count?`${o.count} `:'several ';
+  return [S_(`Image 1 is a lookbook photo of a fashion model on a flat light-gray studio backdrop.${hint} You are the creative director for this brand campaign. Read the outfit — colors, fabrics, formality, season, attitude — and imagine where this look would truly come alive. Propose ${n}background locations you find genuinely compelling for it${dir?`, following this direction: "${dir}"`:''}. Surprise me: think beyond the obvious cafe / street / park, mix scales (intimate corner vs vast space), eras, materials and moods.`),
+    S_('Every proposal must be unmistakably different from the others — change the type of place, the time of day and light quality, the color palette, the depth of field, the camera height and lens feel, and the mood. If two ideas feel alike, replace one. Write one line per idea (name + why it suits the outfit) before generating'),
+    S_('Then generate each idea as its own image, one image per call, never a collage or grid. These are EMPTY background plates: no people, mannequins, text, logos or signage; a clear, unobstructed standing area in the center foreground with the floor visible at the bottom of the frame; realistic materials and premium campaign quality; lighting a model lit softly from the front could sit in. Format for all: '+asp)].join('\n\n');}
+/* 랜덤 무드: 풀에서 뽑아 옵션을 채운다 (단일 배경 프롬프트의 자유도 확대) */
+const BG_TWIST=['a wet floor with soft reflections','a single colored gel light spilling from one side','thin haze catching the light','a large mirror on one wall','abundant potted plants','strong window blinds shadow pattern','a vintage patterned floor','rain streaks on the glass behind','warm tungsten practicals against cool daylight','a bold painted accent wall','long late-day shadows across the floor','a curtain of sheer fabric moving in a breeze','a wide empty concrete expanse','brass and dark wood details','pastel gradient light on a plain wall','a curved architectural arch framing the standing area'];
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function randomBrief(){return {scene:pick(Object.keys(BG_EN.scene)),light:pick(Object.keys(BG_EN.light)),depth:pick(Object.keys(BG_EN.depth)),camera:pick(Object.keys(BG_EN.camera)),twist:pick(BG_TWIST)};}
+
+const PromptEngine={STYLE_EN,LOOK_PANELS,BG_EN,OUT_RATIO,BG_TWIST,bgPrompt,scenePrompt,recommendScenes,bgFreePrompt,randomBrief,POSES,POSE_EN,poseText,FACE_DETAIL,FACE_FIX,heightPhrase,stylePrompt,lookPrompts,EN,LOOK,POSE_LOCK,STRENGTH_EN,humanPrompt,animalPrompt,animePrompt,comparePrompt};
 root.PromptEngine=PromptEngine;
 if(typeof module!=='undefined'&&module.exports)module.exports=PromptEngine;
 })(typeof window!=='undefined'?window:globalThis);
