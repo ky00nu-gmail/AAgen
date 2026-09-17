@@ -3,3 +3,4 @@ releases/
 .claude/settings.local.json
 *.png
 !docs/**/*.png
+Avatra-Agency/
