@@ -1,6 +1,6 @@
 # AI 모델 만들기 — GPT 스킬 (프롬프트 규격서)
 
-생성일 2026-09-17 · 원본 엔진 `js/prompt.js` · 이 문서는 `node tools/export-gpt-skill.js`로 자동 생성됨. 손으로 고치지 말고 코드 → 재생성.
+생성일 2026-09-18 · 원본 엔진 `js/prompt.js` · 이 문서는 `node tools/export-gpt-skill.js`로 자동 생성됨. 손으로 고치지 말고 코드 → 재생성.
 
 ## 사용법 (GPT 지침으로 붙여 넣기)
 
@@ -486,8 +486,6 @@ Vertical portrait framing, 3:4 aspect ratio.
 **1단계 · 상체 (모델 이미지 첨부)**
 
 ```text
-Generate exactly ONE image, SQUARE format 1:1 (1024×1024). Framing: a tight head-and-shoulders headshot — the bottom edge cuts at the upper chest just below the shoulders, the face large in frame.
-
 Image 1 is the model. Edit Image 1 into a square 1:1 head-and-shoulders headshot in beauty-lookbook style: a comfortable margin of empty backdrop above the head (about one tenth of the frame height), the bottom edge at the upper chest just below the shoulders, the face taking up roughly 40–45% of the frame height with the eyes a little above the center — the face, hair, neckline and collar of the top and any earrings or necklace clearly visible, the model centered. Keep the model's identity 100% identical to Image 1: the exact same face, facial features, skin tone, hair style and hair color, and apparent age. Pose: standing with hands lightly clasped in front, framed head-and-shoulders; face toward the camera, head upright, eyes into the lens, camera at eye level. Change ONLY the clothing and accessories.
 
 Outfit: She wears a white crisp button-up shirt, beige tailored slacks, leather loafers. Accessories: a slim silver chain necklace. Fabrics and fit rendered realistically with natural folds and drape; garments and accessories clearly visible and brand-catalog clean.
@@ -500,8 +498,6 @@ Photorealistic, premium brand lookbook quality. Square 1:1 format, 1024×1024.
 **2단계 · 니샷 (이어서)**
 
 ```text
-Now generate exactly ONE NEW image, SQUARE format 1:1 (1024×1024), with a completely DIFFERENT and much WIDER framing than the previous image: a three-quarter shot from just above the head down to the mid-thigh (just above the knees) — the whole upper body, hips and thighs visible, the figure clearly smaller in frame with empty space above the head. Do NOT reuse or re-crop your previous output. Start again from the ORIGINAL attached photo (Image 1) and edit that.
-
 Image 1 is the model. Edit Image 1 into a square 1:1 three-quarter lookbook crop from just above the top of the head down to the mid-thigh, just above the knees, the top, outer layer and the upper part of the bottoms all visible, the model centered. Keep the model's identity 100% identical to Image 1: the exact same face, facial features, skin tone, hair style and hair color, and apparent age. Pose: standing with hands lightly clasped in front; face toward the camera, head upright, eyes into the lens, camera at eye level. Change ONLY the clothing and accessories. Body proportions of a person about 170 cm tall (tall), with realistic leg-to-torso proportions for that height — keep the head-to-body ratio realistic and do not exaggerate leg length.
 
 Outfit: She wears a white crisp button-up shirt, beige tailored slacks, leather loafers. Accessories: a slim silver chain necklace. Fabrics and fit rendered realistically with natural folds and drape; garments and accessories clearly visible and brand-catalog clean.
@@ -510,14 +506,12 @@ Background: a seamless, flat, near-white light-gray studio backdrop. Lighting: b
 
 Photorealistic, premium brand lookbook quality. Square 1:1 format, 1024×1024.
 
-The outfit, accessories, hair and styling must be exactly the same as in the previous image — only the framing is different.
+Keep the outfit, accessories, hair and styling exactly as described so this image matches the other shots of the same look.
 ```
 
 **3단계 · 풀샷 (이어서)**
 
 ```text
-Now generate exactly ONE NEW image in TALL PORTRAIT format 2:3 (1024×1536, vertical), with a completely DIFFERENT framing again: a FULL-BODY shot from the top of the head to the shoes with floor visible below the feet — the entire standing figure small in the tall frame, nothing cropped. Do NOT reuse or re-crop your previous outputs. Start again from the ORIGINAL attached photo (Image 1) and edit that.
-
 Image 1 is the model. Edit Image 1 into a full-body shot from the top of the head to the shoes with a little floor visible below the feet, the whole outfit including shoes visible, the full figure filling the frame from top to bottom without cropping the head or feet, the model centered. Keep the model's identity 100% identical to Image 1: the exact same face, facial features, skin tone, hair style and hair color, and apparent age. Pose: standing with hands lightly clasped in front; face toward the camera, head upright, eyes into the lens, camera at eye level. Change ONLY the clothing and accessories. Body proportions of a person about 170 cm tall (tall), with realistic leg-to-torso proportions for that height — keep the head-to-body ratio realistic and do not exaggerate leg length.
 
 Outfit: She wears a white crisp button-up shirt, beige tailored slacks, leather loafers. Accessories: a slim silver chain necklace. Fabrics and fit rendered realistically with natural folds and drape; garments and accessories clearly visible and brand-catalog clean.
@@ -526,7 +520,7 @@ Background: a seamless, flat, near-white light-gray studio backdrop. Lighting: b
 
 Photorealistic, premium brand lookbook quality. Tall portrait format, 1024×1536.
 
-The outfit, accessories, hair and styling must be exactly the same as in the previous images — only the framing is different.
+Keep the outfit, accessories, hair and styling exactly as described so this image matches the other shots of the same look.
 ```
 
 ### C-2. API용 개별 프롬프트 (니샷·풀샷은 상체 결과를 Image 2로 참조)
