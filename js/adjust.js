@@ -4,7 +4,7 @@
    window.FaceAdjust = { detect(img), apply(img, params, maxSide) → canvas, DEFAULTS } */
 (function(root){
 'use strict';
-const DEFAULTS={slim:0,jaw:0,eyeSize:0,eyeGap:0,nose:0,lips:0,smile:0,skin:0,detail:0,bright:0,warm:0};   // 각 -50 ~ +50 (피부 보정·디테일은 0~100)
+const DEFAULTS={slim:0,jaw:0,chin:0,eyeSize:0,eyeGap:0,nose:0,lips:0,smile:0,skin:0,detail:0,bright:0,warm:0,sat:0};   // 각 -50 ~ +50 (피부 보정·디테일은 0~100)
 
 /* ── 랜드마크 ─────────────────────────────────────────── */
 let landmarker=null, loading=null, failed=false;
@@ -64,6 +64,7 @@ function controlsFor(F,p){
   const s=v=>v/50; const fw=F.faceW; const c=[];
   if(p.slim){const k=s(p.slim)*fw*.05;c.push({type:'move',cx:F.cheekL.x,cy:F.cheekL.y,r:fw*.42,dx:k,dy:0},{type:'move',cx:F.cheekR.x,cy:F.cheekR.y,r:fw*.42,dx:-k,dy:0});}
   if(p.jaw){const k=s(p.jaw)*fw*.045;c.push({type:'move',cx:F.jawL.x,cy:F.jawL.y,r:fw*.34,dx:k*.6,dy:-k*.5},{type:'move',cx:F.jawR.x,cy:F.jawR.y,r:fw*.34,dx:-k*.6,dy:-k*.5},{type:'move',cx:F.chin.x,cy:F.chin.y,r:fw*.3,dx:0,dy:-k*.5});}
+  if(p.chin){const k=s(p.chin)*fw*.07;c.push({type:'move',cx:F.chin.x,cy:F.chin.y,r:fw*.40,dx:0,dy:k},{type:'move',cx:F.jawL.x,cy:F.jawL.y,r:fw*.30,dx:0,dy:k*.35},{type:'move',cx:F.jawR.x,cy:F.jawR.y,r:fw*.30,dx:0,dy:k*.35});}
   if(p.eyeSize){const k=s(p.eyeSize)*.22;c.push({type:'scale',cx:F.eyeL.x,cy:F.eyeL.y,r:F.eyeW*1.35,k},{type:'scale',cx:F.eyeR.x,cy:F.eyeR.y,r:F.eyeW*1.35,k});}
   if(p.eyeGap){const k=s(p.eyeGap)*fw*.03;c.push({type:'move',cx:F.eyeL.x,cy:F.eyeL.y,r:F.eyeW*1.5,dx:-k,dy:0},{type:'move',cx:F.eyeR.x,cy:F.eyeR.y,r:F.eyeW*1.5,dx:k,dy:0});}
   if(p.nose){c.push({type:'scale',cx:F.nose.x,cy:F.nose.y-F.noseH*.15,r:F.noseH*1.2,k:s(p.nose)*.2});}
@@ -99,10 +100,13 @@ function skinDetail(cv,amount){
   ctx.putImageData(orig,0,0);return cv;
 }
 /* ── 톤 ───────────────────────────────────────────────── */
-function tone(cv,bright,warm){
-  if(!bright&&!warm)return cv;const ctx=cv.getContext('2d');const id=ctx.getImageData(0,0,cv.width,cv.height),d=id.data;
-  const bB=bright/50*40,wR=warm/50*18,wB=-warm/50*18;
-  for(let i=0;i<d.length;i+=4){d[i]=Math.max(0,Math.min(255,d[i]+bB+wR));d[i+1]=Math.max(0,Math.min(255,d[i+1]+bB));d[i+2]=Math.max(0,Math.min(255,d[i+2]+bB+wB));}
+function tone(cv,bright,warm,sat){
+  sat=sat||0;if(!bright&&!warm&&!sat)return cv;const ctx=cv.getContext('2d');const id=ctx.getImageData(0,0,cv.width,cv.height),d=id.data;
+  const bB=bright/50*40,wR=warm/50*18,wB=-warm/50*18;const sk=1+sat/50*0.6;   // 채도: -50 → ×0.4, +50 → ×1.6 (피부색 영역만)
+  for(let i=0;i<d.length;i+=4){let r=d[i]+bB+wR,g=d[i+1]+bB,b=d[i+2]+bB+wB;
+    if(sat){const cb=128-0.168736*d[i]-0.331264*d[i+1]+0.5*d[i+2],cr=128+0.5*d[i]-0.418688*d[i+1]-0.081312*d[i+2];
+      if(cb>=70&&cb<=132&&cr>=128&&cr<=182){const soft=Math.min(1,Math.max(0,(Math.min(cb-70,132-cb,cr-128,182-cr))/14));const L=0.299*r+0.587*g+0.114*b;const f=1+(sk-1)*soft;r=L+(r-L)*f;g=L+(g-L)*f;b=L+(b-L)*f;}}
+    d[i]=Math.max(0,Math.min(255,r));d[i+1]=Math.max(0,Math.min(255,g));d[i+2]=Math.max(0,Math.min(255,b));}
   ctx.putImageData(id,0,0);return cv;
 }
 
@@ -110,7 +114,7 @@ function tone(cv,bright,warm){
 function baseCanvas(img,maxSide){const w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;const k=maxSide?Math.min(1,maxSide/Math.max(w,h)):1;
   const cv=document.createElement('canvas');cv.width=Math.round(w*k);cv.height=Math.round(h*k);const g=cv.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(img,0,0,cv.width,cv.height);return {cv,k};}
 function clone(cv){const c=document.createElement('canvas');c.width=cv.width;c.height=cv.height;c.getContext('2d').drawImage(cv,0,0);return c;}
-const SHAPE_KEYS=['slim','jaw','eyeSize','eyeGap','nose','lips','smile'];
+const SHAPE_KEYS=['slim','jaw','chin','eyeSize','eyeGap','nose','lips','smile'];
 /* ── 적용: img → canvas (maxSide로 축소 가능) ─────────── */
 function scaleFeatures(F,k){const o={};for(const key in F){const v=F[key];o[key]=(v&&typeof v==='object')?{x:v.x*k,y:v.y*k}:(typeof v==='number'?v*k:v);}return o;}
 async function apply(img,params,maxSide,features){
@@ -119,7 +123,7 @@ async function apply(img,params,maxSide,features){
   const cv=document.createElement('canvas');cv.width=Math.round(w*k);cv.height=Math.round(h*k);const g=cv.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(img,0,0,cv.width,cv.height);
   const F=scaleFeatures(features||await detect(img),k);
   let out=warp(cv,controlsFor(F,p));
-  out=skinSmooth(out,p.skin);out=skinDetail(out,p.detail);out=tone(out,p.bright,p.warm);
+  out=skinSmooth(out,p.skin);out=skinDetail(out,p.detail);out=tone(out,p.bright,p.warm,p.sat);
   return out;
 }
 /* 얼굴 박스(픽셀): 랜드마크 기반, 실패 시 근사 */
