@@ -10,13 +10,14 @@
 - `index.html` — 화면·상태·라우팅(#create / #models / #model/<id> / #style/<id> / #bg). 인라인 CSS/JS 단일 파일.
 - `js/prompt.js` — 프롬프트 엔진(DOM 의존 없음, `window.PromptEngine` / CommonJS). 모든 프롬프트 문구는 여기서만 바꾼다.
 - `js/cloud.js` — Supabase 팀 동기화(`Cloud.sync`). 스키마는 `supabase/schema.sql`. 공유 항목 = 이미지 있는 후보/모델·룩·배경 컷·배경. 새 공유 항목 종류를 추가하면 `localItems`/`removeLocal`/스키마 kind check를 함께 고친다.
+- `js/lookadjust.js` — 룩 조정(몸 비율·색·무드). 라이트박스 '조정'은 후보/모델이면 얼굴 조정, 룩이면 룩 조정으로 라우팅(`LA`).
 - `js/adjust.js` — 얼굴 조정(MediaPipe + 로컬 워프/피부/톤). `js/engine.js` — OpenAI Images API 어댑터.
 - `tools/export-gpt-skill.js` → `docs/gpt-skill/`(AI_model.md, INSTRUCTIONS.md, A~F). `tools/sample-prompts.js` → `docs/prompt-samples.md`.
 - 기능 목록과 확정값은 `README.md`가 기준.
 
 ## 반드시 지킬 것
 - **디자인 기준은 blurblur 캡처와의 시각적 일치**: 모노톤, 검은 선택 상태, 4px 라운드, 넓은 단일 컬럼, Pretendard. 새 화면도 같은 룩으로.
-- **js 파일을 고치면 `index.html`의 `<script src="js/*.js?v=NNN">` 버전 4개(prompt·adjust·engine·cloud)를 함께 올린다**(브라우저 캐시). 안 올리면 구버전이 로드된다.
+- **js 파일을 고치면 `index.html`의 `<script src="js/*.js?v=NNN">` 버전 5개(prompt·adjust·engine·cloud·lookadjust)를 함께 올린다**(브라우저 캐시). 안 올리면 구버전이 로드된다.
 - `js/prompt.js`를 고치면 `node tools/export-gpt-skill.js`로 스킬 문서를 재생성해 함께 커밋한다. 문서를 손으로 고치지 않는다.
 - 상태는 IndexedDB(`aimodel.store`, 키 `aimodel.create.v1`, 폴백 localStorage)에 저장된다. `persist()`/`restore()`(async)만 통해 읽고 쓴다. `S`에 새 필드를 추가하면 `PERSIST` 목록과 `restore()`의 기본값·busy 초기화도 함께 손본다.
 - 내부용이므로 비용·잔액·약관·본인 확인·IP 안내·Pricing UI를 다시 넣지 않는다.

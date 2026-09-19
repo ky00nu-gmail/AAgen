@@ -317,6 +317,8 @@ footer .links span.dim{color:#aaa}
 .adj .sl .l{display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:2px}
 .adj .sl .l span{color:var(--muted)}
 .adj .sl input{width:100%;accent-color:#000;height:4px;margin:2px 0}
+.adj .moodchips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}
+.adj .moodchips .chip{padding:7px 11px;font-size:12.5px}
 .adj .reset{align-self:flex-start;font-size:13.5px;color:var(--muted);text-decoration:underline;margin:8px 0 12px}
 .adj .ft{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto;position:sticky;bottom:0;background:#fff;padding-top:10px}
 .adj .ft button{padding:11px;border-radius:6px;font-size:14.5px;font-weight:600;border:1px solid var(--line2)}
@@ -823,7 +825,7 @@ footer .links span.dim{color:#aaa}
 </div>
 <div class="adj" id="adj" hidden>
   <div class="card">
-    <div class="hd"><div><h3>얼굴 조정</h3><p>형태만 다듬어요 — 인물은 그대로 유지됩니다.</p></div><button class="x" id="adjX">✕</button></div>
+    <div class="hd"><div><h3 id="adjTitle">얼굴 조정</h3><p id="adjDesc">형태만 다듬어요 — 인물은 그대로 유지됩니다.</p></div><button class="x" id="adjX">✕</button></div>
     <div class="body">
       <div class="pv" id="adjPv"><canvas id="adjCv"></canvas><span class="st" id="adjSt"></span></div>
       <div class="side" id="adjSide"></div>
@@ -858,11 +860,12 @@ footer .links span.dim{color:#aaa}
 </div>
 <div id="toast"></div>
 
-<script src="js/prompt.js?v=291141"></script>
-<script src="js/adjust.js?v=291141"></script>
-<script src="js/engine.js?v=291141"></script>
+<script src="js/prompt.js?v=291142"></script>
+<script src="js/adjust.js?v=291142"></script>
+<script src="js/engine.js?v=291142"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="js/cloud.js?v=291141"></script>
+<script src="js/cloud.js?v=291142"></script>
+<script src="js/lookadjust.js?v=291142"></script>
 <script>
 /* ── 데이터 ─────────────────────────────────────────── */
 const STRENGTH=[['keep','그대로','동일 인물 유지','증명사진 톤. 얼굴은 손대지 않고, 아래에서 고른 헤어·메이크업·피부톤 같은 선택 항목만 적용합니다.'],['light','약하게','자연 보정','상업용 헤드샷으로 재촬영. 밝은 하이키 조명과 촉촉한 광채 피부, 클린 메이크업. 얼굴은 가볍게만 다듬어 누가 봐도 본인. 자세는 원본 그대로.'],['glow','글로우','모델급','프리미엄 뷰티 캠페인 컷으로 재해석. 하이키 조명, 윤기 나는 도자기 글래스 스킨(모공·결은 살림), 클린 K-뷰티 메이크업, 에어리 헤어. 얼굴은 과감히 이상화. 자세는 원본 그대로.']];
@@ -1305,7 +1308,7 @@ async function panelToImage(cmp,n,count){const cropped=count==='sheet2'?await cr
 /* ── 라이트박스 ───────────────────────────────────────── */
 const LB={id:null};
 const lbList=()=>S.cands.filter(c=>c.img&&!c.compare&&!c.busy);
-function openLightbox(id){LB.id=id;$('#lbAdjust').hidden=false;$('#lbDel').hidden=false;$('#lbDel').onclick=lbDelDefault;renderLightbox();$('#lb').hidden=false;}
+function openLightbox(id){LB.id=id;LA.lk=null;$('#lbAdjust').hidden=false;$('#lbAdjust').onclick=()=>{const c=S.cands.find(x=>x.id===LB.id);if(c)openAdjust(c);};$('#lbDel').hidden=false;$('#lbDel').onclick=lbDelDefault;renderLightbox();$('#lb').hidden=false;}
 function renderLightbox(){const list=lbList();const i=list.findIndex(c=>c.id===LB.id);if(i<0){$('#lb').hidden=true;return;}const c=list[i];
   $('#lbImg').src=c.img;$('#lbCnt').innerHTML=`${c.debuted?c.name+' · 데뷔':'후보'}<span>${i+1} / ${list.length}</span>`;
   $('#lbPrev').hidden=list.length<2;$('#lbNext').hidden=list.length<2;$('#lbUndebut').hidden=!c.debuted;}
@@ -1337,6 +1340,7 @@ const ADJ_SLIDERS=[
 ];
 const ADJ={c:null,img:null,features:null,params:null,timer:null,busy:false};
 async function openAdjust(c){
+  ADJ.mode='face';$('#adjTitle').textContent='얼굴 조정';$('#adjDesc').textContent='형태만 다듬어요 — 인물은 그대로 유지됩니다.';
   ADJ.c=c;ADJ.cache=null;ADJ.params=Object.assign({},FaceAdjust.DEFAULTS,c.adjust||{});
   const src=c.imgOrig||c.img;ADJ.img=await new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.src=src;});
   $('#adj').hidden=false;$('#lb').hidden=true;buildAdjSide();
@@ -1345,7 +1349,7 @@ async function openAdjust(c){
   $('#adjSt').textContent={landmarks:'얼굴 랜드마크 478점 인식 · 미리보기',noface:'이미지에서 얼굴을 찾지 못해 정면 헤드샷 기준 근사 위치로 조정 · 미리보기'}[ADJ.features.source]||'랜드마크 모듈을 불러오지 못해(오프라인?) 근사 위치로 조정 · 미리보기';
   schedulePreview();
 }
-function closeAdjust(){$('#adj').hidden=true;if(LB.id)$('#lb').hidden=false;}
+function closeAdjust(){$('#adj').hidden=true;if(LB.id||LA.lk)$('#lb').hidden=false;}
 $('#adjX').onclick=closeAdjust;
 $('#adj').addEventListener('click',e=>{if(e.target===e.currentTarget)closeAdjust();});
 function buildAdjSide(){const side=$('#adjSide');side.innerHTML='';
@@ -1356,7 +1360,7 @@ function buildAdjSide(){const side=$('#adjSide');side.innerHTML='';
   const reset=el('button','reset','초기화');reset.onclick=()=>{ADJ.params=Object.assign({},FaceAdjust.DEFAULTS);buildAdjSide();schedulePreview();};side.append(reset);
   const ft=el('div','ft');const cancel=el('button',null,'취소');cancel.onclick=closeAdjust;const ok=el('button','ok','적용');ok.id='adjOk';ok.onclick=applyAdjust;ft.append(cancel,ok);side.append(ft);}
 const PREVIEW_SIDE=640;
-function schedulePreview(){ADJ.dirty=true;if(ADJ.rendering)return;requestAnimationFrame(renderPreview);}
+function schedulePreview(){if(ADJ.mode==='look'){laQueue();return;}ADJ.dirty=true;if(ADJ.rendering)return;requestAnimationFrame(renderPreview);}
 function keyOf(keys){return keys.map(k=>ADJ.params[k]).join(',');}
 function renderPreview(){
   if(!ADJ.img||!ADJ.features){ADJ.dirty=false;return;}
@@ -1372,6 +1376,31 @@ function renderPreview(){
     const cv=$('#adjCv');if(cv.width!==out.width||cv.height!==out.height){cv.width=out.width;cv.height=out.height;}cv.getContext('2d').drawImage(out,0,0);
   }finally{ADJ.rendering=false;if(ADJ.dirty)requestAnimationFrame(renderPreview);}
 }
+/* ── 룩 조정: 몸 비율 + 색·톤 (모달은 얼굴 조정과 공유) ── */
+const LA={m:null,lk:null,after:null,img:null,info:null,params:null,cache:null,raf:0,busy:false};
+async function openLookAdjust(m,lk,after){LA.m=m;LA.lk=lk;LA.after=after;ADJ.mode='look';ADJ.c=null;LA.cache=null;LA.params=Object.assign({},LookAdjust.DEFAULTS,lk.adj||{});
+  $('#adjTitle').textContent='룩 조정';$('#adjDesc').textContent=`${lk.frameKo||'룩'} · 다리 길이·몸통·어깨와 색·톤을 다듬어요. 원본은 보존되고 언제든 되돌릴 수 있어요.`;
+  LA.img=await loadImg(lk.imgOrig||lk.img);$('#adj').hidden=false;$('#lb').hidden=true;buildLookSide();
+  const cv=$('#adjCv');cv.width=LA.img.naturalWidth;cv.height=LA.img.naturalHeight;cv.getContext('2d').drawImage(LA.img,0,0);$('#adjSt').textContent='인물 영역 분석 중…';
+  LA.info=LookAdjust.analyze(LA.img,lookFrame(lk));$('#adjSt').textContent=`${lk.frameKo||''} · 인물 ${Math.round(LA.info.bbox.w)}×${Math.round(LA.info.bbox.h)}px · 미리보기`;laQueue();}
+function buildLookSide(){const side=$('#adjSide');side.innerHTML='';const P=LA.params;
+  LookAdjust.SLIDERS.forEach(([k,label,min,max])=>{if(k==='grp'){side.append(el('div','grp',label));return;}
+    const w=el('div','sl');const l=el('div','l',`<span style="color:var(--ink)">${label}</span><span data-v="${k}">${P[k]}</span>`);const r=el('input');r.type='range';r.min=min;r.max=max;r.step=1;r.value=P[k];
+    r.oninput=()=>{P[k]=+r.value;l.querySelector('[data-v]').textContent=r.value;laQueue();};w.append(l,r);side.append(w);});
+  side.append(el('div','grp','무드 프리셋'));const chips=el('div','moodchips');Object.entries(LookAdjust.MOODS).forEach(([k,v])=>{const b=el('button','chip'+(P.mood===k?' on':''),v.ko);b.onclick=()=>{P.mood=k;buildLookSide();laQueue();};chips.append(b);});side.append(chips);
+  const reset=el('button','reset','초기화');reset.onclick=()=>{LA.params=Object.assign({},LookAdjust.DEFAULTS);buildLookSide();laQueue();};side.append(reset);
+  const ft=el('div','ft');const cancel=el('button',null,'취소');cancel.onclick=closeAdjust;const ok=el('button','ok','적용');ok.id='adjOk';ok.onclick=applyLookAdjust;ft.append(cancel,ok);side.append(ft);}
+function laQueue(){cancelAnimationFrame(LA.raf);LA.raf=requestAnimationFrame(renderLookPreview);}
+function renderLookPreview(){if(!LA.img||!LA.info)return;const C=LA.cache||(LA.cache={});const P=LA.params;
+  if(!C.base){const b=LookAdjust.base(LA.img,PREVIEW_SIDE);C.base=b.cv;C.k=b.k;}
+  const kG=LookAdjust.GEO_KEYS.map(k=>P[k]).join(',');if(C.kG!==kG){const g=LookAdjust.geometry(C.base,P,LA.info,C.k);C.geo=g===C.base?C.base:g;C.kG=kG;}
+  const out=LookAdjust.grade(LookAdjust.clone(C.geo),P);const cv=$('#adjCv');if(cv.width!==out.width||cv.height!==out.height){cv.width=out.width;cv.height=out.height;}cv.getContext('2d').drawImage(out,0,0);}
+async function applyLookAdjust(){const lk=LA.lk;if(!lk||LA.busy)return;LA.busy=true;const ok=$('#adjOk');ok.disabled=true;ok.textContent='적용 중…';const work=el('div','work','원본 해상도로 적용 중…');$('#adjPv').append(work);
+  try{const D=LookAdjust.DEFAULTS;const changed=Object.keys(D).some(k=>LA.params[k]!==D[k]);if(!lk.imgOrig)lk.imgOrig=lk.img;
+    if(changed){const out=await LookAdjust.apply(LA.img,LA.params,LA.info,0);lk.img=out.toDataURL('image/jpeg',.93);lk.adj=Object.assign({},LA.params);}else{lk.img=lk.imgOrig;lk.adj=null;}
+    persist();(LA.after||renderStyle)();toast(changed?'룩 조정을 적용했어요':'룩 조정을 초기화했어요');$('#adj').hidden=true;openLookLightbox(LA.m,lk,LA.after);}
+  catch(e){toast('룩 조정 적용에 실패했어요');console.error(e);}
+  finally{work.remove();LA.busy=false;ok.disabled=false;ok.textContent='적용';}}
 async function applyAdjust(){const c=ADJ.c;if(!c||ADJ.busy)return;ADJ.busy=true;const ok=$('#adjOk');ok.disabled=true;ok.textContent='적용 중…';
   const work=el('div','work','원본 해상도로 적용 중…');$('#adjPv').append(work);
   try{const changed=Object.keys(ADJ.params).some(k=>ADJ.params[k]!==FaceAdjust.DEFAULTS[k]);
@@ -1489,8 +1518,8 @@ $('#lookPick').onclick=()=>$('#lookFile').click();
 $('#lookFile').onchange=e=>{const m=styleModel();if(m&&e.target.files.length)addLookFiles(m,e.target.files);e.target.value='';};
 {const dz=$('#lookDrop');['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over');}));['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('over');}));
   dz.addEventListener('drop',e=>{const m=styleModel();if(m&&e.dataTransfer.files.length)addLookFiles(m,e.dataTransfer.files);});}
-function openAnyLightbox({img,cap,onDelete}){$('#lbImg').src=img;$('#lbCnt').innerHTML=cap||'';$('#lbPrev').hidden=true;$('#lbNext').hidden=true;$('#lbUndebut').hidden=true;$('#lbAdjust').hidden=true;$('#lbDel').hidden=!onDelete;$('#lbDel').onclick=()=>{if(onDelete&&confirm('삭제할까요?')){onDelete();$('#lb').hidden=true;}};LB.id=null;$('#lb').hidden=false;}
-function openLookLightbox(m,lk,after){$('#lbDel').hidden=false;$('#lbImg').src=lk.img;$('#lbCnt').innerHTML=`${m.name} · 룩 <span>· ${lk.spec||''}</span>`;$('#lbPrev').hidden=true;$('#lbNext').hidden=true;$('#lbUndebut').hidden=true;$('#lbAdjust').hidden=true;$('#lbDel').onclick=()=>{if(confirm('이 룩을 삭제할까요?')){m.looks=m.looks.filter(x=>x!==lk);$('#lb').hidden=true;persist();(after||renderStyle)();}};LB.id=null;$('#lb').hidden=false;}
+function openAnyLightbox({img,cap,onDelete}){LA.lk=null;$('#lbImg').src=img;$('#lbCnt').innerHTML=cap||'';$('#lbPrev').hidden=true;$('#lbNext').hidden=true;$('#lbUndebut').hidden=true;$('#lbAdjust').hidden=true;$('#lbDel').hidden=!onDelete;$('#lbDel').onclick=()=>{if(onDelete&&confirm('삭제할까요?')){onDelete();$('#lb').hidden=true;}};LB.id=null;$('#lb').hidden=false;}
+function openLookLightbox(m,lk,after){$('#lbDel').hidden=false;$('#lbAdjust').hidden=false;$('#lbAdjust').onclick=()=>openLookAdjust(m,lk,after);LA.lk=lk;LA.m=m;LA.after=after;$('#lbImg').src=lk.img;$('#lbCnt').innerHTML=`${m.name} · 룩 <span>· ${lk.spec||''}</span>`;$('#lbPrev').hidden=true;$('#lbNext').hidden=true;$('#lbUndebut').hidden=true;$('#lbDel').onclick=()=>{if(confirm('이 룩을 삭제할까요?')){m.looks=m.looks.filter(x=>x!==lk);$('#lb').hidden=true;persist();(after||renderStyle)();}};LB.id=null;$('#lb').hidden=false;}
 
 function renderGarments(m,P){const host=$('#garmentList');host.innerHTML='';
   P.refs.forEach((src,i)=>{const sl=el('div','slot',`<img src="${src}" alt=""><span class="n">${i+2}</span>`);const x=el('button','x','✕');x.onclick=e=>{e.stopPropagation();P.refs.splice(i,1);renderStyle();};sl.append(x);sl.title=`입력 이미지 ${i+2}번`;host.append(sl);});

@@ -16,6 +16,7 @@ python3 -m http.server 8765
 |---|---|
 | `index.html` | 화면·상태·라우팅(#create / #models / #model/<id> / #style/<id>). 인라인 CSS/JS |
 | `js/prompt.js` | GPT Image 프롬프트 엔진(순수 함수). 3단계·비교·랜덤(인간/동물/애니)·룩(상체/니샷/풀샷, 포즈) 프롬프트 |
+| `js/lookadjust.js` | 룩 조정(다리 길이·몸통·어깨, 밝기·대비·채도·따뜻함·무드 프리셋) |
 | `js/adjust.js` | 얼굴 조정(브라우저 처리): MediaPipe 랜드마크 + 국소 워프, 피부 보정/디테일, 밝기/따뜻함 |
 | `js/engine.js` | OpenAI Images API 어댑터(edits / generations). 키는 localStorage |
 | `tools/sample-prompts.js` | 검증용 프롬프트 매트릭스 생성 → `docs/prompt-samples.md` |
@@ -69,6 +70,10 @@ python3 -m http.server 8765
 - 프롬프트 엔진이 결정적(같은 옵션 → 같은 문장)이므로, 앱 없이 ChatGPT에서 **사진 + 한국어 옵션**만으로 같은 프롬프트가 나오도록 규격서를 자동 생성한다: `node tools/export-gpt-skill.js`
 - `INSTRUCTIONS.md`(커스텀 GPT 지침, 짧음) + 지식 파일 `A-face-3stage`(3단계 비교·단일 단계·얼굴 옵션 사전·신장 문구) / `B-random-model` / `C-look`(ChatGPT 3단계·API 개별·의상 지정·룩 옵션·포즈 사전) / `D-background`(단일·자유 탐색·장면/조명/심도/카메라 사전) / `E-composite`(합성·출력 비율 사전) / `F-fixed-paragraphs`(POSE_LOCK·FACE_DETAIL·FACE_FIX·LOOK). `AI_model.md`는 전부 합친 판
 - 코드(`js/prompt.js`)를 바꾸면 반드시 재생성. 문서를 손으로 고치지 않는다
+
+### 룩 조정 (2026-09-19, `js/lookadjust.js`)
+- 룩 썸네일 → 라이트박스 "조정" → 얼굴 조정과 같은 모달(제목 "룩 조정"). **몸 비율**: 다리 길이(힙~발 구간을 ±30% 세로 리샘플, 바닥은 따라 밀림), 몸통 두께(어깨~힙 행 ±30% 가로), 어깨 너비(어깨 밴드 ±26%) — 경계는 smoothstep으로 부드럽게. **색·톤**: 밝기·대비·채도·따뜻함 + 무드 프리셋 7종(없음·따뜻한 필름·쿨 클린·소프트 페이드·비비드·모노톤·에디토리얼 매트 = 대비/채도/따뜻함/페이드/틴트 조합).
+- 인물 영역은 테두리 배경색과 다른 픽셀의 bbox로 잡고, 프레임별 비율(풀샷 어깨 20%·힙 50%, 니샷 24%·62%, 상체는 세로 변형 없음)로 어깨·힙 행을 추정. 적용 시 `lk.imgOrig` 보존, `lk.adj`에 값 저장, 초기화로 되돌림. 미리보기는 기하(캐시) → 색 두 단계.
 
 ### 얼굴 조정 추가 항목 (2026-09-19)
 - 형태에 **턱 길이**(chin, −50~+50: 턱 끝을 위·아래로, 턱선이 35% 따라감), 톤에 **얼굴색 채도**(sat, −50~+50 → ×0.4~×1.6, YCbCr 피부색 마스크로 얼굴·피부 영역만 적용). `FaceAdjust.DEFAULTS`/`SHAPE_KEYS`/`tone(cv,bright,warm,sat)`.
