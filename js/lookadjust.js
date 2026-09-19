@@ -1,8 +1,8 @@
 /* 룩(전신·니샷·상체) 조정: 몸 비율(다리 길이·몸통 두께·어깨 너비)과 색(밝기·대비·채도·따뜻함·무드 프리셋).
    라이트그레이 배경의 룩북 컷을 전제로 인물 영역을 잡고, 행 단위 리샘플로 변형한다. DOM 의존 없음(canvas만). */
 (function(root){
-const DEFAULTS={leg:0,body:0,lower:0,shoulder:0,bright:0,contrast:0,sat:0,warm:0,mood:'none'};
-const SLIDERS=[['grp','몸 비율'],['leg','다리 길이',-50,50],['body','몸통 두께',-50,50],['lower','하체 두께',-50,50],['shoulder','어깨 너비',-50,50],['grp','색·톤'],['bright','밝기',-50,50],['contrast','대비',-50,50],['sat','채도',-50,50],['warm','따뜻함',-50,50]];
+const DEFAULTS={torso:0,leg:0,body:0,lower:0,shoulder:0,bright:0,contrast:0,sat:0,warm:0,mood:'none'};
+const SLIDERS=[['grp','몸 비율'],['torso','상체 길이',-50,50],['leg','다리 길이',-50,50],['body','몸통 두께',-50,50],['lower','하체 두께',-50,50],['shoulder','어깨 너비',-50,50],['grp','색·톤'],['bright','밝기',-50,50],['contrast','대비',-50,50],['sat','채도',-50,50],['warm','따뜻함',-50,50]];
 /* 무드 프리셋: 대비·채도·따뜻함·페이드(블랙 리프트)·틴트 */
 const MOODS={
   none:{ko:'없음',c:0,s:0,w:0,fade:0,tint:[0,0,0]},
@@ -28,14 +28,15 @@ function analyze(img,frame){const k=Math.min(1,700/Math.max(img.naturalWidth,img
 const sstep=(a,b,t)=>{t=Math.min(1,Math.max(0,(t-a)/(b-a)));return t*t*(3-2*t);};
 /* 기하 변형: 출력 픽셀 (x,y) → 소스 (sx,sy). 세로: 힙~발 구간을 L배로 늘리고 그 아래(바닥)는 아래로 밀림. 가로: 어깨/몸통 행을 중심 기준으로 폭 조절 */
 function geometry(src,p,info,k){const W=src.width,H=src.height;const cx=(info.bbox.x+info.bbox.w/2)*k;
-  const L=1+p.leg/100*0.30, B=1+p.body/100*0.30, Sh=1+p.shoulder/100*0.26, Lo=1+p.lower/100*0.30;
-  if(p.leg===0&&p.body===0&&p.shoulder===0&&p.lower===0)return src;
+  const L=1+p.leg/100*0.30, T=1+p.torso/100*0.25, B=1+p.body/100*0.30, Sh=1+p.shoulder/100*0.26, Lo=1+p.lower/100*0.30;
+  if(p.leg===0&&p.torso===0&&p.body===0&&p.shoulder===0&&p.lower===0)return src;
   const hip=info.hipY*k,foot=info.footY*k,sh=info.shoulderY*k,top=info.bbox.y*k;const band=Math.max(8,(foot-top)*0.06);
   const out=document.createElement('canvas');out.width=W;out.height=H;const og=out.getContext('2d');
   const sd=src.getContext('2d').getImageData(0,0,W,H).data;const od=og.createImageData(W,H);const dd=od.data;
-  const legLen=(foot-hip);const newFoot=hip+legLen*L;
+  // 세로 매핑: 어깨~힙(상체) T배 → 힙~발(다리) L배 → 그 아래 바닥은 밀림
+  const torsoLen=(hip-sh),legLen=(foot-hip);const newHip=sh+torsoLen*T;const newFoot=newHip+legLen*L;
   for(let y=0;y<H;y++){
-    let sy;if(info.frame==='bust'||L===1||y<hip)sy=y;else if(y<newFoot)sy=hip+(y-hip)/L;else sy=y-(newFoot-foot);
+    let sy;if(info.frame==='bust'||(L===1&&T===1)||y<sh)sy=y;else if(y<newHip)sy=sh+(y-sh)/T;else if(y<newFoot)sy=hip+(y-newHip)/L;else sy=y-(newFoot-foot);
     // 가로 배율: 어깨 밴드(sh 주변)와 몸통(sh~hip) 각각, 경계는 부드럽게
     let s=1;if(info.frame!=='bust'||true){const tSh=sstep(sh-band*1.5,sh+band*0.5,sy)*(1-sstep(hip-band,hip+band,sy));const tBody=sstep(sh+band*0.5,sh+band*2,sy)*(1-sstep(hip-band,hip+band*1.5,sy));
       // 어깨는 상단, 몸통은 그 아래; 두 배율을 부드럽게 섞음
@@ -58,6 +59,6 @@ function grade(cv,p){const m=MOODS[p.mood]||MOODS.none;const c=(p.contrast+m.c)/
 function base(img,maxSide){const w=img.naturalWidth,h=img.naturalHeight;const k=maxSide?Math.min(1,maxSide/Math.max(w,h)):1;const cv=document.createElement('canvas');cv.width=Math.round(w*k);cv.height=Math.round(h*k);const g=cv.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(img,0,0,cv.width,cv.height);return {cv,k};}
 function clone(cv){const c=document.createElement('canvas');c.width=cv.width;c.height=cv.height;c.getContext('2d').drawImage(cv,0,0);return c;}
 async function apply(img,params,info,maxSide){const p=Object.assign({},DEFAULTS,params||{});const {cv,k}=base(img,maxSide);let out=geometry(cv,p,info,k);if(out===cv)out=clone(cv);return grade(out,p);}
-const GEO_KEYS=['leg','body','lower','shoulder'];
+const GEO_KEYS=['torso','leg','body','lower','shoulder'];
 root.LookAdjust={DEFAULTS,SLIDERS,MOODS,GEO_KEYS,analyze,geometry,grade,base,clone,apply};
 })(typeof window!=='undefined'?window:globalThis);
